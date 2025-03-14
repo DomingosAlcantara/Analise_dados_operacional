@@ -1,0 +1,8 @@
+*.xlsx
+*.csv
+
+\Acomp_Mensagens
+\dist
+\build
+\Monitoramento
+.vscode
