@@ -1,8 +1,8 @@
 *.xlsx
 *.csv
 
-\Acomp_Mensagens
+Acomp_Mensagens/
+Monitoramento/
 \dist
 \build
-\Monitoramento
 .vscode
