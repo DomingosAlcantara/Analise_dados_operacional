@@ -3,6 +3,7 @@
 
 Acomp_Mensagens/
 Monitoramento/
+tests/
 \dist
 \build
 .vscode
