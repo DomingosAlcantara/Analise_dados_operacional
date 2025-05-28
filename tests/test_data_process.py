@@ -57,7 +57,7 @@ class Test_Data_Process():
         data_informada = "21092023"
 
         data_processing = DataProcessing(None)
-        resultado = data_processing.recuperar_soma_quantidade_induzida(
+        resultado = data_processing.get_soma_carga_induzida_por_centro(
             data_informada)
 
         assert isinstance(
