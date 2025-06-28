@@ -29,9 +29,10 @@ class App:
         resumo = st.Page("pages/resumo.py", title="Resumo")
         atolamentos = st.Page("pages/atolamentos.py",
                               title="Atolamentos e Falhas Técnicas")
-        monitoramento = st.Page("pages/monitoramento.py", title="Monitoramento")
-        analise_operacional = st.Page(
-            "pages/analise_operacional.py", title="Análise Operacional")
+        monitoramento = st.Page("pages/monitoramento.py",
+                                title="Monitoramento")
+        analise_operacional = st.Page("pages/analise_operacional.py",
+                                      title="Análise Operacional")
         comparativo = st.Page("pages/comparativo.py", title="Comparativo")
 
         pg = st.navigation([resumo, atolamentos, monitoramento,

@@ -1,5 +1,6 @@
 """
-    Classe para processar as falhas técnicas dos sistemas de triagem de cartas do CTCE.
+    Classe para processar as falhas técnicas dos sistemas de triagem de
+    cartas do CTCE.
 """
 
 import pandas as pd
@@ -56,7 +57,7 @@ class FalhasTecnicas(Uteis):
 
     def processar_dados(self):
         """
-        Processa os arquivos de falhas técnicas e retorna um DataFrame 
+        Processa os arquivos de falhas técnicas e retorna um DataFrame
         consolidado.
         """
         import os
@@ -81,8 +82,10 @@ class FalhasTecnicas(Uteis):
                     df_final["Data/hora inicial da Falha"] = pd.to_datetime(
                         df_final["Data/hora inicial da Falha"],
                         format="%d/%m/%Y %H:%M:%S",)
-                    df_final["Data da Falha"] = df_final["Data/hora inicial da Falha"].dt.date
-                    df_final["Hora da Falha"] = df_final["Data/hora inicial da Falha"].dt.time
+                    df_final["Data da Falha"] = \
+                        df_final["Data/hora inicial da Falha"].dt.date
+                    df_final["Hora da Falha"] = \
+                        df_final["Data/hora inicial da Falha"].dt.time
                     self._set_dados(df_final)
                 else:
                     raise ValueError("Nenhum arquivo válido encontrado.")
@@ -111,7 +114,7 @@ class FalhasTecnicas(Uteis):
 
     # Retornar nesta função para corrigir o campo de pesquisa
 
-    def get_soma_falhas_tecnicas(self, centro="CTCE Salvador") -> int:
+    def get_soma_falhas_tecnicas(self, centro="CTCE Salvador"):
         """
         Recupera a soma de falhas técnicas para um centro específico.
         """
@@ -133,17 +136,3 @@ class FalhasTecnicas(Uteis):
             return df_["Descrição da Falha"].count()  # if not df_.empty else 0
 
         return get_falhas_por_data
-
-
-if __name__ == "__main__":
-    # Exemplo de uso
-    # Obter os dados
-    file_path_falhas_tecnicas = "/home/domingos/Documentos/Dados/Técnica/"
-
-    falhas_tecnicas = FalhasTecnicas(file_path_falhas_tecnicas)
-    falhas_tecnicas.processar_dados()
-    # falhas_tecnicas_df = falhas_tecnicas.recuperar_dados_pelo_centro(
-    # "CTCE Salvador")
-    # print(f"Teste: {falhas_tecnicas_df.head(5)}")
-    print(
-        f"Total de falhas técnicas: {falhas_tecnicas.get_soma_geral_de_falhas()}")

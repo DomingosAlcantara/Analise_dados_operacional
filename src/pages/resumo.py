@@ -19,7 +19,8 @@ class Resumo:
         """
             Inicializa a classe Resumo com os dados fornecidos.
         """
-        self.path_carga_tratada = "/home/domingos/Documentos/Dados/Carga Tratada/"
+        self.path_carga_tratada = \
+            "/home/domingos/Documentos/Dados/Carga Tratada/"
         self.path_falhas_tecnicas = "/home/domingos/Documentos/Dados//Técnica/"
         self.carga_tratada = DataProcessing(self.path_carga_tratada)
         self.falhas_tecnicas = FalhasTecnicas(self.path_falhas_tecnicas)
@@ -29,10 +30,7 @@ class Resumo:
         self.tipo_maquina = st.session_state.get("tipo_maquina", "Mensagens")
         self._periodos = self.sidebar.get_periodo_mapeado()
         self.soma_local_falhas = None
-        self.falhas_periodo = 0
-
-        # self._data_pesquisa = "15/08/2023"
-
+        self._falhas_periodo = 0
         self._data = None
         self._set_dados()
 
@@ -40,12 +38,13 @@ class Resumo:
         """
             Define os dados a serem apresentados.
         """
-        soma_carga_tratada = self.carga_tratada.get_soma_geral_de_carga_induzida(
-            self._periodos)
+        soma_carga_tratada = self.carga_tratada. \
+            get_soma_geral_de_carga_induzida(self._periodos)
         soma_falhas_tecnicas = self.falhas_tecnicas.get_soma_geral_de_falhas(
             self._periodos)
-        self.soma_local_falhas = self.falhas_tecnicas.get_soma_falhas_tecnicas()
-        self.falhas_periodo = self.soma_local_falhas(self._periodos)
+        self.soma_local_falhas = self.falhas_tecnicas. \
+            get_soma_falhas_tecnicas()
+        self._falhas_periodo = self.soma_local_falhas(self._periodos)
 
         self._data = soma_carga_tratada / \
             soma_falhas_tecnicas if soma_falhas_tecnicas != 0 else 0
@@ -54,9 +53,9 @@ class Resumo:
         """
             Calcula a média local por falhas técnicas.
         """
-        if self.falhas_periodo > 0:
+        if self._falhas_periodo > 0:
             return self.carga_tratada.get_soma_carga_induzida_por_centro(
-                self._periodos) / self.falhas_periodo
+                self._periodos) / self._falhas_periodo
         else:
             return 0
 
@@ -66,20 +65,27 @@ class Resumo:
         """
         return self._data
 
+    def _formatar_valores(self, valor):
+        """
+            Formata os valores para exibição.
+        """
+        return f"{valor:,.0f}".replace(",", "X"). \
+            replace(".", ",").replace("X", ".")
+
     def definir_area_resumo(self):
         """
             Define a área de resumo para apresentação dos dados.
         """
-        producao, eficiencia, disponibilidade, \
-            media_local_por_falhas_tecnicas = st.columns(4)
+        cartoes = ["producao", "eficiencia", "disponibilidade",
+                   "media_local_por_falhas_tecnicas"]
+        cartoes = st.columns(4)
 
-        with producao:
+        with cartoes[0]:
             card(
-                title=f"{self._get_dados():,.0f}".replace(
-                    ",", "X").replace(".", ",").replace("X", "."),
+                title=self._formatar_valores(self._get_dados()),
                 text="Média Geral de Objetos Alimentados por Falhas Técnicas \
                     nos Centros Avaliados",
-                on_click=lambda: print("Card de Produção clicado!"),
+                # on_click=lambda: print("Card de Produção clicado!"),
                 styles={
                     "card": {},
                     "title": {
@@ -89,11 +95,14 @@ class Resumo:
                     },
                 }
             )
-        with eficiencia:
+
+        with cartoes[1]:
             card(
-                title=f"{self.carga_tratada.get_soma_carga_induzida_por_centro(
-                    self._periodos):,.0f}".replace(
-                    ",", "X").replace(".", ",").replace("X", "."),
+                title=self._formatar_valores(
+                    self.carga_tratada.get_soma_carga_induzida_por_centro(
+                        self._periodos
+                    )
+                ),
                 text="Total de Objetos Alimentados neste Centro",
                 styles={
                     "card": {},
@@ -104,10 +113,10 @@ class Resumo:
                     },
                 }
             )
-        with disponibilidade:
+
+        with cartoes[2]:
             card(
-                title=f"{self.falhas_periodo:,.0f}".replace(
-                    ",", "X").replace(".", ",").replace("X", "."),
+                title=self._formatar_valores(self._falhas_periodo),
                 text="Falhas Técnicas em Salvador",
                 styles={
                     "card": {},
@@ -119,10 +128,10 @@ class Resumo:
                 }
             )
 
-        with media_local_por_falhas_tecnicas:
+        with cartoes[3]:
             card(
-                title=f"{self._media_local_por_falhas_tecnicas():,.0f}".replace(
-                    ",", "X").replace(".", ",").replace("X", "."),
+                title=self._formatar_valores(
+                    self._media_local_por_falhas_tecnicas()),
                 text="Média de Objetos por Falhas Técnicas em Salvador",
                 styles={
                     "card": {},
@@ -133,6 +142,19 @@ class Resumo:
                     },
                 }
             )
+
+        # Estado para armazenar o cartão selecionado
+        if "cartao_selecionado" not in st.session_state:
+            st.session_state.cartao_selecionado = None
+
+        for i, _ in enumerate(cartoes):
+            st.session_state.cartao_selecionado = i
+            # if card(cartao, key=i):
+            #     st.session_state.cartao_selecionado = i
+
+        if st.session_state.cartao_selecionado is not None:
+            cartao_selecionado = cartoes[st.session_state.cartao_selecionado]
+            st.success(f"Você selecionou o cartão: {cartao_selecionado}")
 
 
 resumo = Resumo()
