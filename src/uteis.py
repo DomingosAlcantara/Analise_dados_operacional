@@ -1,9 +1,10 @@
 """Classe base para processamento de dados.
     """
+from abc import ABC, abstractmethod
 from datetime import datetime
 
 
-class Uteis:
+class Uteis(ABC):
     """Classe utilitária para operações comuns de processamento de dados.
     """
 
@@ -56,3 +57,9 @@ class Uteis:
             return df[df["Centro de Tratamento"] == centro.upper()]
         else:
             raise ValueError("Dados não carregados.")
+
+    @abstractmethod
+    def carregar_planilha(self, path):
+        '''
+        Carrega uma planilha do Excel e retorna um DataFrame.
+        '''

@@ -12,3 +12,4 @@ requirements_clean.txt
 requirements.txt
 src/__pycache__/
 src/pages/__pycache__/
+src/tratamento/__pycache__/
