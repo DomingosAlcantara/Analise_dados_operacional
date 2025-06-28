@@ -1,9 +1,10 @@
 *.xlsx
 *.csv
 
-Acomp_Mensagens/
+Monit_Mensagens/
 Monitoramento/
 tests/
+src1/
 \dist
 \build
 .vscode
