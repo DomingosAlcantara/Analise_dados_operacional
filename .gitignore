@@ -1,0 +1,13 @@
+*.xlsx
+*.csv
+
+Monit_Mensagens/
+Monitoramento/
+tests/
+src1/
+\dist
+\build
+.vscode
+requirements_clean.txt
+requirements.txt
+__pycache__/
