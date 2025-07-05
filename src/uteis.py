@@ -3,6 +3,8 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 
+from pandas import DataFrame
+
 
 class Uteis(ABC):
     """Classe utilitária para operações comuns de processamento de dados.
@@ -59,7 +61,8 @@ class Uteis(ABC):
             raise ValueError("Dados não carregados.")
 
     @abstractmethod
-    def carregar_planilha(self, path):
+    def carregar_planilha(self, path) -> DataFrame:
         '''
         Carrega uma planilha do Excel e retorna um DataFrame.
         '''
+        pass

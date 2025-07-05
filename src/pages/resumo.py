@@ -8,6 +8,8 @@ from data_processing import DataProcessing
 from falhas_tecnicas import FalhasTecnicas
 from sidebar_config import Sidebar
 
+# from src.pages.cartao import card
+
 
 class Resumo:
     """
@@ -21,7 +23,7 @@ class Resumo:
         """
         self.path_carga_tratada = \
             "/home/domingos/Documentos/Dados/Carga Tratada/"
-        self.path_falhas_tecnicas = "/home/domingos/Documentos/Dados//Técnica/"
+        self.path_falhas_tecnicas = "/home/domingos/Documentos/Dados/Técnica/"
         self.carga_tratada = DataProcessing(self.path_carga_tratada)
         self.falhas_tecnicas = FalhasTecnicas(self.path_falhas_tecnicas)
         self.sidebar = Sidebar()
@@ -76,85 +78,89 @@ class Resumo:
         """
             Define a área de resumo para apresentação dos dados.
         """
-        cartoes = ["producao", "eficiencia", "disponibilidade",
-                   "media_local_por_falhas_tecnicas"]
-        cartoes = st.columns(4)
-
-        with cartoes[0]:
-            card(
-                title=self._formatar_valores(self._get_dados()),
-                text="Média Geral de Objetos Alimentados por Falhas Técnicas \
-                    nos Centros Avaliados",
-                # on_click=lambda: print("Card de Produção clicado!"),
-                styles={
-                    "card": {},
-                    "title": {
-                        "font-size": "90px",
-                        "font-weight": "bold",
-                        "color": "#4CAF50"
-                    },
-                }
-            )
-
-        with cartoes[1]:
-            card(
-                title=self._formatar_valores(
-                    self.carga_tratada.get_soma_carga_induzida_por_centro(
-                        self._periodos
-                    )
-                ),
-                text="Total de Objetos Alimentados neste Centro",
-                styles={
-                    "card": {},
-                    "title": {
-                        "font-size": "80px",
-                        "font-weight": "bold",
-                        "color": "#2196F3"
-                    },
-                }
-            )
-
-        with cartoes[2]:
-            card(
-                title=self._formatar_valores(self._falhas_periodo),
-                text="Falhas Técnicas em Salvador",
-                styles={
-                    "card": {},
-                    "title": {
-                        "font-size": "80px",
-                        "font-weight": "bold",
-                        "color": "#FF9800"
-                    },
-                }
-            )
-
-        with cartoes[3]:
-            card(
-                title=self._formatar_valores(
-                    self._media_local_por_falhas_tecnicas()),
-                text="Média de Objetos por Falhas Técnicas em Salvador",
-                styles={
-                    "card": {},
-                    "title": {
-                        "font-size": "80px",
-                        "font-weight": "bold",
-                        "color": "#9C27B0"
-                    },
-                }
-            )
+        # clicado = False
+        nome_cartoes = ["producao", "eficiencia", "disponibilidade",
+                        "Média Local por Falhas Técnicas"]
 
         # Estado para armazenar o cartão selecionado
         if "cartao_selecionado" not in st.session_state:
-            st.session_state.cartao_selecionado = None
+            st.session_state["cartao_selecionado"] = None
+        if "click_count" not in st.session_state:
+            st.session_state.click_count = 0
 
-        for i, _ in enumerate(cartoes):
-            st.session_state.cartao_selecionado = i
-            # if card(cartao, key=i):
-            #     st.session_state.cartao_selecionado = i
+        def selecionar_cartao(index):
+            """
+                Função para selecionar um cartão.
+            """
+            st.session_state.cartao_selecionado = index
+            st.session_state.click_count += 1
+
+        colunas = st.columns(len(nome_cartoes))
+
+        # Dados para cada cartão
+        dados_cartoes = [
+            {
+                "titulo": self._formatar_valores(self._get_dados()),
+                "texto": "Média Geral de Objetos Alimentados por Falhas \
+                    Técnicas nos Centros Avaliados",
+                "cor": "#4CAF50"
+            },
+            {
+                "titulo": self._formatar_valores(
+                    self.carga_tratada.get_soma_carga_induzida_por_centro(
+                        self._periodos)),
+                "texto": "Total de Objetos Alimentados neste Centro",
+                "cor": "#2196F3"
+            },
+            {
+                "titulo": self._formatar_valores(self._falhas_periodo),
+                "texto": "Falhas Técnicas em Salvador",
+                "cor": "#FF9800"
+            },
+            {
+                "titulo": self._formatar_valores(
+                    self._media_local_por_falhas_tecnicas()),
+                "texto": "Média de Objetos por Falhas Técnicas em Salvador",
+                "cor": "#9C27B0"
+            }
+        ]
+
+        for i, col in enumerate(colunas):
+            with col:
+                card(
+                    title=dados_cartoes[i]["titulo"],
+                    text=dados_cartoes[i]["texto"],
+                    key=nome_cartoes[i],
+                    on_click=lambda x=i: selecionar_cartao(x),
+                    styles={
+                        "card": {
+                            "border": "4px solid #FFD700"
+                            if st.session_state.cartao_selecionado == i
+                            else "",
+                            "box-shadow": "0 0 10px #FFD700"
+                            if st.session_state.cartao_selecionado == i
+                            else "",
+                            "cursor": "pointer"
+                        },
+                        "title": {
+                            "color": dados_cartoes[i]["cor"],
+                            "fontSize": "80px",
+                            "fontWeight": "bold"
+                        },
+                    }
+                )
+
+                # if clicado:  # and st.session_state.cartao_selecionado != i:
+                #     st.session_state["cartao_selecionado"] = i
+                #     st.session_state.click_count += 1
+                #     i = 0
 
         if st.session_state.cartao_selecionado is not None:
-            cartao_selecionado = cartoes[st.session_state.cartao_selecionado]
-            st.success(f"Você selecionou o cartão: {cartao_selecionado}")
+            st.success(
+                f"Você selecionou o cartão: \
+                    {nome_cartoes[st.session_state.cartao_selecionado]}\
+                        (Total de cliques: {st.session_state.click_count})"
+            )
 
 
 resumo = Resumo()

@@ -104,7 +104,7 @@ class FalhasTecnicas(Uteis):
         else:
             data_inicial = data_final = data_informada
 
-        if data_final is not None:
+        if data_final != data_inicial:
             df = df[(df["Data da Falha"] >= data_inicial) &
                     (df["Data da Falha"] <= data_final)]
         else:
