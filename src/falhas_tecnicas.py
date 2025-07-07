@@ -1,13 +1,14 @@
 """
     Classe para processar as falhas técnicas dos sistemas de triagem de cartas do CTCE.
 """
+
 import pandas as pd
 
 from uteis import Uteis
 
 
 class FalhasTecnicas(Uteis):
-    """Classe para processar as falhas técnicas dos sistemas de triagem de 
+    """Classe para processar as falhas técnicas dos sistemas de triagem de
         cartas do CTCE.
     Args:
         Uteis (_type_): Classe com métodos comuns a diversas outras classes.
@@ -20,58 +21,43 @@ class FalhasTecnicas(Uteis):
         self._file_path = file_path
         self._data = None
 
-    def _set_dados(self, dados):
-        """
-        Define os dados a serem processados.
-        """
-        if dados is not None:
-            self._data = dados.copy()
-        else:
-            self._data = pd.DataFrame()
-
-    def get_dados(self):
-        """
-        Retorna os dados processados.
-        """
-        return self._data
-
     def carregar_planilha(self, path):
         """
         Carrega uma planilha do Excel e retorna um DataFrame.
         """
-
-        # COLUNA_CHAVE = "Código MCU CTC"
-        # MAX_LINHAS = 10
-
-        # def tentar_ler(linha):
-        #     try:
-        #         df = pd.read_excel(path, sheet_name=linha)
-        #     except Exception as e:
-        #         print(f"Erro ao ler a linha {linha}: {e}")
-        #         return None
-
-        #     if COLUNA_CHAVE in df.columns:
-        #         return df
-
-        #     return None
-
-        # with ThreadPoolExecutor() as executor:
-        #     resultados = list(executor.map(tentar_ler, range(MAX_LINHAS)))
-
-        # for resultado in resultados:
-        #     if resultado is not None:
-        #         return resultado
-
-        # raise ValueError(f"Coluna '{COLUNA_CHAVE}' não encontrada no arquivo: {path}")
+        # colunas = [
+        #     "Código MCU CTC", "Centro de Tratamento",
+        #     "Nº Máquina de triagem", "Descrição da Falha",
+        #     "Data/hora Inicial da Falha"
+        # ]
+        dtypes = {
+            "Código MCU CTC": str,
+            "Centro de Tratamento": str,
+            "Nº Máquina de triagem": int,
+            "Descrição da Falha": str,
+            # "Data/hora Inicial da Falha": datetime
+        }
         try:
-            df = pd.read_excel(path, skiprows=7)
+            # [0, 1, 2, 5, 6])
+            df = pd.read_excel(path, skiprows=7, usecols=[
+                               0, 1, 2, 5, 6], dtype=dtypes,
+                               )
+            # print(df.columns)
             return df
         except ValueError:
             ValueError(f"Erro ao carregar a planilha: {path}")
 
+    def estabelecer_relacionamentos(self):
+        """
+        Estabelece o relacionamento entre os dados do DataFrame principal
+        e seus auxiliares.
+        """
+        pass
+
     def processar_dados(self):
         """
-        Processa os arquivos de falhas técnicas e retorna um DataFrame consolidado.
+        Processa os arquivos de falhas técnicas e retorna um DataFrame 
+        consolidado.
         """
         import os
         from concurrent.futures import ThreadPoolExecutor
@@ -87,31 +73,66 @@ class FalhasTecnicas(Uteis):
                 if dfs:
                     df_final = pd.concat(dfs, ignore_index=True)
                     df_final.set_index("Código MCU CTC", inplace=True)
+                    df_final = df_final[(df_final["Descrição da Falha"] !=
+                                        "Máquina desabilitada - pressione e \
+                                        mantenha o botão de habilitar por \
+                                        1 segundo p")]
+
+                    df_final["Data/hora inicial da Falha"] = pd.to_datetime(
+                        df_final["Data/hora inicial da Falha"],
+                        format="%d/%m/%Y %H:%M:%S",)
+                    df_final["Data da Falha"] = df_final["Data/hora inicial da Falha"].dt.date
+                    df_final["Hora da Falha"] = df_final["Data/hora inicial da Falha"].dt.time
                     self._set_dados(df_final)
                 else:
                     raise ValueError("Nenhum arquivo válido encontrado.")
         else:
             raise ValueError("Caminho do arquivo não fornecido.")
 
-    def get_soma_geral_de_falhas(self):
+    def get_soma_geral_de_falhas(self, data_informada) -> int:
         """
         Retorna a soma geral das falhas técnicas.
         """
         df = self.get_dados() if self.get_dados() is not None \
             else pd.DataFrame()
 
-        df = df[df["Descrição da Falha"] !=
-                "Máquina desabilitada - pressione e mantenha o botão de \
-                    habilitar por 1 segundo p"]
-        soma_df = df["Descrição da Falha"].count() if not df.empty else 0
-        return soma_df
+        if isinstance(data_informada, (list, tuple)):
+            data_inicial, data_final = data_informada
+        else:
+            data_inicial = data_final = data_informada
 
-    def get_soma_falhas_tecnicas(self, data_informada, centro: str) -> int:
+        if data_final is not None:
+            df = df[(df["Data da Falha"] >= data_inicial) &
+                    (df["Data da Falha"] <= data_final)]
+        else:
+            df = df[df["Data da Falha"] == data_inicial]
+
+        return df["Descrição da Falha"].count() if not df.empty else 0
+
+    # Retornar nesta função para corrigir o campo de pesquisa
+
+    def get_soma_falhas_tecnicas(self, centro="CTCE Salvador") -> int:
         """
         Recupera a soma de falhas técnicas para um centro específico.
         """
         df = self.recuperar_dados_pelo_centro(centro)
-        return self.get_soma_quantidade_induzida(data_informada, df)
+
+        def get_falhas_por_data(data_informada):
+
+            if isinstance(data_informada, (list, tuple)):
+                data_inicial, data_final = data_informada
+            else:
+                data_inicial = data_final = data_informada
+
+            if data_final is not None:
+                df_ = df[(df["Data da Falha"] >= data_inicial) &
+                         (df["Data da Falha"] <= data_final)]
+            else:
+                df_ = df[df["Data da Falha"] == data_inicial]
+
+            return df_["Descrição da Falha"].count()  # if not df_.empty else 0
+
+        return get_falhas_por_data
 
 
 if __name__ == "__main__":

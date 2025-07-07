@@ -1,6 +1,5 @@
 """Classe para processamento dos dados.
 """
-from datetime import datetime
 
 import pandas as pd
 
@@ -59,65 +58,60 @@ class DataProcessing(Uteis):
                 if dfs:
                     df_final = pd.concat(dfs, ignore_index=False)
                     df_final.set_index("Data de triagem", inplace=True)
-                    df_final.index = pd.to_datetime(df_final.index).date
+                    df_final.index = pd.to_datetime(
+                        df_final.index, dayfirst=True).date
                     df_final = df_final[df_final["Quantidade Induzida"] > 0]
                     self._set_dados(df_final)
                 else:
                     df = self.carregar_planilha(self._file_path)
                     df.set_index("Data de triagem", inplace=True)
-                    df.index = pd.to_datetime(df.index).date
+                    df.index = pd.to_datetime(df.index, dayfirst=True).date
                     self._set_dados(df)
                 # return self._data
         else:
             raise ValueError("Caminho do arquivo não fornecido.")
 
-    def get_soma_carga_induzida_por_centro(self, data_informada: str,
-                                           centro: str
+    def get_soma_carga_induzida_por_centro(self, data_informada,
+                                           centro="CTCE Salvador"
                                            ) -> int:
         """
         Carrega a média de objetos alimentados por falhas técnicas.
         """
-        df = self.get_dados()
-        if self._is_single_date(data_informada):
-            data = datetime.strptime(data_informada, "%d/%m/%Y").date()
-            df = df[(df.index == data) &
-                    (df["Centro de Tratamento"] == centro.upper())]
-            return df["Quantidade Induzida"].sum()
+        df = self.recuperar_dados_pelo_centro(centro)
 
-        elif self._is_date_range(data_informada):
-            start_date, end_date = data_informada.split(" - ")
-            start_date = datetime.strptime(start_date, "%d/%m/%Y").date()
-            end_date = datetime.strptime(end_date, "%d/%m/%Y").date()
-            df = df[(df.index >= start_date) &
-                    (df.index <= end_date) &
-                    (df["Centro de Tratamento"] == centro.upper())]
-            return df["Quantidade Induzida"].sum()
-
+        if isinstance(data_informada, (list, tuple)):
+            data_inicial, data_final = data_informada
         else:
-            raise ValueError("Formato de data inválido.")
+            data_inicial = data_final = data_informada
 
-    def get_soma_geral_de_carga_induzida(self, data_informada: str) -> int:
+        if data_final is not None:
+            df = df[(df.index >= data_inicial) &
+                    (df.index <= data_final)]
+        else:
+            df = df[df.index == data_inicial]
+
+        return df["Quantidade Induzida"].sum()
+
+    def get_soma_geral_de_carga_induzida(self, data_informada) -> int:
         """
         Retorna a soma geral da carga induzida.
         """
+
         df = self.get_dados() if self.get_dados() is not None \
             else pd.DataFrame()
 
-        if self._is_single_date(data_informada):
-            data = datetime.strptime(data_informada, "%d/%m/%Y").date()
-            df = df[df.index == data]
-            return df["Quantidade Induzida"].sum()
-
-        elif self._is_date_range(data_informada):
-            start_date, end_date = data_informada.split(" - ")
-            start_date = datetime.strptime(start_date, "%d/%m/%Y").date()
-            end_date = datetime.strptime(end_date, "%d/%m/%Y").date()
-            df = df[(df.index >= start_date) &
-                    (df.index <= end_date)]
-            return df["Quantidade Induzida"].sum()
-
+        if isinstance(data_informada, (list, tuple)):
+            data_inicial, data_final = data_informada
         else:
-            raise ValueError("Formato de data inválido.")
+            data_inicial = data_final = data_informada
+
+        if data_final is not None:
+            df = df[(df.index >= data_inicial) &
+                    (df.index <= data_final)]
+        else:
+            df = df[df.index == data_inicial]
+
+        return df["Quantidade Induzida"].sum()
 
     def _extrair_informacoes(self, arquivo):
         """Lista os arquivos no diretório."""
@@ -131,10 +125,9 @@ class DataProcessing(Uteis):
         return None, None
 
     def get_listagem_data_arquivos(self):
-        """Retorna uma lista de datas extraídas dos nomes dos arquivos 
+        """Retorna uma lista de datas extraídas dos nomes dos arquivos
             no diretório.
         """
-        # file_names = os.listdir(self._file_path)
         maquinas, dates = zip(*map(
             self._extrair_informacoes,
             os.listdir(self._file_path)
