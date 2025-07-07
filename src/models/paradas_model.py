@@ -11,14 +11,14 @@ from pandas import DataFrame
 from uteis import Uteis
 
 
-class AtolamentoModel(Uteis):
+class ParadasModel(Uteis):
     """
     Classe para gerenciar os dados de atolamentos.
     """
 
     def __init__(self, path="/home/domingos/Documentos/Dados/Engarrafamento/"):
         self._file_path = path
-        self._dados = None
+        self.processar_dados()
 
     def carregar_planilha(self, path) -> DataFrame:
         """
@@ -131,15 +131,16 @@ class AtolamentoModel(Uteis):
             df.drop(columns=["Data/hora inicial do Atolamento"], inplace=True)
         return df
 
-    def processar_dados(self) -> DataFrame:
+    def processar_dados(self) -> None:
         """
         Processa os arquivos de atolamentos e retorna um DataFrame consolidado.
 
         Returns:
             DataFrame: Dados consolidados dos atolamentos.
         """
-        files = [f for f in os.listdir(self._file_path) if f.endswith('.xlsx')]
+        files = [f for f in os.listdir(self._file_path) if f.endswith('.xls')]
         dataframes = []
+        df_dados = None
 
         def pipeline(df: DataFrame) -> DataFrame:
             df = self.remover_desabilitacoes(df)
@@ -161,28 +162,14 @@ class AtolamentoModel(Uteis):
                     print(f"Erro ao processar o arquivo: {e}")
 
         if dataframes:
-            self._dados = pd.concat(dataframes, ignore_index=True)
-            self._dados = pipeline(self._dados)
-            self._dados.set_index("código_mcu_ctc", inplace=True)
-            return self._dados
+            df_dados = pd.concat(dataframes, ignore_index=True)
+            df_dados = pipeline(df_dados)
+            df_dados.set_index("código_mcu_ctc", inplace=True)
+            self._set_dados(df_dados)
         else:
             raise ValueError("Nenhum dado foi carregado.")
 
-    def get_dados(self) -> DataFrame:
-        """
-        Retorna os dados de atolamentos processados.
-
-        Returns:
-            DataFrame: Dados de atolamentos.
-        """
-
-        if self._dados is None:
-            self.processar_dados()
-        if self._dados is None:
-            raise ValueError("Os dados de atolamentos não foram carregados.")
-        return self._dados
-
-    def get_maiores_atolamentos(self, n: int = 5) -> DataFrame:
+    def _get_maiores_atolamentos(self, n: int = 5) -> DataFrame:
         """
         Retorna os maiores atolamentos.
 
@@ -192,9 +179,47 @@ class AtolamentoModel(Uteis):
         Returns:
             DataFrame: DataFrame contendo os maiores atolamentos.
         """
-        if self._dados is None:
-            self._dados = self.get_dados()
-        tops = self._dados["descrição_da_falha"].value_counts().head(n).\
+        df_dados = self.get_dados().copy()
+        tops = df_dados["descrição_da_falha"].value_counts().head(n).\
             reset_index()
         tops.columns = ["descrição_da_falha", "quantidade"]
         return tops
+
+    def soma_total_atolamentos(self) -> int:
+        """
+        Retorna a soma total de atolamentos.
+
+        Returns:
+            int: Soma total de atolamentos.
+        """
+        df_dados = self.get_dados()
+        return df_dados.shape[0] if df_dados is not None else 0
+
+    def get_atolamentos_em_percentual(self,
+                                      top_atolamentos: int = 5) -> DataFrame:
+        """
+        Retorna o percentual de atolamentos por máquina.
+
+        Returns:
+            DataFrame: DataFrame contendo o percentual de atolamentos.
+        """
+        df_dados = self._get_maiores_atolamentos(top_atolamentos)
+        total_atolamentos = self.soma_total_atolamentos()
+        if total_atolamentos == 0:
+            return pd.DataFrame(columns=["descrição_da_falha",
+                                         "quantidade", "percentual"])
+
+        df_dados["percentual"] = (df_dados["quantidade"] /
+                                  total_atolamentos) * 100
+        return df_dados
+
+    def mostrar_maquinas(self) -> DataFrame:
+        """
+        Retorna as máquinas existentes no Centro de Tratamento.
+
+        Returns:
+            DataFrame: DataFrame contendo as máquinas.
+        """
+        df_dados = self.get_dados()
+        maquinas = df_dados["nº_máquina_de_triagem"].unique()
+        return pd.DataFrame(maquinas, columns=["nº_máquina_de_triagem"])
