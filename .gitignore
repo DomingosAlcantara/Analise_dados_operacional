@@ -6,4 +6,9 @@ Monitoramento/
 tests/
 \dist
 \build
+notebooks/
+src/__pycache__/
+src/pages/__pycache__/
+src/tratamento/__pycache__/
+tests/__pycache__/
 .vscode
