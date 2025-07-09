@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import streamlit as st
 
 
@@ -32,12 +34,15 @@ class Sidebar:
         """
             Retorna o período.
         """
+        print(self._periodos)
         return self._periodos
 
     def configurar(self):
         # Configuração do tipo de máquina
-        st.sidebar.title("Selecione o tipo de máquina")
-        tipo_maquina = st.sidebar.radio(
+        ontem = datetime.now() - timedelta(days=1)
+        esta_semana = ontem - timedelta(days=datetime.now().weekday())
+
+        st.sidebar.radio(
             "Informe o tipo de máquina",
             ["Mensagens", "Encomendas"],
             key="tipo_maquina"
@@ -45,14 +50,28 @@ class Sidebar:
 
         # Configuração do período
         st.sidebar.divider()
-        st.sidebar.title("Selecione o período")
-        periodos = st.sidebar.radio(
-            "Selecione o período",
-            ["Último dia coletado", "Essa Semana", "Semana Passada",
-                "Esse Mês", "Desde o mês Passado", "Acumulado do Ano"],
-            key="periodos"
+
+        modo_data = st.sidebar.checkbox(
+            "Selecionar Intervalo?",
+            key="modo_data"
         )
 
-        # Armazenar no session_state
-        self.set_maquina(tipo_maquina)
-        self.set_periodos(periodos)
+        if modo_data:
+            st.sidebar.date_input(
+                "Intervalo",
+                (esta_semana, ontem),
+                format="DD/MM/YYYY",
+                key="periodos"
+            )
+        else:
+            st.sidebar.date_input(
+                "Data",
+                ontem, format="DD/MM/YYYY",
+                key="periodos"
+            )
+
+    def get_periodo_mapeado(self):
+        """
+            Mapeia o período selecionado para um valor específico.
+        """
+        return st.session_state["periodos"]

@@ -1,14 +1,13 @@
 """Classe para processamento dos dados.
 """
-import os
-from datetime import datetime
 
 import pandas as pd
 
 from padroes import Padroes as Regex
+from uteis import Uteis
 
 
-class DataProcessing:
+class DataProcessing(Uteis):
     """Classe para processamento dos dados.
     """
 
@@ -22,8 +21,7 @@ class DataProcessing:
     def _set_dados(self, data):
         """Define os dados a serem processados."""
         if data is not None:
-            df = data.copy()
-            self._data = df[df["Quantidade Induzida"] > 0]
+            self._data = data.copy()
         else:
             self._data = pd.DataFrame()
 
@@ -34,90 +32,86 @@ class DataProcessing:
         else:
             raise ValueError("Dados não carregados.")
 
-    def _formatar_datas(self, data):
-        """Formata a data no formato desejado."""
-        # Formato desejado: "09072024" -> "2024-09-07"
-        return datetime.strptime(data, "%m%d%Y").date()
-
-    def _is_single_date(self, value, date_format="%d/%m/%Y"):
-        """Verifica se o valor é uma data única."""
-        try:
-            datetime.strptime(value, date_format)
-            return True
-        except ValueError:
-            return False
-
-    def _is_date_range(self, value, date_format="%d/%m/%Y"):
-        """Verifica se o valor é um intervalo de datas."""
-        try:
-            start_date, end_date = value.split(" - ")
-            return self._is_single_date(start_date, date_format) and \
-                self._is_single_date(end_date, date_format)
-        except ValueError:
-            return False
-
     def carregar_planilha(self, path):
         """Carrega a planilha de dados."""
-        # Implementar o carregamento da planilha
-        df = pd.read_excel(path, skiprows=8)
+        try:
+            df = pd.read_excel(path, skiprows=8)
+            return df
+        except ValueError:
+            ValueError(f"Erro ao carregar a planilha: {path}")
 
-        return df
+    # def padronizar_colunas(self, df):
 
-    def processar_dados(self):
+    def processar_carga_tratada(self):
         """Processa os dados do arquivo."""
+        import os
+        from concurrent.futures import ThreadPoolExecutor
+
         # Implementar o processamento dos dados
         if self._file_path:
             # Carregar os dados do arquivo
             planilhas = os.listdir(self._file_path)
             caminhos = [os.path.join(self._file_path, nome)
                         for nome in planilhas]
-            dfs = list(map(self.carregar_planilha, caminhos))
-            if dfs:
-                df_final = pd.concat(dfs, ignore_index=False)
-                df_final.set_index("Data de triagem", inplace=True)
-                self._set_dados(df_final)
-            else:
-                df = self.carregar_planilha(self._file_path)
-                df.set_index("Data de triagem", inplace=True)
-                self._set_dados(df)
-            # Processar os dados
-            # ...
-            # return self._data
+            with ThreadPoolExecutor() as executor:
+                dfs = list(executor.map(self.carregar_planilha, caminhos))
+                if dfs:
+                    df_final = pd.concat(dfs, ignore_index=False)
+                    df_final.set_index("Data de triagem", inplace=True)
+                    df_final.index = pd.to_datetime(
+                        df_final.index, dayfirst=True).date
+                    df_final = df_final[df_final["Quantidade Induzida"] > 0]
+                    self._set_dados(df_final)
+                else:
+                    df = self.carregar_planilha(self._file_path)
+                    df.set_index("Data de triagem", inplace=True)
+                    df.index = pd.to_datetime(df.index, dayfirst=True).date
+                    self._set_dados(df)
+                # return self._data
         else:
             raise ValueError("Caminho do arquivo não fornecido.")
 
-    def recuperar_dados_pelo_centro(self, centro: str):
-        """
-        Recupera os dados filtrados pelo centro de triagem.
-        """
-        df = self.get_dados()
-        if df is not None:
-            return df[df["Centro de Tratamento"] == centro.upper()]
-        else:
-            raise ValueError("Dados não carregados.")
-
-    def recuperar_soma_quantidade_induzida(self, data_informada,
-                                           centro: pd.DataFrame
+    def get_soma_carga_induzida_por_centro(self, data_informada,
+                                           centro="CTCE Salvador"
                                            ) -> int:
         """
         Carrega a média de objetos alimentados por falhas técnicas.
         """
-        df = centro["Quantidade Induzida"].copy()
-        if self._is_single_date(data_informada):
-            data = datetime.strptime(data_informada, "%d/%m/%Y").date()
-            df = df[df["Data de triagem"] == data]
-            return df.sum()
+        df = self.recuperar_dados_pelo_centro(centro)
 
-        elif self._is_date_range(data_informada):
-            start_date, end_date = data_informada.split(" - ")
-            start_date = datetime.strptime(start_date, "%d/%m/%Y").date()
-            end_date = datetime.strptime(end_date, "%d/%m/%Y").date()
-            df = df[(df["Data de triagem"] >= start_date) &
-                    (df["Data de triagem"] <= end_date)]
-            return df.sum()
-
+        if isinstance(data_informada, (list, tuple)):
+            data_inicial, data_final = data_informada
         else:
-            raise ValueError("Formato de data inválido.")
+            data_inicial = data_final = data_informada
+
+        if data_final is not None:
+            df = df[(df.index >= data_inicial) &
+                    (df.index <= data_final)]
+        else:
+            df = df[df.index == data_inicial]
+
+        return df["Quantidade Induzida"].sum()
+
+    def get_soma_geral_de_carga_induzida(self, data_informada) -> int:
+        """
+        Retorna a soma geral da carga induzida.
+        """
+
+        df = self.get_dados() if self.get_dados() is not None \
+            else pd.DataFrame()
+
+        if isinstance(data_informada, (list, tuple)):
+            data_inicial, data_final = data_informada
+        else:
+            data_inicial = data_final = data_informada
+
+        if data_final is not None:
+            df = df[(df.index >= data_inicial) &
+                    (df.index <= data_final)]
+        else:
+            df = df[df.index == data_inicial]
+
+        return df["Quantidade Induzida"].sum()
 
     def _extrair_informacoes(self, arquivo):
         """Lista os arquivos no diretório."""
@@ -131,10 +125,9 @@ class DataProcessing:
         return None, None
 
     def get_listagem_data_arquivos(self):
-        """Retorna uma lista de datas extraídas dos nomes dos arquivos 
+        """Retorna uma lista de datas extraídas dos nomes dos arquivos
             no diretório.
         """
-        # file_names = os.listdir(self._file_path)
         maquinas, dates = zip(*map(
             self._extrair_informacoes,
             os.listdir(self._file_path)
@@ -153,16 +146,16 @@ class DataProcessing:
 if __name__ == "__main__":
     # Exemplo de uso
     # Obter os dados
-    file_path_carga_tratada = "C:/Users/80891950/Downloads/Relatório Pitney \
-        Bower/Dados/Carga Tratada/"
-    file_path_falhas_tecnicas = "C:/Users/80891950/Downloads/Relatório Pitney \
-        Bower/Dados/Falhas Técnicas/"
+    file_path_carga_tratada = "C:/Users/80891950/Downloads/Relatório Pitney Bower/Dados/Carga Tratada/"
+    file_path_falhas_tecnicas = "C:/Users/80891950/Downloads/Relatório Pitney Bower/Dados/Técnica/"
 
     carga_tratada = DataProcessing(file_path_carga_tratada)
-    carga_tratada.processar_dados()
-    dados_df = carga_tratada.recuperar_dados_pelo_centro("CTCE Salvador")
-
-    falhas_tecnicas = DataProcessing(file_path_falhas_tecnicas)
-    falhas_tecnicas.processar_dados()
-    # dados_df
-    print(f"Teste: {dados_df}")
+    carga_tratada.processar_carga_tratada()
+    # carga_tratada_df = carga_tratada.recuperar_dados_pelo_centro(
+    #     "CTCE Salvador")
+    # print(f"Teste: {carga_tratada_df.head(5)}")
+    print(
+        f"Carga tratada: {carga_tratada.get_soma_carga_induzida_por_centro(
+            '14/08/2023 - 17/08/2023', "CTCE Salvador")}"
+    )
+    # print(f"Colunas existentes: {carga_tratada.get_dados().columns.tolist()}")
