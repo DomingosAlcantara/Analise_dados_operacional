@@ -9,19 +9,16 @@ class ParadasView:
         Classe para vizualizar os dados de atolamento de cartas do CTCE.
     """
 
-    def mostrar_atolamentos(self, atolamentos):
+    def mostrar_paradas(self, paradas):
         """
             Mostra os dados de atolamento na interface do Streamlit.
         """
-        st.title("Atolamentos de Cartas")
         card(
             title="Atolamentos",
             text="Visualização dos dados de atolamento de cartas do CTCE.",
-            # content=f"Total de atolamentos: {len(self.atolamentos)}"
         )
-        st.write(atolamentos)
-        if len(atolamentos) > 0:
-            st.dataframe(atolamentos)
+        if len(paradas) > 0:
+            st.dataframe(paradas)
         else:
             st.write("Nenhum atolamento registrado.")
 

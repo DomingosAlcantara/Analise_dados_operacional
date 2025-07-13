@@ -3,12 +3,11 @@
 """
 import os
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
 
 import pandas as pd
 from pandas import DataFrame
 
-from uteis import Uteis
+from src.uteis import Uteis
 
 
 class ParadasModel(Uteis):
@@ -35,7 +34,7 @@ class ParadasModel(Uteis):
             "Centro de Tratamento": str,
             "Nº Máquina de triagem": int,
             "Descrição da Falha": str,
-            "Data/hora inicial do Atolamento": datetime
+            # "Data/hora inicial da Falha": datetime
         }
 
         try:
@@ -85,8 +84,8 @@ class ParadasModel(Uteis):
         Returns:
             DataFrame: DataFrame com a coluna convertida.
         """
-        df["Data/hora inicial do Atolamento"] = pd.to_datetime(
-            df["Data/hora inicial do Atolamento"],
+        df["Data/hora inicial da Falha"] = pd.to_datetime(
+            df["Data/hora inicial da Falha"],
             format="%d/%m/%Y %H:%M:%S"  # ajuste o formato conforme necessário
         )
         return df
@@ -101,7 +100,7 @@ class ParadasModel(Uteis):
         Returns:
             DataFrame: DataFrame com as colunas de data e hora extraídas.
         """
-        df["Data da Falha"] = df["Data/hora inicial do Atolamento"].dt.date
+        df["Data da Falha"] = df["Data/hora inicial da Falha"].dt.date
         return df
 
     def extrair_hora(self, df: DataFrame) -> DataFrame:
@@ -114,7 +113,7 @@ class ParadasModel(Uteis):
         Returns:
             DataFrame: DataFrame com a coluna de hora extraída.
         """
-        df["Hora da Falha"] = df["Data/hora inicial do Atolamento"].dt.time
+        df["Hora da Falha"] = df["Data/hora inicial da Falha"].dt.time
         return df
 
     def remover_coluna_de_data(self, df: DataFrame) -> DataFrame:
@@ -128,19 +127,17 @@ class ParadasModel(Uteis):
             DataFrame: DataFrame sem a coluna de data.
         """
         if "Data/hora inicial do Atolamento" in df.columns:
-            df.drop(columns=["Data/hora inicial do Atolamento"], inplace=True)
+            df.drop(columns=["Data/hora inicial da Falha"], inplace=True)
         return df
 
     def processar_dados(self) -> None:
         """
         Processa os arquivos de atolamentos e retorna um DataFrame consolidado.
-
-        Returns:
-            DataFrame: Dados consolidados dos atolamentos.
         """
         files = [f for f in os.listdir(self._file_path) if f.endswith('.xls')]
         dataframes = []
         df_dados = None
+        caminhos = [os.path.join(self._file_path, nome) for nome in files]
 
         def pipeline(df: DataFrame) -> DataFrame:
             df = self.remover_desabilitacoes(df)
@@ -152,15 +149,7 @@ class ParadasModel(Uteis):
             return df
 
         with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(self.carregar_planilha, os.path.join(
-                self._file_path, file)) for file in files]
-            for future in futures:
-                try:
-                    df = future.result()
-                    dataframes.append(df)
-                except Exception as e:
-                    print(f"Erro ao processar o arquivo: {e}")
-
+            dataframes = list(executor.map(self.carregar_planilha, caminhos))
         if dataframes:
             df_dados = pd.concat(dataframes, ignore_index=True)
             df_dados = pipeline(df_dados)
@@ -169,7 +158,7 @@ class ParadasModel(Uteis):
         else:
             raise ValueError("Nenhum dado foi carregado.")
 
-    def _get_maiores_atolamentos(self, n: int = 5) -> DataFrame:
+    def get_maiores_paradas(self, n: int = 5) -> DataFrame:
         """
         Retorna os maiores atolamentos.
 
@@ -180,12 +169,12 @@ class ParadasModel(Uteis):
             DataFrame: DataFrame contendo os maiores atolamentos.
         """
         df_dados = self.get_dados().copy()
-        tops = df_dados["descrição_da_falha"].value_counts().head(n).\
-            reset_index()
+        tops = df_dados["descrição_da_falha"].value_counts().\
+            head(n).reset_index()
         tops.columns = ["descrição_da_falha", "quantidade"]
         return tops
 
-    def soma_total_atolamentos(self) -> int:
+    def get_soma_total_paradas(self) -> int:
         """
         Retorna a soma total de atolamentos.
 
@@ -195,22 +184,21 @@ class ParadasModel(Uteis):
         df_dados = self.get_dados()
         return df_dados.shape[0] if df_dados is not None else 0
 
-    def get_atolamentos_em_percentual(self,
-                                      top_atolamentos: int = 5) -> DataFrame:
+    def get_paradas_em_percentual(self, top_paradas: int = 5) -> DataFrame:
         """
         Retorna o percentual de atolamentos por máquina.
 
         Returns:
             DataFrame: DataFrame contendo o percentual de atolamentos.
         """
-        df_dados = self._get_maiores_atolamentos(top_atolamentos)
-        total_atolamentos = self.soma_total_atolamentos()
-        if total_atolamentos == 0:
+        df_dados = self.get_maiores_paradas(top_paradas)
+        total_paradas = self.get_soma_total_paradas()
+        if total_paradas == 0:
             return pd.DataFrame(columns=["descrição_da_falha",
                                          "quantidade", "percentual"])
 
         df_dados["percentual"] = (df_dados["quantidade"] /
-                                  total_atolamentos) * 100
+                                  total_paradas) * 100
         return df_dados
 
     def mostrar_maquinas(self) -> DataFrame:

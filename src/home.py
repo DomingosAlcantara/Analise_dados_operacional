@@ -27,7 +27,7 @@ class App:
         """
 
         resumo = st.Page("pages/resumo.py", title="Resumo")
-        atolamentos = st.Page("pages/atolamentos.py",
+        atolamentos = st.Page("pages/paradas.py",
                               title="Atolamentos e Falhas Técnicas")
         monitoramento = st.Page("pages/monitoramento.py",
                                 title="Monitoramento")
