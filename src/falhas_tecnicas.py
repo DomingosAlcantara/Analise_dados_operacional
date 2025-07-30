@@ -21,32 +21,6 @@ class FalhasTecnicas(Uteis):
         self._file_path = file_path
         self._data = None
 
-    def carregar_planilha(self, path):
-        """
-        Carrega uma planilha do Excel e retorna um DataFrame.
-        """
-        # colunas = [
-        #     "Código MCU CTC", "Centro de Tratamento",
-        #     "Nº Máquina de triagem", "Descrição da Falha",
-        #     "Data/hora Inicial da Falha"
-        # ]
-        dtypes = {
-            "Código MCU CTC": str,
-            "Centro de Tratamento": str,
-            "Nº Máquina de triagem": int,
-            "Descrição da Falha": str,
-            # "Data/hora Inicial da Falha": datetime
-        }
-        try:
-            # [0, 1, 2, 5, 6])
-            df = pd.read_excel(path, skiprows=7, usecols=[
-                               0, 1, 2, 5, 6], dtype=dtypes,
-                               )
-            # print(df.columns)
-            return df
-        except ValueError:
-            ValueError(f"Erro ao carregar a planilha: {path}")
-
     def estabelecer_relacionamentos(self):
         """
         Estabelece o relacionamento entre os dados do DataFrame principal
@@ -62,13 +36,39 @@ class FalhasTecnicas(Uteis):
         import os
         from concurrent.futures import ThreadPoolExecutor
 
+        def carregar_planilha(path):
+            """
+            Carrega uma planilha do Excel e retorna um DataFrame.
+            """
+            # colunas = [
+            #     "Código MCU CTC", "Centro de Tratamento",
+            #     "Nº Máquina de triagem", "Descrição da Falha",
+            #     "Data/hora Inicial da Falha"
+            # ]
+            dtypes = {
+                "Código MCU CTC": str,
+                "Centro de Tratamento": str,
+                "Nº Máquina de triagem": int,
+                "Descrição da Falha": str,
+                # "Data/hora Inicial da Falha": datetime
+            }
+            try:
+                # [0, 1, 2, 5, 6])
+                df = pd.read_excel(path, skiprows=7, usecols=[
+                    0, 1, 2, 5, 6], dtype=dtypes,
+                )
+                # print(df.columns)
+                return df
+            except ValueError:
+                ValueError(f"Erro ao carregar a planilha: {path}")
+
         if self._file_path:
             planilhas = os.listdir(self._file_path)
             caminhos = [os.path.join(self._file_path, nome)
                         for nome in planilhas]
             with ThreadPoolExecutor() as executor:
                 # Carregar os dados do arquivo
-                dfs = list(executor.map(self.carregar_planilha, caminhos))
+                dfs = list(executor.map(carregar_planilha, caminhos))
 
                 if dfs:
                     df_final = pd.concat(dfs, ignore_index=True)

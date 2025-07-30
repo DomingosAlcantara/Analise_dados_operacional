@@ -4,9 +4,9 @@
 import streamlit as st
 from streamlit_card import card
 
-from data_processing import DataProcessing
-from falhas_tecnicas import FalhasTecnicas
-from sidebar_config import Sidebar
+from src.data_processing import DataProcessing
+from src.falhas_tecnicas import FalhasTecnicas
+from src.sidebar_config import Sidebar
 
 
 class Resumo:

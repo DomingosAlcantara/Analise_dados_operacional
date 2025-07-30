@@ -1,7 +1,9 @@
 """Classe base para processamento de dados.
     """
-from abc import ABC, abstractmethod
-from datetime import datetime
+import os
+from abc import ABC
+
+import pandas as pd
 
 
 class Uteis(ABC):
@@ -26,27 +28,13 @@ class Uteis(ABC):
         else:
             raise ValueError("Dados não carregados.")
 
-    def _formatar_datas(self, data):
-        """Formata a data no formato desejado."""
-        # Formato desejado: "09072024" -> "2024-09-07"
-        return datetime.strptime(data, "%m%d%Y").date()
-
-    def _is_single_date(self, value, date_format="%d/%m/%Y"):
-        """Verifica se o valor é uma data única."""
+    def carregar_planilha(self, path):
+        """Carrega uma planilha do Excel e retorna um DataFrame."""
         try:
-            datetime.strptime(value, date_format)
-            return True
-        except ValueError:
-            return False
-
-    def _is_date_range(self, value, date_format="%d/%m/%Y"):
-        """Verifica se o valor é um intervalo de datas."""
-        try:
-            start_date, end_date = value.split(" - ")
-            return self._is_single_date(start_date, date_format) and \
-                self._is_single_date(end_date, date_format)
-        except ValueError:
-            return False
+            df = pd.read_excel(path, skiprows=8)
+            return df
+        except ValueError as e:
+            raise ValueError(f"Erro ao carregar a planilha: {path}") from e
 
     def recuperar_dados_pelo_centro(self, centro: str):
         """
@@ -58,8 +46,15 @@ class Uteis(ABC):
         else:
             raise ValueError("Dados não carregados.")
 
-    @abstractmethod
-    def carregar_planilha(self, path):
-        '''
-        Carrega uma planilha do Excel e retorna um DataFrame.
-        '''
+    def _recuperar_caminho_das_planilhas(self, files_path):
+        """
+        Recupera os caminhos das planilhas no diretório especificado.
+        """
+        return [os.path.join(files_path, f) for f in os.listdir(files_path)
+                if f.endswith('.xls')]
+
+    # @abstractmethod
+    # def carregar_planilha(self, path):
+    #     '''
+    #     Carrega uma planilha do Excel e retorna um DataFrame.
+    #     '''

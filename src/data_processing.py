@@ -32,7 +32,7 @@ class DataProcessing(Uteis):
         else:
             raise ValueError("Dados não carregados.")
 
-    def carregar_planilha(self, path):
+    def _carregar_planilha(self, path):
         """Carrega a planilha de dados."""
         try:
             df = pd.read_excel(path, skiprows=8)
@@ -54,7 +54,7 @@ class DataProcessing(Uteis):
             caminhos = [os.path.join(self._file_path, nome)
                         for nome in planilhas]
             with ThreadPoolExecutor() as executor:
-                dfs = list(executor.map(self.carregar_planilha, caminhos))
+                dfs = list(executor.map(self._carregar_planilha, caminhos))
                 if dfs:
                     df_final = pd.concat(dfs, ignore_index=False)
                     df_final.set_index("Data de triagem", inplace=True)
@@ -63,7 +63,7 @@ class DataProcessing(Uteis):
                     df_final = df_final[df_final["Quantidade Induzida"] > 0]
                     self._set_dados(df_final)
                 else:
-                    df = self.carregar_planilha(self._file_path)
+                    df = self._carregar_planilha(self._file_path)
                     df.set_index("Data de triagem", inplace=True)
                     df.index = pd.to_datetime(df.index, dayfirst=True).date
                     self._set_dados(df)

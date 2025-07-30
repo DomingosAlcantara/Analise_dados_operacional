@@ -1,0 +1,10 @@
+nobeep: true
+clear: true
+runner: pytest
+ext: .py
+ignore:
+  - Acomp_Mensagens
+  - .venv
+  - .git
+  - __pycache__
+  - notebooks

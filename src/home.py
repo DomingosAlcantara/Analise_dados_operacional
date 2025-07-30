@@ -4,7 +4,7 @@
 import streamlit as st
 
 # from pages.resumo import Resumo
-from sidebar_config import Sidebar
+from src.sidebar_config import Sidebar
 
 
 class App:
@@ -35,7 +35,7 @@ class App:
             title="Monitoramento"
         )
         analise_operacional = st.Page(
-            "Pages/analise_operacional.py",
+            "Pages/operacional.py",
             title="Análise Operacional"
         )
         comparativo = st.Page("Pages/comparativo.py", title="Comparativo")
