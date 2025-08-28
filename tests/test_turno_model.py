@@ -1,0 +1,94 @@
+import pytest
+from pandas import DataFrame
+
+from src.models.base.turno_model import TurnoModel
+
+
+@pytest.fixture(scope="module")
+def model():
+    """
+    Configuração inicial para os testes.
+    """
+    horario = {
+        "horario_inicio": "06:15",
+        "horario_final": "13:00"
+    }
+
+    data = {
+        "hora_inicial_de_triagem": ["06:23", "13:20", "15:03", "18:16",
+                                    "19:16", "13:19", "06:18", "13:23",
+                                    "14:26", "15:17"],
+        "nº_máqina": ["M001", "M001", "M001", "M001", "M001", "M002",
+                      "M003", "M003", "M003", "M003"],
+        "hora_final_de_triagem": ["09:16", "14:47", "16:53", "18:49",
+                                  "20:15", "15:24", "07:23", "14:26",
+                                  "15:17", "16:16"],
+        "nome_do_plano_de_triagem": ["PLANO A", "PLANO B", "PLANO C",
+                                     "PLANO D", "PLANO E", "PLANO E",
+                                     "PLANO G", "PLANO H", "PLANO I",
+                                     "PLANO J"],
+        "quantidade_induzida": [20847, 19298, 20792, 6985, 1234, 4321, 8765,
+                                2345, 6789, 3456],
+        "tempo_total_do_plano": ["02:17", "02:14", "01:03", "00:19",
+                                 "00:45", "01:05", "00:50", "00:30",
+                                 "01:15", "00:40"],
+        "rendimento_efetivo/h": [19997, 18470, 24960, 27561, 12237, 17701,
+                                 13431, 19920, 12631, 5251],
+    }
+    df = DataFrame(data)
+    return TurnoModel("T001", horario, df)
+
+
+class Test_TurnoModel:
+
+    def test_total_carga_induzida_maquina(self, model):
+        """
+        Testa o método que retorna o total de carga induzida pela máquina
+        durante o turno.
+        """
+        total_carga = model.total_carga_induzida_maquina()
+
+        assert isinstance(total_carga, int), "Deve retornar um inteiro"
+        assert total_carga == 29612, "O total de carga deve ser 29612"
+
+    def test_rendimento_efetivo_maquina(self, model):
+        """
+        Testa o método que retorna o rendimento efetivo da máquina
+        durante o turno.
+        """
+        rendimento = model.rendimento_efetivo_maquina()
+
+        assert isinstance(rendimento, float), "Deve retornar um float"
+        assert rendimento == pytest.approx(16714.0, 0.01), \
+            "O rendimento deve ser aproximadamente 16714.0"
+
+    def test_total_paradas(self, model):
+        """
+        Testa o método que retorna o total de paradas da máquina
+        durante o turno.
+        """
+        total_paradas = model.total_paradas()
+
+        assert isinstance(total_paradas, int), "Deve retornar um inteiro"
+        assert total_paradas == 0, "O total de paradas deve ser 0"
+
+    def test_media_objetos_induzidos_por_parada(self, model):
+        """
+        Testa o método que retorna a média de objetos induzidos por parada
+        da máquina durante o turno.
+        """
+        media_induzidos = model.media_objetos_induzidos_por_parada()
+
+        assert isinstance(media_induzidos, float), "Deve retornar um float"
+        assert media_induzidos == 0.0, \
+            "A média de objetos induzidos por parada deve ser 0.0"
+
+    def test_total_paradas_maquina(self, model):
+        """
+        Testa o método que retorna o total de paradas da máquina
+        durante o turno.
+        """
+        total_paradas = model.total_paradas_maquina()
+
+        assert isinstance(total_paradas, int), "Deve retornar um inteiro"
+        assert total_paradas == 0, "O total de paradas deve ser 0"

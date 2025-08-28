@@ -3,7 +3,8 @@
 
 Monit_Mensagens/
 Monitoramento/
-tests/
+tests/__pycache__/
+notebooks/
 src1/
 \dist
 \build

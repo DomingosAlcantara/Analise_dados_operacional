@@ -1,8 +1,9 @@
 """Classe base para processamento de dados.
     """
-from abc import ABC, abstractmethod
+from abc import ABC
 from datetime import datetime
 
+import pandas as pd
 from pandas import DataFrame
 
 
@@ -60,9 +61,26 @@ class Uteis(ABC):
         else:
             raise ValueError("Dados não carregados.")
 
-    @abstractmethod
-    def carregar_planilha(self, path) -> DataFrame:
+    def _carregar_planilha(self, path, linhas_para_pular=0,
+                           usar_colunas: list = [],
+                           tipos_colunas: dict = {}) -> DataFrame:
         '''
         Carrega uma planilha do Excel e retorna um DataFrame.
         '''
-        pass
+        try:
+            df = pd.read_excel(
+                path,
+                skiprows=linhas_para_pular,
+                usecols=usar_colunas,
+                dtype=tipos_colunas
+            )
+
+            return df
+        except ValueError:
+            raise ValueError(f"Erro ao carregar a planilha: {path}")
+
+    def _extrair_colunas_informadas(self, d_colunas: dict) -> list:
+        """
+        Extrai as colunas informadas no dicionário.
+        """
+        return list(d_colunas.keys())
