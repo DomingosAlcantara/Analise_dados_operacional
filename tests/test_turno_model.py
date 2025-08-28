@@ -9,9 +9,9 @@ def model():
     """
     Configuração inicial para os testes.
     """
-    horario = {
-        "horario_inicio": "06:15",
-        "horario_final": "13:00"
+    horarios = {
+        "horario_inicio": ["06:15", "13:00", "22:00"],
+        "horario_final": ["13:00", "22:00", "06:15"]
     }
 
     data = {
@@ -36,7 +36,7 @@ def model():
                                  13431, 19920, 12631, 5251],
     }
     df = DataFrame(data)
-    return TurnoModel("T001", horario, df)
+    return TurnoModel("T001", horarios, df)
 
 
 class Test_TurnoModel:

@@ -6,7 +6,7 @@
 class TurnoModel():
     """
         Classe base para modelagem dos turnos de trabalho.
-        Esta classe pode ser estendida para incluir atributos e métodos 
+        Esta classe pode ser estendida para incluir atributos e métodos
         específicos relacionados aos turnos de trabalho das máquinas de triagem
         automatizadas.
     """
