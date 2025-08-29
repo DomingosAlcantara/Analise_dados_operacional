@@ -16,27 +16,41 @@ class TurnoModel():
     """
 
     def __init__(self, horarios, df):
-        self._horarios = self._formatar_horario(horarios)
-        self._dados = df.copy()
+        self._horarios = self._definir_formato_hora(horarios,
+                                                    ["horario_inicio",
+                                                     "horario_final"])
+        self._dados = self._definir_formato_hora(
+            df, ["hora_inicial_de_triagem", "hora_final_de_triagem"]
+        )
 
-    def _formatar_horario(self, horario: DataFrame):
+    def _definir_formato_hora(self, df: DataFrame,
+                              colunas: list = None) -> DataFrame:
         """
-        Formata uma string de horário no formato "HH:MM" para um objeto
-        datetime.time.
+        Converte colunas de horário para datetime.time usando transformações 
+        funcionais.
 
         Args:
-            horario_str (str): String de horário no formato "HH:MM".
+            df (DataFrame): DataFrame com as colunas de horário
+            colunas (list, optional): Lista de colunas para converter
 
         Returns:
-            datetime.time: Objeto de tempo correspondente.
+            DataFrame: Novo DataFrame com as colunas convertidas
         """
-        horario["horario_inicio"] = pd.to_datetime(
-            horario["horario_inicio"], format="%H:%M").dt.time
+        def converter_para_time(coluna: str) -> pd.Series:
+            return pd.to_datetime(df[coluna], format="%H:%M").dt.time
 
-        horario["horario_final"] = pd.to_datetime(
-            horario["horario_final"], format="%H:%M").dt.time
+        # Usa colunas padrão se nenhuma for especificada
+        colunas_para_converter = colunas or ["horario_inicio", "horario_final"]
 
-        return horario
+        # Filtra apenas colunas que existem no DataFrame
+        colunas_validas = filter(
+            lambda col: col in df.columns, colunas_para_converter)
+
+        # Cria novo DataFrame com as conversões
+        return df.assign(**{
+            coluna: converter_para_time(coluna)
+            for coluna in colunas_validas
+        })
 
     def total_carga_induzida_maquina(self) -> dict:
         """
@@ -45,12 +59,6 @@ class TurnoModel():
         Returns:
             dict: Total de carga induzida.
         """
-
-        self._dados["hora_inicial_de_triagem"] = pd.to_datetime(
-            self._dados["hora_inicial_de_triagem"], format="%H:%M").dt.time
-
-        self._dados["hora_final_de_triagem"] = pd.to_datetime(
-            self._dados["hora_final_de_triagem"], format="%H:%M").dt.time
 
         resultado = {}
 
