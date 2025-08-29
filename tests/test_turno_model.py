@@ -10,6 +10,7 @@ def model():
     Configuração inicial para os testes.
     """
     horarios = {
+        "id": ["T001", "T002", "T003"],
         "horario_inicio": ["06:15", "13:00", "22:00"],
         "horario_final": ["13:00", "22:00", "06:15"]
     }
@@ -18,8 +19,8 @@ def model():
         "hora_inicial_de_triagem": ["06:23", "13:20", "15:03", "18:16",
                                     "19:16", "13:19", "06:18", "13:23",
                                     "14:26", "15:17"],
-        "nº_máqina": ["M001", "M001", "M001", "M001", "M001", "M002",
-                      "M003", "M003", "M003", "M003"],
+        "nº_máquina": ["M001", "M001", "M001", "M001", "M001", "M002",
+                       "M003", "M003", "M003", "M003"],
         "hora_final_de_triagem": ["09:16", "14:47", "16:53", "18:49",
                                   "20:15", "15:24", "07:23", "14:26",
                                   "15:17", "16:16"],
@@ -35,8 +36,9 @@ def model():
         "rendimento_efetivo/h": [19997, 18470, 24960, 27561, 12237, 17701,
                                  13431, 19920, 12631, 5251],
     }
+    df_horarios_turnos = DataFrame(horarios, index=horarios["id"])
     df = DataFrame(data)
-    return TurnoModel("T001", horarios, df)
+    return TurnoModel(df_horarios_turnos, df)
 
 
 class Test_TurnoModel:
@@ -48,8 +50,12 @@ class Test_TurnoModel:
         """
         total_carga = model.total_carga_induzida_maquina()
 
-        assert isinstance(total_carga, int), "Deve retornar um inteiro"
-        assert total_carga == 29612, "O total de carga deve ser 29612"
+        assert isinstance(total_carga, dict), "Deve retornar um dicionário"
+        assert "T001" in total_carga, "Deve conter a chave 'T001'"
+        assert isinstance(total_carga["T001"], dict), \
+            "O valor associado a 'T001' deve ser um dicionário"
+        assert total_carga["T001"]["M001"] == 20847, \
+            "O total de carga para a máquina M001 no turno T001 deve ser 20847"
 
     def test_rendimento_efetivo_maquina(self, model):
         """

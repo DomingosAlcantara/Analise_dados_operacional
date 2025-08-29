@@ -3,6 +3,10 @@
 """
 
 
+import pandas as pd
+from pandas import DataFrame
+
+
 class TurnoModel():
     """
         Classe base para modelagem dos turnos de trabalho.
@@ -11,34 +15,61 @@ class TurnoModel():
         automatizadas.
     """
 
-    def __init__(self, id_turno, horario, df):
-        self.id_turno = id_turno
-        self._hora_inicio, self._hora_fim = horario.values()
-        self._df = self._extrair_carga_turno(df)
+    def __init__(self, horarios, df):
+        self._horarios = self._formatar_horario(horarios)
+        self._dados = df.copy()
 
-    def _extrair_carga_turno(self, df):
+    def _formatar_horario(self, horario: DataFrame):
         """
-        Extrai os dados de carga do DataFrame para o turno específico.
+        Formata uma string de horário no formato "HH:MM" para um objeto
+        datetime.time.
+
+        Args:
+            horario_str (str): String de horário no formato "HH:MM".
 
         Returns:
-            DataFrame: Dados filtrados para o turno.
+            datetime.time: Objeto de tempo correspondente.
         """
-        return df[
-            (df["hora_inicial_de_triagem"] >= self._hora_inicio) &
-            (df["hora_final_de_triagem"] <= self._hora_fim)
-        ]
+        horario["horario_inicio"] = pd.to_datetime(
+            horario["horario_inicio"], format="%H:%M").dt.time
 
-    def total_carga_induzida_maquina(self) -> int:
+        horario["horario_final"] = pd.to_datetime(
+            horario["horario_final"], format="%H:%M").dt.time
+
+        return horario
+
+    def total_carga_induzida_maquina(self) -> dict:
         """
         Retorna o total de carga induzida pela máquina durante o turno.
 
         Returns:
-            int: Total de carga induzida.
+            dict: Total de carga induzida.
         """
-        return int(self._df[
-            (self._df["hora_inicial_de_triagem"] >= self._hora_inicio) &
-            (self._df["hora_final_de_triagem"] <= self._hora_fim)
-        ]["quantidade_induzida"].sum())
+
+        self._dados["hora_inicial_de_triagem"] = pd.to_datetime(
+            self._dados["hora_inicial_de_triagem"], format="%H:%M").dt.time
+
+        self._dados["hora_final_de_triagem"] = pd.to_datetime(
+            self._dados["hora_final_de_triagem"], format="%H:%M").dt.time
+
+        resultado = {}
+
+        for _, turno in self._horarios.iterrows():
+            inicio = turno["horario_inicio"]
+            fim = turno["horario_final"]
+
+            mascara_turno = (
+                (self._dados["hora_inicial_de_triagem"] >= inicio) &
+                (self._dados["hora_final_de_triagem"] <= fim)
+            )
+
+            df_turno = self._dados[mascara_turno]
+
+            cargas = df_turno.groupby("nº_máquina")["quantidade_induzida"].sum()
+
+            resultado[turno["id"]] = cargas.to_dict()
+
+        return resultado
 
     def rendimento_efetivo_maquina(self) -> float:
         """
@@ -47,4 +78,4 @@ class TurnoModel():
         Returns:
             float: Rendimento efetivo (carga/hora).
         """
-        return float(self._df["rendimento_efetivo/h"].sum() / len(self._df))
+        return float(self._dados["rendimento_efetivo/h"].sum() / len(self._dados))
