@@ -51,7 +51,8 @@ class Test_TurnoModel:
         total_carga = model.total_carga_induzida_maquina()
 
         assert isinstance(total_carga, dict), "Deve retornar um dicionário"
-        assert "T001" in total_carga, "Deve conter a chave 'T001'"
+        assert "T001" in total_carga, "Deve conter a chave 'T001'. Chaves presentes: " \
+            + ", ".join(total_carga.keys())
         assert isinstance(total_carga["T001"], dict), \
             "O valor associado a 'T001' deve ser um dicionário"
         assert total_carga["T001"]["M001"] == 20847, \
@@ -64,9 +65,14 @@ class Test_TurnoModel:
         """
         rendimento = model.rendimento_efetivo_maquina()
 
-        assert isinstance(rendimento, float), "Deve retornar um float"
-        assert rendimento == pytest.approx(16714.0, 0.01), \
-            "O rendimento deve ser aproximadamente 16714.0"
+        assert isinstance(rendimento, dict), "Deve retornar um dicionário"
+        assert "T001" in rendimento, "Deve conter a chave 'T001'"
+        assert isinstance(rendimento["T001"], dict), \
+            "O valor associado a 'T001' deve ser um dicionário"
+        assert "M001" in rendimento["T001"], \
+            "Deve conter a chave 'M001' no dicionário de 'T001'"
+        assert rendimento["T001"]["M001"] == pytest.approx(19997.0, rel=1e-3), \
+            "O rendimento da M001 no turno T001 deve ser aproximadamente 19997.0"
 
     def test_total_paradas(self, model):
         """

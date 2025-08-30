@@ -20,13 +20,14 @@ class TurnoModel():
                                                     ["horario_inicio",
                                                      "horario_final"])
         self._dados = self._definir_formato_hora(
-            df, ["hora_inicial_de_triagem", "hora_final_de_triagem"]
+            df, ["hora_inicial_de_triagem",
+                 "hora_final_de_triagem"]
         )
 
     def _definir_formato_hora(self, df: DataFrame,
                               colunas: list = None) -> DataFrame:
         """
-        Converte colunas de horário para datetime.time usando transformações 
+        Converte colunas de horário para datetime.time usando transformações
         funcionais.
 
         Args:
@@ -54,28 +55,33 @@ class TurnoModel():
 
     def total_carga_induzida_maquina(self) -> dict:
         """
-        Retorna o total de carga induzida pela máquina durante o turno.
+        Retorna o total de carga induzida pela máquina durante o turno usando
+        operações vetorizadas.
 
         Returns:
-            dict: Total de carga induzida.
+            dict: Total de carga induzida por turno e máquina.
         """
 
-        resultado = {}
+        # Merge dos dados de horários com os dados de turnos
+        df_merged = pd.merge(
+            self._dados,
+            self._horarios.reset_index(),
+            how='cross'
+        )
 
-        for _, turno in self._horarios.iterrows():
-            inicio = turno["horario_inicio"]
-            fim = turno["horario_final"]
+        # Filtra os dados para incluir apenas os registros dentro do turno
+        df_filtrado = df_merged[
+            (df_merged['hora_inicial_de_triagem'] >=
+             df_merged['horario_inicio']) &
+            (df_merged['hora_final_de_triagem'] <= df_merged['horario_final'])
+        ]
 
-            mascara_turno = (
-                (self._dados["hora_inicial_de_triagem"] >= inicio) &
-                (self._dados["hora_final_de_triagem"] <= fim)
-            )
-
-            df_turno = self._dados[mascara_turno]
-
-            cargas = df_turno.groupby("nº_máquina")["quantidade_induzida"].sum()
-
-            resultado[turno["id"]] = cargas.to_dict()
+        # Agrupa por turno e máquina, somando a carga induzida
+        resultado = (df_filtrado
+                     .groupby(['id', 'nº_máquina'])['quantidade_induzida']
+                     .sum()
+                     .unstack(fill_value=0)
+                     .to_dict('index'))
 
         return resultado
 
@@ -86,4 +92,6 @@ class TurnoModel():
         Returns:
             float: Rendimento efetivo (carga/hora).
         """
-        return float(self._dados["rendimento_efetivo/h"].sum() / len(self._dados))
+        return float(
+            self._dados["rendimento_efetivo/h"].sum() / len(self._dados)
+        )
