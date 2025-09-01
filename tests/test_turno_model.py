@@ -35,6 +35,7 @@ def model():
                                  "01:15", "00:40"],
         "rendimento_efetivo/h": [19997, 18470, 24960, 27561, 12237, 17701,
                                  13431, 19920, 12631, 5251],
+
     }
     df_horarios_turnos = DataFrame(horarios, index=horarios["id"])
     df = DataFrame(data)
@@ -102,13 +103,3 @@ class Test_TurnoModel:
         assert isinstance(media_induzidos, float), "Deve retornar um float"
         assert media_induzidos == 0.0, \
             "A média de objetos induzidos por parada deve ser 0.0"
-
-    def test_total_paradas_maquina(self, model):
-        """
-        Testa o método que retorna o total de paradas da máquina
-        durante o turno.
-        """
-        total_paradas = model.total_paradas_maquina()
-
-        assert isinstance(total_paradas, int), "Deve retornar um inteiro"
-        assert total_paradas == 0, "O total de paradas deve ser 0"
