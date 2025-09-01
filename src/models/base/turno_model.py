@@ -53,6 +53,27 @@ class TurnoModel():
             for coluna in colunas_validas
         })
 
+    def _mesclar_dados(self):
+        """
+        Mescla os dados de horários com os dados de turnos.
+        """
+        return pd.merge(
+            self._dados,
+            self._horarios.reset_index(),
+            how='cross'
+        )
+
+    def _limpar_informacoes_turno(self):
+        """
+        Limpa os dados para incluir apenas os registros dentro do turno.
+        """
+        df_merged = self._mesclar_dados()
+        return df_merged[
+            (df_merged['hora_inicial_de_triagem'] >=
+             df_merged['horario_inicio']) &
+            (df_merged['hora_final_de_triagem'] <= df_merged['horario_final'])
+        ]
+
     def total_carga_induzida_maquina(self) -> dict:
         """
         Retorna o total de carga induzida pela máquina durante o turno usando
@@ -62,19 +83,7 @@ class TurnoModel():
             dict: Total de carga induzida por turno e máquina.
         """
 
-        # Merge dos dados de horários com os dados de turnos
-        df_merged = pd.merge(
-            self._dados,
-            self._horarios.reset_index(),
-            how='cross'
-        )
-
-        # Filtra os dados para incluir apenas os registros dentro do turno
-        df_filtrado = df_merged[
-            (df_merged['hora_inicial_de_triagem'] >=
-             df_merged['horario_inicio']) &
-            (df_merged['hora_final_de_triagem'] <= df_merged['horario_final'])
-        ]
+        df_filtrado = self._limpar_informacoes_turno()
 
         # Agrupa por turno e máquina, somando a carga induzida
         resultado = (df_filtrado
@@ -85,13 +94,20 @@ class TurnoModel():
 
         return resultado
 
-    def rendimento_efetivo_maquina(self) -> float:
+    def media_rendimento_efetivo_maquina(self) -> dict:
         """
         Retorna o rendimento efetivo da máquina durante o turno.
 
         Returns:
             float: Rendimento efetivo (carga/hora).
         """
-        return float(
-            self._dados["rendimento_efetivo/h"].sum() / len(self._dados)
-        )
+        df_filtrado = self._limpar_informacoes_turno()
+
+        # Calcula a média do rendimento por máquina e turno
+        return (df_filtrado
+                .groupby(['id', 'nº_máquina'])['rendimento_efetivo/h']
+                .mean()
+                .reset_index()
+                .pivot(index='id', columns='nº_máquina',
+                       values='rendimento_efetivo/h')
+                .to_dict('index'))

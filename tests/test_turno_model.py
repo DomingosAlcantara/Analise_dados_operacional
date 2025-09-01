@@ -57,22 +57,30 @@ class Test_TurnoModel:
             "O valor associado a 'T001' deve ser um dicionário"
         assert total_carga["T001"]["M001"] == 20847, \
             "O total de carga para a máquina M001 no turno T001 deve ser 20847"
+        assert total_carga["T001"]["M003"] == 8765, \
+            "O total de carga para a máquina M003 no turno T001 deve ser 8765"
 
-    def test_rendimento_efetivo_maquina(self, model):
+    def test_media_rendimento_efetivo_maquina(self, model):
         """
         Testa o método que retorna o rendimento efetivo da máquina
         durante o turno.
         """
-        rendimento = model.rendimento_efetivo_maquina()
+        media_rendimento = model.media_rendimento_efetivo_maquina()
 
-        assert isinstance(rendimento, dict), "Deve retornar um dicionário"
-        assert "T001" in rendimento, "Deve conter a chave 'T001'"
-        assert isinstance(rendimento["T001"], dict), \
+        assert isinstance(media_rendimento, dict), "Deve retornar um dicionário"
+        assert "T001" in media_rendimento, "Deve conter a chave 'T001'"
+        assert isinstance(media_rendimento["T001"], dict), \
             "O valor associado a 'T001' deve ser um dicionário"
-        assert "M001" in rendimento["T001"], \
+        assert "M001" in media_rendimento["T001"], \
             "Deve conter a chave 'M001' no dicionário de 'T001'"
-        assert rendimento["T001"]["M001"] == pytest.approx(19997.0, rel=1e-3), \
+        # Verifica se a média do rendimento da M001 noT001 está correta
+        assert media_rendimento["T001"]["M001"] == pytest.approx(
+            19997.0, rel=1e-3), \
             "O rendimento da M001 no turno T001 deve ser aproximadamente 19997.0"
+        # Verifica se a média do rendimento da M003 no T001 está correta
+        assert media_rendimento["T001"]["M003"] == pytest.approx(
+            13431.0, rel=1e-3), \
+            "O rendimento da M003 no turno T001 deve ser aproximadamente 13431.0"
 
     def test_total_paradas(self, model):
         """
