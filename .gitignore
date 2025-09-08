@@ -14,6 +14,7 @@ requirements_clean.txt
 requirements.txt
 src/__pycache__/
 src/pages/__pycache__/
+src/carregamento/__pycache__/
 src/tratamento/__pycache__/
 src/models/__pycache__/
 src/models/base/__pycache__/

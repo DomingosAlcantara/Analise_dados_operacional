@@ -84,3 +84,22 @@ class Uteis(ABC):
         Extrai as colunas informadas no dicionário.
         """
         return list(d_colunas.keys())
+
+    def _pipeline(self, df: DataFrame, funcoes: list) -> DataFrame:
+        """
+        Aplica uma série de funções em pipeline ao DataFrame.
+        """
+
+        # Caso base: Se a lista de funções estiver vazia, retorna o DataFrame
+        if not funcoes:
+            return df
+
+        # Passo Recursivo:
+        # Pega a primeira função da lista
+        primeira_função = funcoes[0]
+        # Pega o restante das funçoes
+        funcoes_restantes = funcoes[1:]
+
+        # Aplica a primeira função ao DataFrame
+        df = primeira_função(df)
+        return self._pipeline(df, funcoes_restantes)
