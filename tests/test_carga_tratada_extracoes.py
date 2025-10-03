@@ -6,7 +6,7 @@ import os
 import pytest
 from pandas import DataFrame
 
-from src.carregamento.carga_tratada_load import CargaTratadaLoad
+from src.extracoes.carga_tratada import CargaTratada
 
 
 @pytest.fixture
@@ -25,7 +25,7 @@ def mock_listagem_arquivos(monkeypatch):
 
 @pytest.fixture
 def model(mock_diretorio_existe):
-    return CargaTratadaLoad("/path/to/mock/directory")
+    return CargaTratada()
 
 
 @pytest.fixture
@@ -56,14 +56,15 @@ def dados_mock():
     return df
 
 
-class Test_CargaTratadaLoad:
+class Test_CargaTratadaExtracoes:
 
-    def test_dataframe(self, dados_mock):
+    def test_listar_arquivos(self, model, mock_listagem_arquivos):
         """
-        Testa se o atributo dataframe é um DataFrame do pandas.
+        Testa se esta sendo retornado uma lista de arquivos.
         """
-        assert isinstance(dados_mock.dataframe, DataFrame), \
-            "O atributo dataframe deve ser um DataFrame do pandas."
+        arquivos = model.listar_arquivos()
+        assert arquivos == mock_listagem_arquivos, \
+            f"Esperado: {mock_listagem_arquivos}, Obtido: {arquivos}"
 
     def test_colunas_necessarias(self, dados_mock):
         """
@@ -78,7 +79,7 @@ class Test_CargaTratadaLoad:
             "quantidade_induzida",
             "rendimento_efetivo/h"
         }
-        colunas_df = set(dados_mock.dataframe.columns)
+        colunas_df = set(dados_mock.columns)
 
         assert colunas_necessarias.issubset(colunas_df), \
             f"O DataFrame deve conter as colunas: {colunas_necessarias}. " \
