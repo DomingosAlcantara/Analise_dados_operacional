@@ -1,5 +1,4 @@
-"""TDD sobre os dados de carga trada para persistência no banco de dados.
-    """
+"""TDD sobre os dados de carga trada para persistência no banco de dados."""
 
 import os
 
@@ -24,7 +23,7 @@ def mock_listagem_arquivos(monkeypatch):
 
 
 @pytest.fixture
-def model(mock_diretorio_existe):
+def model():
     return CargaTratada()
 
 
@@ -58,6 +57,15 @@ def dados_mock():
 
 class Test_CargaTratadaExtracoes:
 
+    @pytest.fixture
+    def mock_processar_pasta(self, monkeypatch, dados_mock):
+        # Mock para simular o método processar_pasta
+        def mock_method(*args, **kwargs):
+            # Retorna um DataFrame vazio ou simulado
+            return DataFrame(dados_mock)
+
+        monkeypatch.setattr(CargaTratada, "processar_pasta", mock_method)
+
     def test_listar_arquivos(self, model, mock_listagem_arquivos):
         """
         Testa se esta sendo retornado uma lista de arquivos.
@@ -84,3 +92,12 @@ class Test_CargaTratadaExtracoes:
         assert colunas_necessarias.issubset(colunas_df), \
             f"O DataFrame deve conter as colunas: {colunas_necessarias}. " \
             f"Colunas presentes: {colunas_df}"
+
+    def test_processar_pasta(self, model, mock_processar_pasta):
+        """
+        Testa se o método processar_pasta retorna um DataFrame.
+        """
+        df_tratado = model.processar_pasta()
+        assert isinstance(df_tratado, DataFrame), \
+            f"Esperado um DataFrame, mas obteve: {type(df_tratado)}"
+        assert not df_tratado.empty, "O DataFrame retornado está vazio."

@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 
 
-class Uteis:
+class Extracoes:
     """Classe utilitária para operações comuns de carregamento de dados."""
 
     def __init__(self, path: str):
@@ -57,10 +57,14 @@ class Uteis:
             planilhas.
         """
 
-        def carregar_planilha(self, path: str, colunas_tipo: dict,
+        # Retorna DataFrame vazio se a lista de arquivos estiver vazia
+        if not path_files:
+            return pd.DataFrame()
+
+        def carregar_planilha(path: str, colunas_tipo: dict,
                               linhas_para_pular: int) -> pd.DataFrame:
-            """Carrega uma planilha Excel em um DataFrame do pandas, conforme os
-            parâmetros especificados.
+            """Carrega uma planilha Excel em um DataFrame do pandas, conforme
+            os parâmetros especificados.
 
             Args:
                 path (str): Caminho para o arquivo Excel.
@@ -71,7 +75,9 @@ class Uteis:
             """
             try:
                 df = pd.read_excel(path, usecols=list(colunas_tipo.keys()),
-                                   skiprows=linhas_para_pular, dtype=colunas_tipo)
+                                   skiprows=linhas_para_pular,
+                                   dtype=colunas_tipo
+                                   )
                 return df
             except FileNotFoundError:
                 print(f"O arquivo {path} não foi encontrado.")
@@ -82,7 +88,10 @@ class Uteis:
 
         with ThreadPoolExecutor() as executor:
             resultados = list(executor.map(
-                lambda p: self.carregar_planilha(p, linhas_para_pular),
+                lambda p: carregar_planilha(p,
+                                            colunas_tipo,
+                                            linhas_para_pular
+                                            ),
                 path_files
             ))
 

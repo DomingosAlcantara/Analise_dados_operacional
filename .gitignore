@@ -5,6 +5,8 @@ Monit_Mensagens/
 Acomp_Mensagens/
 Monitoramento/
 tests/__pycache__/
+tests/tratamento/__pycache__/
+tests/extracoes/__pycache__/
 notebooks/
 src1/
 \dist
@@ -15,7 +17,6 @@ requirements.txt
 src/__pycache__/
 src/pages/__pycache__/
 src/carregamento/__pycache__/
-src/tratamento/__pycache__/
 src/models/__pycache__/
 src/models/base/__pycache__/
 src/controllers/__pycache__/
