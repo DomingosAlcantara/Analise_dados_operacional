@@ -17,6 +17,7 @@ requirements.txt
 src/__pycache__/
 src/pages/__pycache__/
 src/carregamento/__pycache__/
+src/extracoes/__pycache__/
 src/models/__pycache__/
 src/models/base/__pycache__/
 src/controllers/__pycache__/
