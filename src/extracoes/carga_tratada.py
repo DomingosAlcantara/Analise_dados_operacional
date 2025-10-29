@@ -1,10 +1,8 @@
-
 from datetime import datetime
 
 import pandas as pd
 
 from src.extracoes.extracoes import Extracoes
-from src.path_files import PathFiles
 from src.tratamento.pipeline import Pipeline
 
 
@@ -13,8 +11,8 @@ class CargaTratada(Extracoes):
     Classe para carregar e validar dados de carga tratada.
     """
 
-    def __init__(self):
-        super().__init__(PathFiles.ARQUIVOS_CARGA_TRATADA)
+    def __init__(self, path):
+        self._path = str(path)
 
     def padronizar_colunas(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -26,8 +24,7 @@ class CargaTratada(Extracoes):
         Returns:
             DataFrame: DataFrame com as colunas padronizadas.
         """
-        df.columns = [col.strip().lower().replace(" ", "_")
-                      for col in df.columns]
+        df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
         return df
 
     def remover_registros_zerados(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -50,9 +47,11 @@ class CargaTratada(Extracoes):
         Returns:
             DataFrame: Lista de DataFrames contendo os dados carregados.
         """
-        df_bruto = self.processar_arquivos(
-            path_files=self.construir_caminhos_completos(
-                self.listar_arquivos()),
+
+        extrair = Extracoes(self._path)
+
+        df_bruto = extrair.processar_arquivos(
+            path_files=extrair.construir_caminhos_completos(extrair.listar_arquivos()),
             colunas_tipo={
                 "data_de_triagem": datetime.date,
                 "codigo_mcu_ctc": int,
@@ -65,9 +64,12 @@ class CargaTratada(Extracoes):
             linhas_para_pular=8,
         )
 
-        pipe = Pipeline(df_bruto, [
-            self.padronizar_colunas,
-            self.remover_registros_zerados,
-        ])
+        pipe = Pipeline(
+            df_bruto,
+            [
+                self.padronizar_colunas,
+                self.remover_registros_zerados,
+            ],
+        )
 
         return pipe.aplicar_transformacoes()
