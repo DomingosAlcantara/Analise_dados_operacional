@@ -6,7 +6,7 @@ from src.extracoes.extracoes import Extracoes
 from src.tratamento.pipeline import Pipeline
 
 
-class CargaTratada(Extracoes):
+class CargaTratada:
     """
     Classe para carregar e validar dados de carga tratada.
     """
