@@ -1,43 +1,16 @@
-from dash import Dash, dcc, html
+import dash
 
-app = Dash()
+# 1. Instância principal do Dash app
+# use_pages = True - habilita o roteamento automático do Dash
+# suppress_callback_exceptions = True - Essencial para layouts dinâmicos e
+# multi-páginas
 
-app.layout = html.Div(
-    [
-        html.Div(
-            [
-                html.H3("Opções de Navegação"),
-                html.P("Filtros e Controles aqui..."),
-                dcc.Dropdown(
-                    options=[
-                        {"label": "Opção 1", "value": "1"},
-                        {"label": "Opção 2", "value": "2"},
-                        {"label": "Opção 3", "value": "3"},
-                    ],
-                    value="1",
-                ),
-            ],
-            style={
-                "width": "20%",
-                "display": "inline-block",
-                "verticalAlign": "top",
-                "padding": "10px",
-                "borderRight": "1px solid #ccc",
-            },
-        ),
-        html.Div(
-            [
-                html.H1("Conteúdo Principal"),
-            ],
-            style={
-                "width": "80%",
-                "display": "inline-block",
-                "padding": "10px",
-                "marginLeft": "5%",
-            },
-        ),
-    ]
+app = dash.Dash(
+    __name__,
+    use_pages=True,
+    suppress_callback_exceptions=True,
+    title="Monitoramento de Máquinas de Triagem de Cartas - CTCE",
 )
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# Servidor Flask
+server = app.server
