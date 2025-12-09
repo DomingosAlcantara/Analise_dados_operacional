@@ -3,8 +3,7 @@ from src.views.paradas_view import ParadasView
 
 
 class ParadasController:
-    def __init__(self,
-                 files_path="/home/domingos/Documentos/Dados/Engarrafamento/"):
+    def __init__(self, files_path="/home/domingos/Documentos/Dados/Engarrafamento/"):
         self.modelo = ParadasModel(files_path)
         self.view = ParadasView()
 
@@ -20,9 +19,9 @@ class ParadasController:
         Exibe os dados de atolamento de cartas do CTCE.
         """
         paradas = self.modelo.get_paradas_em_percentual()
-        self.view.mostrar_paradas(paradas if paradas is not None
-                                  else ("Nenhuma parada registrada.", 0)
-                                  )
+        self.view.mostrar_paradas(
+            paradas if paradas is not None else ("Nenhuma parada registrada.", 0)
+        )
 
     def get_maiores_paradas(self, n):
         """

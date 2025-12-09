@@ -1,4 +1,4 @@
-from dash import Input, Output, callback, dcc, html, page_container
+from dash import Input, Output, dcc, html, page_container
 
 from src.app import app
 
@@ -53,7 +53,7 @@ class IndexApp:
         Callback para atualizar e renderizar a Sidebar com o estado ativo.
         """
 
-        @callback(
+        @self.app.callback(
             Output(self.sidebar_container_id, "children"),
             Input(self.url_location_id, "pathname"),
             allow_duplicate=True,
@@ -86,9 +86,9 @@ class IndexApp:
 if __name__ == "__main__":
     index_app = IndexApp(app)
 
-    import pages.analise_operacional  # noqa: E402, F401
-    import pages.comparativo  # noqa: E402, F401
-    import pages.monitoramento  # noqa: E402, F401
-    import pages.resumo  # noqa: E402, F401
+    import views.analise_operacional  # noqa: E402, F401
+    import views.comparativo  # noqa: E402, F401
+    import views.monitoramento  # noqa: E402, F401
+    import views.resumo  # noqa: E402, F401
 
     app.run(debug=True)

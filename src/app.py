@@ -8,6 +8,7 @@ import dash
 app = dash.Dash(
     __name__,
     use_pages=True,
+    pages_folder="./views",
     suppress_callback_exceptions=True,
     title="Monitoramento de Máquinas de Triagem de Cartas - CTCE",
 )
