@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from dash import Input, Output, dcc, html, page_container
 
 from src.app import app
@@ -18,6 +20,7 @@ class IndexApp:
         self.url_location_id = "url-location"
         self.sidebar_container_id = "sidebar-container"
         self.page_content_id = "page-content"
+        self.global_date_picker_id = "global-date-picker"
 
         # O self.app.layout deve ser definido  pelo método layout
         self.app.layout = self.layout()
@@ -27,6 +30,9 @@ class IndexApp:
 
     # 1. Método para construir o layout principal (shell)
     def layout(self):
+        # Datas padrão para o DatePickerRange global
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
         return html.Div(
             [
                 # ID para rastrear a URL atual (necessário para multi-páginas e
@@ -38,10 +44,35 @@ class IndexApp:
                 # O conteúdo da página atual (preenchido automaticamente pelo
                 # Dash)
                 html.Div(
-                    page_container,
-                    id=self.page_content_id,
-                    # Ajusta a margem para compensar a largura da sidebar
-                    # (200px)
+                    [
+                        # Cabeçalho com Filtro de Data Global
+                        html.Div(
+                            [
+                                html.H4(
+                                    "Período de Análise:",
+                                    style={"margin-right": "20px"},
+                                ),
+                                dcc.DatePickerRange(
+                                    id=self.global_date_picker_id,
+                                    start_date=str(start_date),
+                                    end_date=str(end_date),
+                                    display_format="DD/MM/YYYY",
+                                    persistence=True,
+                                    persistence_type="session",
+                                ),
+                            ],
+                            style={
+                                "display": "flex",
+                                "alignItems": "center",
+                                "right": "250px",
+                                "padding": "15px",
+                                "backgroundColor": "#f8f9fa",
+                                "borderBottom": "1px solid #dee2e6",
+                                "marginBottom": "25px",
+                            },
+                        ),
+                        page_container,
+                    ],
                     style={"margin-left": "200px", "padding": "25px"},
                 ),
             ]

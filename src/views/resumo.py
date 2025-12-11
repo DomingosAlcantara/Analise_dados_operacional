@@ -34,8 +34,8 @@ class ResumoPage:
         """
         return html.Div(
             [
-                html.H1("Resumo Geral (Classe)", className="page-title"),
-                html.Div("Selecione um continente para filtrar:"),
+                html.H1("Carga Induzida - Pitney Bowes", className="page-title"),
+                html.Div(className="valores-resumo"),
                 dcc.Dropdown(
                     id=self.dropdown_id,
                     options=[
@@ -56,7 +56,8 @@ class ResumoPage:
         # 'app.py'
         @self.app.callback(
             Output(self.graph_id, "figure"),
-            Input(self.dropdown_id, "value"),
+            Input("global-date-picker", "start_date"),
+            Input("global-date-picker", "end_date"),
         )
         def update_figure(selected_continent):
             filtered_df = df[df.continent == selected_continent]
