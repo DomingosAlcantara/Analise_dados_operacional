@@ -2,9 +2,11 @@
 máquinas de triagem de cartas do CTCE.
 """
 
+from datetime import date
+
 import dash
 import plotly.express as px
-from dash import Input, Output, dcc, html
+from dash import Input, Output, html
 
 dash.register_page(__name__, path="/", name="Resumo")
 
@@ -21,8 +23,7 @@ class ResumoPage:
     def __init__(self, app_instance):
         """Inicializa a classe Resumo."""
         self.app = app_instance
-        self.dropdown_id = "resumo-dropdown"
-        self.graph_id = "resumo-graph"
+        self.kpi_table_id = "resumo-kpi-table"
         self.register_callbacks()
 
     def layout(self):
@@ -34,18 +35,8 @@ class ResumoPage:
         """
         return html.Div(
             [
-                html.H1("Carga Induzida - Pitney Bowes", className="page-title"),
-                html.Div(className="valores-resumo"),
-                dcc.Dropdown(
-                    id=self.dropdown_id,
-                    options=[
-                        {"label": c, "value": c} for c in df["continent"].unique()
-                    ],
-                    value="Asia",
-                    clearable=False,
-                    style={"width": "50%"},
-                ),
-                dcc.Graph(id=self.graph_id),
+                html.H1("Resumo Geral da Operação", className="page-title"),
+                html.Div(id=self.kpi_table_id, style={"marginBottom": "30px"}),
             ]
         )
 
@@ -55,25 +46,74 @@ class ResumoPage:
         # Se você usar @self.app.callback, isso forçará a importação do app de
         # 'app.py'
         @self.app.callback(
-            Output(self.graph_id, "figure"),
+            Output(self.kpi_table_id, "children"),
             Input("global-date-picker", "start_date"),
             Input("global-date-picker", "end_date"),
         )
-        def update_figure(selected_continent):
-            filtered_df = df[df.continent == selected_continent]
+        def update_kpi_table(start_date_str, end_date_str):
+            # 1. Validação e Conversão (C)
+            if not start_date_str or not end_date_str:
+                return html.P("Selecione um intervalo de datas válido.")
 
-            fig = px.scatter(
-                filtered_df,
-                x="gdpPercap",
-                y="lifeExp",
-                size="pop",
-                color="country",
-                hover_name="country",
-                log_x=True,
-                size_max=55,
+            # Converter de string para datetime
+            start_date = date.fromisoformat(start_date_str)
+            end_date = date.fromisoformat(end_date_str)
+
+            # 2. Chamar o modelo (C -> M)
+            from src.models.resumo_model import ResumoModel
+
+            resumo_model = ResumoModel(dados=[])  # Dados vazios para exemplo
+            performance_metrics = resumo_model.get_performance_metrics(
+                start_date, end_date
             )
-            fig.update_layout(transition_duration=500)
-            return fig
+
+            # 3. Construir a view (V) - Usando divs formatadas como blocos / tabelas
+            return html.Div(
+                [
+                    # Bloco principal para o layout (usando flexbox para colunas)
+                    html.Div(
+                        [
+                            # Coluna 1: Carga Induzida
+                            html.Div(
+                                [
+                                    html.P("Carga Induzida", className="kpi-label"),
+                                    html.H3(
+                                        performance_metrics["carga_induzida"],
+                                        className="kpi-value",
+                                    ),
+                                ],
+                                className="kpi-block",
+                            ),
+                            # Coluna 2: Média de Carga Induzida
+                            html.Div(
+                                [
+                                    html.P("Média de Carga Induzida"),
+                                    html.H3(
+                                        performance_metrics["media_carga"],
+                                        className="kpi-value",
+                                    ),
+                                ],
+                                className="kpi-block",
+                            ),
+                            # Coluna 3: Rendimento Efetivo / h
+                            html.Div(
+                                [
+                                    html.P(
+                                        "Rendimento Efetivo / h", className="kpi-label"
+                                    ),
+                                    html.H3(
+                                        performance_metrics["eficiencia"],
+                                        className="kpi-value",
+                                    ),
+                                ],
+                                className="kpi-block",
+                            ),
+                        ],
+                        style={"display": "block", "gap": "5px"},
+                    ),
+                ],
+                className="kpi-table",
+            )
 
 
 # 4. INSTÂNCIA E ATRIBUIÇÃO FINAL:
