@@ -3,21 +3,23 @@
     background-color: #ffffff;
     border: 1px solid #ddd;
     border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 10px;
-    width: 20%;
-    height: 33%;
+    padding: 0px;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+    width: auto;
+    height: 100%;
     text-align: center;
-    box-shadow: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    /* box-shadow: none; */
 }
 
 .kpi-label {
     /* Estilo do título / Rótulo */
-    font-size: 1em;
+    font-size: 1.8em;
     font-weight: 500;
     color: #343a40;
     margin-bottom: 0;
@@ -31,4 +33,18 @@
     font-weight: bold;
     margin: 0;
     text-align: center;
+}
+
+.kpi-table { /*> div.nth-child(3) {*/
+    display: grid;
+    /* grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); */
+    gap: 0px;
+    padding-left: 0px;
+    align-items: start;
+}
+
+.kpi-graph {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }

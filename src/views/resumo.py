@@ -8,6 +8,8 @@ import dash
 import plotly.express as px
 from dash import Input, Output, html
 
+from src.components.kpi_card import KpiCard
+
 dash.register_page(__name__, path="/", name="Resumo")
 
 # --- Dados de Exemplo ---
@@ -67,51 +69,122 @@ class ResumoPage:
                 start_date, end_date
             )
 
+            # Instanciando os componentes (Objetos)
+            card_carga = KpiCard(
+                "Carga Induzida",
+                performance_metrics["carga_induzida"],
+                card_id="kpi-carga-induzida",
+            )
+
+            card_media_carga = KpiCard(
+                "Média de Carga Induzida",
+                performance_metrics["media_carga"],
+                card_id="kpi-media-carga",
+            )
+
+            card_rendimento = KpiCard(
+                "Rendimento Efetivo / h",
+                performance_metrics["eficiencia"],
+                card_id="kpi-rendimento",
+            )
+
+            card_carga_induzida_centro = KpiCard(
+                "Carga Induzida por Centro",
+                "777",  # performance_metrics["carga_induzida_centro"]
+                card_id="kpi-carga-induzida-centro",
+            )
+
+            card_rendimento_centro = KpiCard(
+                "Rendimento Efetivo por Centro",
+                "555",  # performance_metrics["rendimento_centro"]
+                card_id="kpi-rendimento-centro",
+            )
+
             # 3. Construir a view (V) - Usando divs formatadas como blocos / tabelas
+            # Bloco principal para o layout (usando flexbox para colunas)
             return html.Div(
                 [
-                    # Bloco principal para o layout (usando flexbox para colunas)
+                    # Coluna 1: Carga Induzida
                     html.Div(
                         [
-                            # Coluna 1: Carga Induzida
-                            html.Div(
-                                [
-                                    html.P("Carga Induzida", className="kpi-label"),
-                                    html.H3(
-                                        performance_metrics["carga_induzida"],
-                                        className="kpi-value",
-                                    ),
-                                ],
-                                className="kpi-block",
-                            ),
-                            # Coluna 2: Média de Carga Induzida
-                            html.Div(
-                                [
-                                    html.P("Média de Carga Induzida"),
-                                    html.H3(
-                                        performance_metrics["media_carga"],
-                                        className="kpi-value",
-                                    ),
-                                ],
-                                className="kpi-block",
-                            ),
-                            # Coluna 3: Rendimento Efetivo / h
+                            card_carga.display(),
+                            card_media_carga.display(),
+                            card_rendimento.display(),
+                        ],
+                        style={
+                            "display": "flex",
+                            "flex-direction": "column",
+                            # "flex-wrap": "wrap",
+                            "height": "75vh",
+                            "width": "100%",
+                            "flex": "1",
+                            "gap": "0px",
+                        },
+                    ),
+                    # Coluna 2: KPIs por Centro
+                    html.Div(
+                        [
+                            card_carga_induzida_centro.display(),
+                            card_rendimento_centro.display(),
+                        ],
+                        style={
+                            "display": "flex",
+                            "flex-direction": "column",
+                            "height": "75vh",
+                            "width": "100%",
+                            "flex": "1.5",
+                            "gap": "0px",
+                        },
+                    ),
+                    # Coluna 3: Gráficos
+                    html.Div(
+                        [
                             html.Div(
                                 [
                                     html.P(
-                                        "Rendimento Efetivo / h", className="kpi-label"
+                                        "Carga Induzida por Máquina",
+                                        className="kpi-label",
                                     ),
-                                    html.H3(
-                                        performance_metrics["eficiencia"],
-                                        className="kpi-value",
+                                    html.Img(
+                                        src="/assets/carga_induzida.png",
+                                        className="kpi-graph",
+                                    ),
+                                ],
+                                className="kpi-block",
+                            ),
+                            html.Div(
+                                [
+                                    html.P(
+                                        "Rendimento Efetivo por Máquina",
+                                        className="kpi-label",
+                                    ),
+                                    html.Img(
+                                        src="/assets/eficiencia.png",
+                                        className="kpi-graph",
                                     ),
                                 ],
                                 className="kpi-block",
                             ),
                         ],
-                        style={"display": "block", "gap": "5px"},
+                        style={
+                            "display": "flex",
+                            "flex-direction": "column",
+                            "height": "75vh",
+                            "width": "100%",
+                            "flex": "5",
+                            "minWidth": 0,
+                        },
                     ),
                 ],
+                style={
+                    "display": "flex",
+                    "flex-direction": "row",
+                    # "flex-wrap": "wrap",
+                    "height": "75vh",
+                    "width": "100%",
+                    "flex": "1",
+                    "gap": "0px",
+                },
                 className="kpi-table",
             )
 
