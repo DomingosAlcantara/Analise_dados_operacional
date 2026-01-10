@@ -48,7 +48,7 @@ class IndexApp:
                         # Cabeçalho com Filtro de Data Global
                         html.Div(
                             [
-                                html.H4(
+                                html.H2(
                                     "Período de Análise:",
                                     style={"margin-right": "20px"},
                                 ),
@@ -109,7 +109,22 @@ class IndexApp:
 # O Dash, ao usar use_pages=True, normalmente faz isso automaticamente ao
 # escanear a pasta 'pages/', mas uma importação explícita garante que
 # os callbacks das classes das páginas também sejam registrados.
+# IMPORTANTE: importamos explicitamente as views aqui para garantir que
+# seus callbacks sejam registrados mesmo antes de qualquer navegação.
+import src.views.analise_operacional  # noqa: F401
+import src.views.detalhamento  # noqa: F401
+import src.views.monitoramento  # noqa: F401
+import src.views.resumo  # noqa: F401
 
+# Instanciamos a página de resumo no startup para garantir que seus callbacks
+# sejam registrados mesmo antes de o usuário navegar até a página.
+try:
+    import src.views.resumo as _resumo
+
+    _resumo.ResumoPage(app)
+except Exception:
+    # Silencioso no startup — isso só tenta garantir registro de callbacks
+    pass
 
 # 3.2. Criamos a instância da classe principal
 # Isso define app.layout e registra o callback de roteamento da sidebar
@@ -117,8 +132,8 @@ class IndexApp:
 if __name__ == "__main__":
     index_app = IndexApp(app)
 
+    import src.views.detalhamento  # noqa: E402, F401
     import views.analise_operacional  # noqa: E402, F401
-    import views.comparativo  # noqa: E402, F401
     import views.monitoramento  # noqa: E402, F401
     import views.resumo  # noqa: E402, F401
 

@@ -1,6 +1,7 @@
-""" Esta classe encapsula a lógica de processamento dos dados de atolamentos,
-    incluindo a soma de cargas tratadas e falhas técnicas.
+"""Esta classe encapsula a lógica de processamento dos dados de atolamentos,
+incluindo a soma de cargas tratadas e falhas técnicas.
 """
+
 import os
 from concurrent.futures import ThreadPoolExecutor
 
@@ -38,8 +39,9 @@ class ParadasModel(Uteis):
         }
 
         try:
-            df = pd.read_excel(path, skiprows=7, usecols=[
-                0, 1, 2, 5, 6], dtype=dtypes)
+            df = self._carregar_planilha(path, 7, [0, 1, 2, 5, 6], dtypes)
+            # df = pd.read_excel(path, skiprows=7, usecols=[
+            #     0, 1, 2, 5, 6], dtype=dtypes)
             return df
         except ValueError:
             raise ValueError(f"Erro ao carregar a planilha: {path}")
@@ -54,8 +56,7 @@ class ParadasModel(Uteis):
         Returns:
             DataFrame: DataFrame com as colunas padronizadas.
         """
-        df.columns = [col.strip().lower().replace(" ", "_")
-                      for col in df.columns]
+        df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
         return df
 
     def remover_desabilitacoes(self, df: DataFrame) -> DataFrame:
@@ -69,8 +70,11 @@ class ParadasModel(Uteis):
             DataFrame: DataFrame filtrado.
         """
         # Exemplo de filtro, ajuste conforme necessário
-        df = df[df["Descrição da Falha"] != "Máquina desabilitada - pressione \
-            e mantenha o botão de habilitar por 1 segundo p"]
+        df = df[
+            df["Descrição da Falha"]
+            != "Máquina desabilitada - pressione \
+            e mantenha o botão de habilitar por 1 segundo p"
+        ]
         return df
 
     def converter_para_datetime(self, df: DataFrame) -> DataFrame:
@@ -86,7 +90,7 @@ class ParadasModel(Uteis):
         """
         df["Data/hora inicial da Falha"] = pd.to_datetime(
             df["Data/hora inicial da Falha"],
-            format="%d/%m/%Y %H:%M:%S"  # ajuste o formato conforme necessário
+            format="%d/%m/%Y %H:%M:%S",  # ajuste o formato conforme necessário
         )
         return df
 
@@ -134,7 +138,7 @@ class ParadasModel(Uteis):
         """
         Processa os arquivos de atolamentos e retorna um DataFrame consolidado.
         """
-        files = [f for f in os.listdir(self._file_path) if f.endswith('.xls')]
+        files = [f for f in os.listdir(self._file_path) if f.endswith(".xls")]
         dataframes = []
         df_dados = None
         caminhos = [os.path.join(self._file_path, nome) for nome in files]
@@ -169,8 +173,7 @@ class ParadasModel(Uteis):
             DataFrame: DataFrame contendo os maiores atolamentos.
         """
         df_dados = self.get_dados().copy()
-        tops = df_dados["descrição_da_falha"].value_counts().\
-            head(n).reset_index()
+        tops = df_dados["descrição_da_falha"].value_counts().head(n).reset_index()
         tops.columns = ["descrição_da_falha", "quantidade"]
         return tops
 
@@ -194,11 +197,11 @@ class ParadasModel(Uteis):
         df_dados = self.get_maiores_paradas(top_paradas)
         total_paradas = self.get_soma_total_paradas()
         if total_paradas == 0:
-            return pd.DataFrame(columns=["descrição_da_falha",
-                                         "quantidade", "percentual"])
+            return pd.DataFrame(
+                columns=["descrição_da_falha", "quantidade", "percentual"]
+            )
 
-        df_dados["percentual"] = (df_dados["quantidade"] /
-                                  total_paradas) * 100
+        df_dados["percentual"] = (df_dados["quantidade"] / total_paradas) * 100
         return df_dados
 
     def mostrar_maquinas(self) -> DataFrame:

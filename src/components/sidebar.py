@@ -15,7 +15,7 @@ class Sidebar:
         self.ordered_page = [
             "Resumo",
             "Análise Operacional",
-            "Comparativo",
+            "Detalhamento",
             "Monitoramento",
             "Paradas",
         ]
@@ -63,7 +63,7 @@ class Sidebar:
         return html.Div(
             id="sidebar",
             children=[
-                html.H3("Menu de Navegação", className="logo"),
+                html.H1("Menu de Navegação", className="logo"),
                 html.Nav(nav_links),
             ],
             style={
