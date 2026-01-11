@@ -26,11 +26,15 @@ class TestCargaInduzidaModel:
 
         print(f"Dados filtrados: {dados_filtrados.shape}")
 
-        assert not dados_filtrados.empty, "Os dados filtrados não devem estar vazios."
+        assert (
+            not dados_filtrados.empty
+        ), "Os dados filtrados não devem estar \
+            vazios."
         assert all(
             (dados_filtrados["Data de triagem"] >= np.datetime64(data_inicial))
             & (dados_filtrados["Data de triagem"] <= np.datetime64(data_final))
-        ), "Os dados filtrados devem estar dentro do intervalo de datas especificado."
+        ), "Os dados filtrados devem estar dentro do intervalo de datas \
+            especificado."
         assert (
             dados_filtrados.shape[0] > 0
         ), "Os dados filtrados devem conter registros."
@@ -51,7 +55,10 @@ class TestCargaInduzidaModel:
         Testa o método media_carga_induzida.
         """
         media = model.media_carga_induzida()
-        assert isinstance(media, float), "A média de carga induzida deve ser um float."
+        assert isinstance(
+            media, float
+        ), "A média de carga induzida deve ser \
+            um float."
         assert media >= 0, "A média de carga induzida não pode ser negativa."
 
     def test_rendimento_efetivo_hora(self, model):
@@ -62,19 +69,80 @@ class TestCargaInduzidaModel:
         assert isinstance(
             rendimento, float
         ), "O rendimento efetivo por hora deve ser um float."
-        assert rendimento >= 0, "O rendimento efetivo por hora não pode ser negativo."
+        assert (
+            rendimento >= 0
+        ), "O rendimento efetivo por hora não pode ser \
+            negativo."
 
-    def test_carga_induzida_por_centro(self, model):
+    def test_carga_induzida_por_centro(self, monkeypatch):
         """
         Testa o método carga_induzida_por_centro.
         """
-        pass
+        import pandas as pd
+
+        from src.models.base.auxiliares import Auxiliares
+
+        def sample_df():
+            return pd.DataFrame(
+                {
+                    "Data de triagem": ["01/08/2023", "15/08/2023", "10/09/2023"],
+                    "Código MCU CTC": [1, 2, 3],
+                    "Centro de Tratamento": ["A", "B", "B"],
+                    "Nº Máquina": [1, 2, 3],
+                    "Nome do Plano de Triagem": ["P1", "P2", "P3"],
+                    "Quantidade Induzida": [100, 200, 50],
+                    "Rendimento Efetivo/h": [10, 20, 15],
+                }
+            )
+
+        monkeypatch.setattr(Auxiliares, "processar_dados", lambda self: sample_df())
+        model = CargaInduzidaModel(pf.ARQUIVOS_CARGA_TRATADA)
+
+        model.filtrar_dados_por_data("2023-08-01", "2023-08-31")
+        res = model.carga_induzida_por_centro()
+
+        assert isinstance(res, pd.Series)
+        assert "A" in res.index and "B" in res.index
+        assert res["A"] == 100
+        assert res["B"] == 200
 
     def test_rendimento_efetivo_por_centro(self, model):
         """
         Testa o método rendimento_efetivo_por_centro.
         """
-        pass
+        import pandas as pd
+
+        from src.models.base.auxiliares import Auxiliares
+
+        def sample_df():
+            return pd.DataFrame(
+                {
+                    "Data de triagem": ["01/08/2023", "15/08/2023", "10/09/2023"],
+                    "Código MCU CTC": [1, 2, 3],
+                    "Centro de Tratamento": ["A", "B", "B"],
+                    "Nº Máquina": [1, 2, 3],
+                    "Nome do Plano de Triagem": ["P1", "P2", "P3"],
+                    "Quantidade Induzida": [100, 200, 50],
+                    "Rendimento Efetivo/h": [10, 20, 15],
+                }
+            )
+
+        # Monkeypatch para controlar os dados
+        from pytest import MonkeyPatch
+
+        monkey = MonkeyPatch()
+        monkey.setattr(Auxiliares, "processar_dados", lambda self: sample_df())
+        try:
+            mod = CargaInduzidaModel(pf.ARQUIVOS_CARGA_TRATADA)
+            mod.filtrar_dados_por_data("2023-08-01", "2023-08-31")
+            res = mod.rendimento_efetivo_por_centro()
+
+            assert isinstance(res, pd.Series)
+            assert "A" in res.index and "B" in res.index
+            assert res["A"] == 10
+            assert res["B"] == 20
+        finally:
+            monkey.undo()
 
     def test_carga_induzida_por_maquina(self, model):
         """

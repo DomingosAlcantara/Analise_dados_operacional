@@ -44,7 +44,7 @@
 }
 
 .kpi-graph {
-    max-width: 100%;
-    height: auto;
-    display: block;
+    width: auto;
+    height: 220px;
+    display: flex;
 }

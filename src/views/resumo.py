@@ -5,10 +5,11 @@ máquinas de triagem de cartas do CTCE.
 from datetime import date, timedelta
 
 import dash
-import plotly.express as px
 from dash import Input, Output, html
+from plotly import express as px
 
 from src.components.kpi_card import KpiCard
+from src.components.kpi_graph_card import KpiGraphCard
 from src.models.carga_induzida_model import CargaInduzidaModel
 from src.models.resumo_model import ResumoModel
 from src.path_files import PathFiles
@@ -19,10 +20,6 @@ except Exception:
     # Em ambientes de teste o app pode não estar instanciado ainda. Ignoramos
     # o erro para permitir a importação do módulo sem uma instância do app.
     pass
-
-# --- Dados de Exemplo ---
-df = px.data.gapminder().query("year == 2007")
-# ------------------------
 
 
 class ResumoPage:
@@ -86,16 +83,16 @@ class ResumoPage:
             card_id=self.ID_VALOR_RENDIMENTO,
         )
 
-        card_carga_induzida_centro = KpiCard(
+        card_carga_induzida_centro = KpiGraphCard(
             "Carga Induzida por Centro",
-            "777",  # performance_metrics["carga_induzida_centro"]
-            card_id="kpi-carga-induzida-centro",
+            figure={},
+            graph_id="graph-carga-centro",
         )
 
-        card_rendimento_centro = KpiCard(
+        card_rendimento_centro = KpiGraphCard(
             "Rendimento Efetivo por Centro",
-            "555",  # performance_metrics["rendimento_centro"]
-            card_id="kpi-rendimento-centro",
+            figure={},
+            graph_id="graph-rendimento-centro",
         )
 
         return html.Div(
@@ -117,7 +114,7 @@ class ResumoPage:
                         "gap": "0px",
                     },
                 ),
-                # Coluna 2: KPIs por Centro
+                # Coluna 2: KPIs por Centro + Gráficos
                 html.Div(
                     [
                         card_carga_induzida_centro.display(),
@@ -127,12 +124,12 @@ class ResumoPage:
                         "display": "flex",
                         "flex-direction": "column",
                         "height": "84vh",
-                        "width": "100%",
-                        "flex": "1.5",
+                        "width": "300px",
+                        "flex": "2",
                         "gap": "0px",
                     },
                 ),
-                # Coluna 3: Gráficos
+                # Coluna 3: Gráficos (restaurada)
                 html.Div(
                     [
                         html.Div(
@@ -192,6 +189,8 @@ class ResumoPage:
                 Output(self.ID_VALOR_CARGA_INDUZIDA, "children"),
                 Output(self.ID_VALOR_MEDIA, "children"),
                 Output(self.ID_VALOR_RENDIMENTO, "children"),
+                Output("graph-carga-centro", "figure"),
+                Output("graph-rendimento-centro", "figure"),
             ],
             [
                 Input("global-date-picker", "start_date"),
@@ -199,9 +198,9 @@ class ResumoPage:
             ],
         )
         def update_kpi_table(start_date_str, end_date_str):
-            return self.compute_kpis(start_date_str, end_date_str)
+            return self.compute_kpis(start_date_str, end_date_str, include_figures=True)
 
-    def compute_kpis(self, start_date_str, end_date_str):
+    def compute_kpis(self, start_date_str, end_date_str, include_figures: bool = False):
         """Lógica extraída para facilitar testes unitários."""
         # 1. Validação e Conversão (C)
         if not start_date_str or not end_date_str:
@@ -219,12 +218,56 @@ class ResumoPage:
                 start_date, end_date
             )
         except Exception:
+            if include_figures:
+                empty_fig = px.bar(title="Carga Induzida por Centro")
+                empty_fig2 = px.bar(title="Rendimento Efetivo por Centro")
+                return "—", "—", "—", empty_fig, empty_fig2
             return "—", "—", "—"
+
+        # Se não for necessário gerar figuras (calls de teste), retornamos apenas os 3 KPIs
+        if not include_figures:
+            return (
+                performance_metrics.get("carga_induzida", "—"),
+                performance_metrics.get("media_carga", "—"),
+                performance_metrics.get("eficiencia", "—"),
+            )
+
+        # Gerar gráficos a partir dos dados filtrados no modelo
+        # A chamada a get_performance_metrics já filtra os dados no model interno
+        serie_carga = resumo_model._model_carga_induzida.carga_induzida_por_centro()
+        if serie_carga is None or serie_carga.empty:
+            fig_carga = px.bar(title="Carga Induzida por Centro")
+        else:
+            df_carga = serie_carga.reset_index()
+            if df_carga.shape[1] == 2:
+                df_carga.columns = ["Centro de Tratamento", "Quantidade Induzida"]
+            fig_carga = px.bar(
+                df_carga,
+                x="Centro de Tratamento",
+                y="Quantidade Induzida",
+                # title="",
+            )
+
+        serie_rend = resumo_model._model_carga_induzida.rendimento_efetivo_por_centro()
+        if serie_rend is None or serie_rend.empty:
+            fig_rend = px.bar(title="Rendimento Efetivo por Centro")
+        else:
+            df_rend = serie_rend.reset_index()
+            if df_rend.shape[1] == 2:
+                df_rend.columns = ["Centro de Tratamento", "Rendimento Efetivo/h"]
+            fig_rend = px.bar(
+                df_rend,
+                x="Centro de Tratamento",
+                y="Rendimento Efetivo/h",
+                # title="Rendimento Efetivo por Centro",
+            )
 
         return (
             performance_metrics.get("carga_induzida", "—"),
             performance_metrics.get("media_carga", "—"),
             performance_metrics.get("eficiencia", "—"),
+            fig_carga,
+            fig_rend,
         )
 
 

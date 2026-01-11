@@ -76,3 +76,41 @@ class CargaInduzidaModel:
             float: Rendimento efetivo por hora.
         """
         return self._dados_filtrados["Rendimento Efetivo/h"].mean()
+
+    def carga_induzida_por_centro(self):
+        """Retorna a soma da `Quantidade Induzida` por `Centro de Tratamento`.
+
+        Returns:
+            pandas.Series: índice = Centro de Tratamento, valores = soma da carga.
+        """
+        if self._dados_filtrados is None or self._dados_filtrados.empty:
+            import pandas as pd
+
+            return pd.Series(dtype="int64")
+
+        grouped = (
+            self._dados_filtrados.groupby("Centro de Tratamento")["Quantidade Induzida"]
+            .sum()
+            .sort_values(ascending=False)
+        )
+        return grouped
+
+    def rendimento_efetivo_por_centro(self):
+        """Retorna a média de `Rendimento Efetivo/h` por `Centro de Tratamento`.
+
+        Returns:
+            pandas.Series: índice = Centro de Tratamento, valores = média do rendimento.
+        """
+        if self._dados_filtrados is None or self._dados_filtrados.empty:
+            import pandas as pd
+
+            return pd.Series(dtype="float64")
+
+        grouped = (
+            self._dados_filtrados.groupby("Centro de Tratamento")[
+                "Rendimento Efetivo/h"
+            ]
+            .mean()
+            .sort_values(ascending=False)
+        )
+        return grouped
