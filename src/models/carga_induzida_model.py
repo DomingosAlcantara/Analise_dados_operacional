@@ -55,9 +55,9 @@ class CargaInduzidaModel:
 
     def total_de_carga_induzida(self):
         """
-        Método para calcular o total de carga induzida.
+        Método para calcular o total de carga induzida no intervalo informado.
         Retorna:
-            int: Total de carga induzida.
+            int64: Total de carga induzida.
         """
         return self._dados_filtrados["Quantidade Induzida"].sum()
 
@@ -88,29 +88,54 @@ class CargaInduzidaModel:
 
             return pd.Series(dtype="int64")
 
-        grouped = (
-            self._dados_filtrados.groupby("Centro de Tratamento")["Quantidade Induzida"]
-            .sum()
-            .sort_values(ascending=False)
-        )
-        return grouped
+        return self._dados_filtrados.groupby("Centro de Tratamento")[
+            "Quantidade Induzida"
+        ].sum()
 
     def rendimento_efetivo_por_centro(self):
         """Retorna a média de `Rendimento Efetivo/h` por `Centro de Tratamento`.
 
         Returns:
-            pandas.Series: índice = Centro de Tratamento, valores = média do rendimento.
+            Series: índice = Centro de Tratamento, valores = média do rendimento.
         """
         if self._dados_filtrados is None or self._dados_filtrados.empty:
-            import pandas as pd
-
             return pd.Series(dtype="float64")
 
-        grouped = (
-            self._dados_filtrados.groupby("Centro de Tratamento")[
-                "Rendimento Efetivo/h"
-            ]
-            .mean()
-            .sort_values(ascending=False)
+        return self._dados_filtrados.groupby("Centro de Tratamento")[
+            "Rendimento Efetivo/h"
+        ].mean()
+
+    def carga_induzida_por_maquina(self):
+        """Retorna um DataFrame com a soma da `Quantidade Induzida` por
+        `Nº Máquina` e o respectivo `Centro de Tratamento`.
+
+        Returns:
+            DataFrame: índice = Nº Máquina, valores = soma da carga.
+        """
+        if self._dados_filtrados is None or self._dados_filtrados.empty:
+            return pd.DataFrame(
+                columns=["Nº Máquina", "Quantidade Induzida", "Centro de Tratamento"]
+            )
+
+        return (
+            self._dados_filtrados.groupby("Nº Máquina")
+            .agg({"Quantidade Induzida": "sum", "Centro de Tratamento": "first"})
+            .reset_index()
         )
-        return grouped
+
+    def rendimento_efetivo_por_maquina(self):
+        """Retorna a média de `Rendimento Efetivo/h` por `Nº Máquina`.
+
+        Returns:
+            pandas.Series: índice = Nº Máquina, valores = média do rendimento.
+        """
+        if self._dados_filtrados is None or self._dados_filtrados.empty:
+            return pd.DataFrame(
+                columns=["Nº Máquina", "Rendimento Efetivo/h", "Centro de Tratamento"]
+            )
+
+        return (
+            self._dados_filtrados.groupby("Nº Máquina")
+            .agg({"Rendimento Efetivo/h": "mean", "Centro de Tratamento": "first"})
+            .reset_index()
+        )

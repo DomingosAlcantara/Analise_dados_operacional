@@ -27,7 +27,8 @@ class ResumoModel:
         """
         Método para calcular métricas de performance.
         """
-        # dias = (end_date - start_date).days if start_date and end_date else 30
+        # dias = (end_date - start_date).days if start_date and end_date
+        # else 30
         self._model_carga_induzida.filtrar_dados_por_data(start_date, end_date)
 
         total_carga = self._model_carga_induzida.total_de_carga_induzida()
@@ -47,3 +48,27 @@ class ResumoModel:
             "media_carga": fmt(media_carga),
             "eficiencia": fmt(eficiencia),
         }
+
+    def carga_induzida_por_centro(self):
+        """
+        Método para obter a carga induzida por centro.
+        """
+        return self._model_carga_induzida.carga_induzida_por_centro()
+
+    def rendimento_efetivo_por_centro(self):
+        """
+        Método para obter o rendimento efetivo por centro.
+        """
+        return self._model_carga_induzida.rendimento_efetivo_por_centro()
+
+    def carga_induzida_por_maquina(self):
+        """
+        Método para obter a carga induzida por máquina.
+        """
+        return self._model_carga_induzida.carga_induzida_por_maquina()
+
+    def rendimento_efetivo_por_maquina(self):
+        """
+        Método para obter o rendimento efetivo por máquina.
+        """
+        return self._model_carga_induzida.rendimento_efetivo_por_maquina()

@@ -5,6 +5,7 @@ máquinas de triagem de cartas do CTCE.
 from datetime import date, timedelta
 
 import dash
+import plotly.graph_objects as go
 from dash import Input, Output, html
 from plotly import express as px
 
@@ -13,6 +14,7 @@ from src.components.kpi_graph_card import KpiGraphCard
 from src.models.carga_induzida_model import CargaInduzidaModel
 from src.models.resumo_model import ResumoModel
 from src.path_files import PathFiles
+from src.views.colors import get_color_palette
 
 try:
     dash.register_page(__name__, path="/", name="Resumo")
@@ -95,6 +97,18 @@ class ResumoPage:
             graph_id="graph-rendimento-centro",
         )
 
+        card_carga_induzida_maquina = KpiGraphCard(
+            "Carga Induzida por Máquina",
+            figure={},
+            graph_id="graph-carga-maquina",
+        )
+
+        card_rendimento_maquina = KpiGraphCard(
+            "Rendimento Efetivo por Máquina",
+            figure={},
+            graph_id="graph-rendimento-maquina",
+        )
+
         return html.Div(
             [
                 # Coluna 1: Carga Induzida
@@ -132,32 +146,8 @@ class ResumoPage:
                 # Coluna 3: Gráficos (restaurada)
                 html.Div(
                     [
-                        html.Div(
-                            [
-                                html.P(
-                                    "Carga Induzida por Máquina",
-                                    className="kpi-label",
-                                ),
-                                html.Img(
-                                    src="/assets/carga_induzida.png",
-                                    className="kpi-graph",
-                                ),
-                            ],
-                            className="kpi-block",
-                        ),
-                        html.Div(
-                            [
-                                html.P(
-                                    "Rendimento Efetivo por Máquina",
-                                    className="kpi-label",
-                                ),
-                                html.Img(
-                                    src="/assets/eficiencia.png",
-                                    className="kpi-graph",
-                                ),
-                            ],
-                            className="kpi-block",
-                        ),
+                        card_carga_induzida_maquina.display(),
+                        card_rendimento_maquina.display(),
                     ],
                     style={
                         "display": "flex",
@@ -191,6 +181,8 @@ class ResumoPage:
                 Output(self.ID_VALOR_RENDIMENTO, "children"),
                 Output("graph-carga-centro", "figure"),
                 Output("graph-rendimento-centro", "figure"),
+                Output("graph-carga-maquina", "figure"),
+                Output("graph-rendimento-maquina", "figure"),
             ],
             [
                 Input("global-date-picker", "start_date"),
@@ -210,6 +202,7 @@ class ResumoPage:
         # Converter de string para datetime
         start_date = date.fromisoformat(start_date_str)
         end_date = date.fromisoformat(end_date_str)
+        cores_atribuidas = []
 
         resumo_model = ResumoModel(self._carga_induzida)
 
@@ -224,7 +217,8 @@ class ResumoPage:
                 return "—", "—", "—", empty_fig, empty_fig2
             return "—", "—", "—"
 
-        # Se não for necessário gerar figuras (calls de teste), retornamos apenas os 3 KPIs
+        # Se não for necessário gerar figuras (calls de teste), retornamos
+        # apenas os 3 KPIs
         if not include_figures:
             return (
                 performance_metrics.get("carga_induzida", "—"),
@@ -233,33 +227,98 @@ class ResumoPage:
             )
 
         # Gerar gráficos a partir dos dados filtrados no modelo
-        # A chamada a get_performance_metrics já filtra os dados no model interno
-        serie_carga = resumo_model._model_carga_induzida.carga_induzida_por_centro()
+        # A chamada a get_performance_metrics já filtra os dados no model
+        # interno
+        serie_carga = resumo_model.carga_induzida_por_centro()
+
         if serie_carga is None or serie_carga.empty:
             fig_carga = px.bar(title="Carga Induzida por Centro")
         else:
             df_carga = serie_carga.reset_index()
             if df_carga.shape[1] == 2:
                 df_carga.columns = ["Centro de Tratamento", "Quantidade Induzida"]
-            fig_carga = px.bar(
-                df_carga,
-                x="Centro de Tratamento",
-                y="Quantidade Induzida",
-                # title="",
-            )
+                colors_map = get_color_palette(df_carga["Centro de Tratamento"])  # type: ignore
+                cores_atribuidas = [colors_map[name] for name in df_carga["Centro de Tratamento"]]  # type: ignore
 
-        serie_rend = resumo_model._model_carga_induzida.rendimento_efetivo_por_centro()
+            fig_carga = go.Figure(
+                data=go.Bar(
+                    x=df_carga["Centro de Tratamento"],
+                    y=df_carga["Quantidade Induzida"],
+                    text=df_carga["Quantidade Induzida"],
+                    marker_color=cores_atribuidas,
+                    textposition="auto",
+                )
+            )
+            fig_carga.update_traces(texttemplate="%{text:.2s}")
+            # fig_carga.update_xaxes(standoff=12)
+
+        serie_rend = resumo_model.rendimento_efetivo_por_centro()
         if serie_rend is None or serie_rend.empty:
             fig_rend = px.bar(title="Rendimento Efetivo por Centro")
         else:
             df_rend = serie_rend.reset_index()
             if df_rend.shape[1] == 2:
                 df_rend.columns = ["Centro de Tratamento", "Rendimento Efetivo/h"]
-            fig_rend = px.bar(
-                df_rend,
-                x="Centro de Tratamento",
-                y="Rendimento Efetivo/h",
-                # title="Rendimento Efetivo por Centro",
+            fig_rend = go.Figure(
+                data=go.Bar(
+                    x=df_rend["Centro de Tratamento"],
+                    y=df_rend["Rendimento Efetivo/h"],
+                    text=df_rend["Rendimento Efetivo/h"],
+                    marker_color=cores_atribuidas,
+                    textposition="auto",
+                )
+            )
+            fig_rend.update_traces(texttemplate="%{text:.2s}")
+
+        df_carga_maquina = resumo_model.carga_induzida_por_maquina()
+        if df_carga_maquina is None or df_carga_maquina.empty:
+            fig_carga_maquina = px.bar(title="Carga Induzida por Máquina")
+        else:
+            colors_map = get_color_palette(df_carga_maquina["Centro de Tratamento"])  # type: ignore
+            cores_atribuidas = [colors_map[name] for name in df_carga_maquina["Centro de Tratamento"]]  # type: ignore
+            fig_carga_maquina = go.Figure(
+                data=go.Bar(
+                    x=df_carga_maquina["Nº Máquina"],
+                    y=df_carga_maquina["Quantidade Induzida"],
+                    text=df_carga_maquina["Quantidade Induzida"],
+                    marker_color=cores_atribuidas,
+                    textposition="auto",
+                )
+            )
+
+            fig_carga_maquina.update_traces(texttemplate="%{text:.2s}")
+            fig_carga_maquina.update_xaxes(
+                type="category",
+                dtick=1,
+                tickangle=0,
+                automargin=True,
+                tickfont=dict(size=13),
+            )
+
+        df_rend_maquina = resumo_model.rendimento_efetivo_por_maquina()
+        if df_rend_maquina is None or df_rend_maquina.empty:
+            fig_rend_maquina = px.bar(title="Rendimento Efetivo por Máquina")
+        else:
+            colors_map = get_color_palette(df_rend_maquina["Centro de Tratamento"])  # type: ignore
+            cores_atribuidas = [colors_map[name] for name in df_rend_maquina["Centro de Tratamento"]]  # type: ignore
+
+            fig_rend_maquina = go.Figure(
+                data=go.Bar(
+                    x=df_rend_maquina["Nº Máquina"],
+                    y=df_rend_maquina["Rendimento Efetivo/h"],
+                    text=df_rend_maquina["Rendimento Efetivo/h"],
+                    marker_color=cores_atribuidas,
+                    textposition="auto",
+                )
+            )
+
+            fig_rend_maquina.update_traces(texttemplate="%{text:.2s}")
+            fig_rend_maquina.update_xaxes(
+                type="category",
+                dtick=1,
+                tickangle=0,
+                automargin=True,
+                tickfont=dict(size=13),
             )
 
         return (
@@ -268,6 +327,8 @@ class ResumoPage:
             performance_metrics.get("eficiencia", "—"),
             fig_carga,
             fig_rend,
+            fig_carga_maquina,
+            fig_rend_maquina,
         )
 
 
