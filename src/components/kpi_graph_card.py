@@ -11,8 +11,8 @@ class KpiGraphCard:
         extra_class (str, optional): Classes CSS adicionais. Default ''
     """
 
-    def __init__(self, label: str, figure=None, graph_id=None, extra_class=""):
-        self.label = label
+    def __init__(self, figure=None, graph_id=None, extra_class=""):
+        # self.label = label
         self.figure = figure or {}
         self.graph_id = graph_id
         self.extra_class = extra_class
@@ -26,7 +26,6 @@ class KpiGraphCard:
 
         return html.Div(
             [
-                html.P(self.label, className="kpi-label"),
                 dcc.Graph(
                     figure=self.figure,
                     **graph_props,

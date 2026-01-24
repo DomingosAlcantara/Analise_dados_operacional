@@ -86,25 +86,21 @@ class ResumoPage:
         )
 
         card_carga_induzida_centro = KpiGraphCard(
-            "Carga Induzida por Centro",
             figure={},
             graph_id="graph-carga-centro",
         )
 
         card_rendimento_centro = KpiGraphCard(
-            "Rendimento Efetivo por Centro",
             figure={},
             graph_id="graph-rendimento-centro",
         )
 
         card_carga_induzida_maquina = KpiGraphCard(
-            "Carga Induzida por Máquina",
             figure={},
             graph_id="graph-carga-maquina",
         )
 
         card_rendimento_maquina = KpiGraphCard(
-            "Rendimento Efetivo por Máquina",
             figure={},
             graph_id="graph-rendimento-maquina",
         )
@@ -246,11 +242,37 @@ class ResumoPage:
                     y=df_carga["Quantidade Induzida"],
                     text=df_carga["Quantidade Induzida"],
                     marker_color=cores_atribuidas,
-                    textposition="auto",
+                    textposition="outside",
+                    textfont={
+                        "size": 18,
+                    },
                 )
             )
             fig_carga.update_traces(texttemplate="%{text:.2s}")
-            # fig_carga.update_xaxes(standoff=12)
+            fig_carga.update_layout(
+                title={
+                    "text": "Carga Induzida por Centro",
+                    "y": 0.9,
+                    "x": 0.5,
+                    "xanchor": "center",
+                    "yanchor": "top",
+                    "font": {
+                        "size": 20,
+                        "color": "black",
+                        # "family": "Arial",
+                    },
+                },
+                xaxis=dict(
+                    tickmode="array",
+                    tickvals=df_carga["Centro de Tratamento"],
+                    ticktext=[
+                        m.replace(" ", "<br>") for m in df_carga["Centro de Tratamento"]
+                    ],
+                ),
+            )
+            fig_carga.update_yaxes(
+                range=[0, df_carga["Quantidade Induzida"].max() * 1.15]
+            )
 
         serie_rend = resumo_model.rendimento_efetivo_por_centro()
         if serie_rend is None or serie_rend.empty:
@@ -263,12 +285,38 @@ class ResumoPage:
                 data=go.Bar(
                     x=df_rend["Centro de Tratamento"],
                     y=df_rend["Rendimento Efetivo/h"],
+                    # title="Rendimento Efetivo por Centro",
                     text=df_rend["Rendimento Efetivo/h"],
                     marker_color=cores_atribuidas,
-                    textposition="auto",
+                    textposition="outside",
+                    textfont={"size": 18},
                 )
             )
             fig_rend.update_traces(texttemplate="%{text:.2s}")
+            fig_rend.update_layout(
+                title={
+                    "text": "Rendimento Efetivo por Centro",
+                    "y": 0.9,
+                    "x": 0.5,
+                    "xanchor": "center",
+                    "yanchor": "top",
+                    "font": {
+                        "size": 20,
+                        "color": "black",
+                        # "family": "Arial",
+                    },
+                },
+                xaxis=dict(
+                    tickmode="array",
+                    tickvals=df_rend["Centro de Tratamento"],
+                    ticktext=[
+                        m.replace(" ", "<br>") for m in df_rend["Centro de Tratamento"]
+                    ],
+                ),
+            )
+            fig_rend.update_yaxes(
+                range=[0, df_rend["Rendimento Efetivo/h"].max() * 1.15]
+            )
 
         df_carga_maquina = resumo_model.carga_induzida_por_maquina()
         if df_carga_maquina is None or df_carga_maquina.empty:
@@ -282,17 +330,35 @@ class ResumoPage:
                     y=df_carga_maquina["Quantidade Induzida"],
                     text=df_carga_maquina["Quantidade Induzida"],
                     marker_color=cores_atribuidas,
-                    textposition="auto",
+                    textposition="outside",
+                    textfont={"size": 18},
                 )
             )
 
             fig_carga_maquina.update_traces(texttemplate="%{text:.2s}")
-            fig_carga_maquina.update_xaxes(
-                type="category",
-                dtick=1,
-                tickangle=0,
-                automargin=True,
-                tickfont=dict(size=13),
+            fig_carga_maquina.update_layout(
+                title={
+                    "text": "Carga Induzida por Máquina",
+                    "y": 0.9,
+                    "x": 0.5,
+                    "xanchor": "center",
+                    "yanchor": "top",
+                    "font": {
+                        "size": 20,
+                        "color": "black",
+                        # "family": "Arial",
+                    },
+                },
+                xaxis=dict(
+                    type="category",
+                    tickvals=df_carga_maquina["Nº Máquina"],
+                    # ticktext=[
+                    #     m.replace(" ", "<br>") for m in df_carga_maquina["Nº Máquina"]
+                    # ],
+                ),
+            )
+            fig_carga_maquina.update_yaxes(
+                range=[0, df_carga_maquina["Quantidade Induzida"].max() * 1.15]
             )
 
         df_rend_maquina = resumo_model.rendimento_efetivo_por_maquina()
@@ -308,17 +374,35 @@ class ResumoPage:
                     y=df_rend_maquina["Rendimento Efetivo/h"],
                     text=df_rend_maquina["Rendimento Efetivo/h"],
                     marker_color=cores_atribuidas,
-                    textposition="auto",
+                    textposition="outside",
+                    textfont={"size": 18},
                 )
             )
 
             fig_rend_maquina.update_traces(texttemplate="%{text:.2s}")
-            fig_rend_maquina.update_xaxes(
-                type="category",
-                dtick=1,
-                tickangle=0,
-                automargin=True,
-                tickfont=dict(size=13),
+            fig_rend_maquina.update_layout(
+                title={
+                    "text": "Rendimento Efetivo por Máquina",
+                    "y": 0.9,
+                    "x": 0.5,
+                    "xanchor": "center",
+                    "yanchor": "top",
+                    "font": {
+                        "size": 20,
+                        "color": "black",
+                        # "family": "Arial",
+                    },
+                },
+                xaxis=dict(
+                    type="category",
+                    tickvals=df_rend_maquina["Nº Máquina"],
+                    # ticktext=[
+                    #     m.replace(" ", "<br>") for m in df_carga_maquina["Nº Máquina"]
+                    # ],
+                ),
+            )
+            fig_rend_maquina.update_yaxes(
+                range=[0, df_rend_maquina["Rendimento Efetivo/h"].max() * 1.15]
             )
 
         return (
