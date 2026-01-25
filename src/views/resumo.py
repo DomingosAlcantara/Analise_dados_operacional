@@ -318,7 +318,9 @@ class ResumoPage:
                 range=[0, df_rend["Rendimento Efetivo/h"].max() * 1.15]
             )
 
-        df_carga_maquina = resumo_model.carga_induzida_por_maquina()
+        df_carga_maquina = resumo_model.carga_induzida_por_maquina().sort_values(
+            by=["Centro de Tratamento", "Quantidade Induzida"], ascending=[True, False]
+        )
         if df_carga_maquina is None or df_carga_maquina.empty:
             fig_carga_maquina = px.bar(title="Carga Induzida por Máquina")
         else:
@@ -361,7 +363,9 @@ class ResumoPage:
                 range=[0, df_carga_maquina["Quantidade Induzida"].max() * 1.15]
             )
 
-        df_rend_maquina = resumo_model.rendimento_efetivo_por_maquina()
+        df_rend_maquina = resumo_model.rendimento_efetivo_por_maquina().sort_values(
+            by=["Centro de Tratamento", "Rendimento Efetivo/h"], ascending=[True, False]
+        )
         if df_rend_maquina is None or df_rend_maquina.empty:
             fig_rend_maquina = px.bar(title="Rendimento Efetivo por Máquina")
         else:
