@@ -5,6 +5,7 @@ máquinas de triagem de cartas do CTCE.
 from datetime import date, timedelta
 
 import dash
+import pandas as pd
 import plotly.graph_objects as go
 from dash import Input, Output, html
 from plotly import express as px
@@ -37,14 +38,19 @@ class ResumoPage:
         self.ID_VALOR_RENDIMENTO = "resumo-val-rendimento"
 
         # Inicializando o modelo de carga induzida
-        self._carga_induzida = CargaInduzidaModel(path=PathFiles.ARQUIVOS_CARGA_TRATADA)
+        # self._carga_induzida = CargaInduzidaModel(path=PathFiles.ARQUIVOS_CARGA_TRATADA)
+
+        # Inicializando o modelo de resumo
+        self._resumo_model = ResumoModel(
+            CargaInduzidaModel(path=PathFiles.ARQUIVOS_CARGA_TRATADA)
+        )
 
         # Calcula métricas iniciais usando o intervalo padrão (últimos 30 dias)
         try:
             end_date = date.today()
             start_date = end_date - timedelta(days=30)
-            resumo_model = ResumoModel(self._carga_induzida)
-            self._initial_metrics = resumo_model.get_performance_metrics(
+            # resumo_model = ResumoModel(self._carga_induzida)
+            self._initial_metrics = self._resumo_model.get_performance_metrics(
                 start_date, end_date
             )
         except Exception as e:
@@ -57,6 +63,91 @@ class ResumoPage:
 
         if register_callbacks:
             self.register_callbacks()
+
+    def gerar_graficos(
+        self,
+        df,
+        coluna_x,
+        coluna_y,
+        titulo,
+        eh_por_centro=True,
+        aplicar_ordenacao=False,
+        sort_columns=None,
+    ):
+        """Gera um gráfico de barras padronizado.
+
+        Args:
+            dados: DataFrame ou Series com os dados
+            coluna_x: Nome da coluna para eixo X
+            coluna_y: Nome da coluna para eixo Y
+            titulo: Título do gráfico
+            eh_por_centro: Se True, aplica cores por Centro de Tratamento
+            aplicar_sort: Se True, ordena os dados
+            sort_columns: Lista de colunas para ordenação [col1, col2]
+
+        Returns:
+            go.Figure: Figura Plotly pronta para renderizar
+        """
+        if df is None or df.empty:
+            return px.bar(title=titulo)
+
+        # Converter Series para DataFrame se necessário
+        if not isinstance(df, pd.DataFrame):
+            df = df.reset_index()
+        else:
+            df = df.copy()
+
+        if aplicar_ordenacao and sort_columns:
+            df = df.sort_values(by=sort_columns, ascending=[True, False])
+
+        # Determinar cores
+        if eh_por_centro and "Centro de Tratamento" in df.columns:
+            colors_map = get_color_palette(df["Centro de Tratamento"])  # type: ignore
+            cores_atribuidas = [colors_map[name] for name in df["Centro de Tratamento"]]  # type: ignore
+        else:
+            cores_atribuidas = None
+
+        # Criar figura
+        figura = go.Figure(
+            data=go.Bar(
+                x=df[coluna_x],
+                y=df[coluna_y],
+                text=df[coluna_y],
+                marker_color=cores_atribuidas,
+                textposition="outside",
+                textfont={"size": 18},
+            )
+        )
+
+        # Aplicar formatação padrao
+        figura.update_traces(texttemplate="%{text:.2s}")
+        figura.update_layout(
+            title={
+                "text": titulo,
+                "y": 0.9,
+                "x": 0.5,
+                "xanchor": "center",
+                "yanchor": "top",
+                "font": {
+                    "size": 25,
+                    "color": "black",
+                },
+            },
+            xaxis=dict(
+                type="category" if coluna_x == "Nº Máquina" else None,
+                # tickmode="array",
+                tickvals=df[coluna_x],
+                ticktext=(
+                    [m.replace(" ", "<br>") for m in df[coluna_x]]
+                    if coluna_x != "Nº Máquina"
+                    else None
+                ),
+            ),
+        )
+
+        figura.update_yaxes(range=[0, df[coluna_y].max() * 1.15])
+
+        return figura
 
     def layout(self):
         """Retorna o layout da página de resumo.
@@ -200,10 +291,8 @@ class ResumoPage:
         end_date = date.fromisoformat(end_date_str)
         cores_atribuidas = []
 
-        resumo_model = ResumoModel(self._carga_induzida)
-
         try:
-            performance_metrics = resumo_model.get_performance_metrics(
+            performance_metrics = self._resumo_model.get_performance_metrics(
                 start_date, end_date
             )
         except Exception:
@@ -225,189 +314,44 @@ class ResumoPage:
         # Gerar gráficos a partir dos dados filtrados no modelo
         # A chamada a get_performance_metrics já filtra os dados no model
         # interno
-        serie_carga = resumo_model.carga_induzida_por_centro()
-
-        if serie_carga is None or serie_carga.empty:
-            fig_carga = px.bar(title="Carga Induzida por Centro")
-        else:
-            df_carga = serie_carga.reset_index()
-            if df_carga.shape[1] == 2:
-                df_carga.columns = ["Centro de Tratamento", "Quantidade Induzida"]
-                colors_map = get_color_palette(df_carga["Centro de Tratamento"])  # type: ignore
-                cores_atribuidas = [colors_map[name] for name in df_carga["Centro de Tratamento"]]  # type: ignore
-
-            fig_carga = go.Figure(
-                data=go.Bar(
-                    x=df_carga["Centro de Tratamento"],
-                    y=df_carga["Quantidade Induzida"],
-                    text=df_carga["Quantidade Induzida"],
-                    marker_color=cores_atribuidas,
-                    textposition="outside",
-                    textfont={
-                        "size": 18,
-                    },
-                )
-            )
-            fig_carga.update_traces(texttemplate="%{text:.2s}")
-            fig_carga.update_layout(
-                title={
-                    "text": "Carga Induzida por Centro",
-                    "y": 0.9,
-                    "x": 0.5,
-                    "xanchor": "center",
-                    "yanchor": "top",
-                    "font": {
-                        "size": 20,
-                        "color": "black",
-                        # "family": "Arial",
-                    },
-                },
-                xaxis=dict(
-                    tickmode="array",
-                    tickvals=df_carga["Centro de Tratamento"],
-                    ticktext=[
-                        m.replace(" ", "<br>") for m in df_carga["Centro de Tratamento"]
-                    ],
-                ),
-            )
-            fig_carga.update_yaxes(
-                range=[0, df_carga["Quantidade Induzida"].max() * 1.15]
-            )
-
-        serie_rend = resumo_model.rendimento_efetivo_por_centro()
-        if serie_rend is None or serie_rend.empty:
-            fig_rend = px.bar(title="Rendimento Efetivo por Centro")
-        else:
-            df_rend = serie_rend.reset_index()
-            if df_rend.shape[1] == 2:
-                df_rend.columns = ["Centro de Tratamento", "Rendimento Efetivo/h"]
-            fig_rend = go.Figure(
-                data=go.Bar(
-                    x=df_rend["Centro de Tratamento"],
-                    y=df_rend["Rendimento Efetivo/h"],
-                    # title="Rendimento Efetivo por Centro",
-                    text=df_rend["Rendimento Efetivo/h"],
-                    marker_color=cores_atribuidas,
-                    textposition="outside",
-                    textfont={"size": 18},
-                )
-            )
-            fig_rend.update_traces(texttemplate="%{text:.2s}")
-            fig_rend.update_layout(
-                title={
-                    "text": "Rendimento Efetivo por Centro",
-                    "y": 0.9,
-                    "x": 0.5,
-                    "xanchor": "center",
-                    "yanchor": "top",
-                    "font": {
-                        "size": 20,
-                        "color": "black",
-                        # "family": "Arial",
-                    },
-                },
-                xaxis=dict(
-                    tickmode="array",
-                    tickvals=df_rend["Centro de Tratamento"],
-                    ticktext=[
-                        m.replace(" ", "<br>") for m in df_rend["Centro de Tratamento"]
-                    ],
-                ),
-            )
-            fig_rend.update_yaxes(
-                range=[0, df_rend["Rendimento Efetivo/h"].max() * 1.15]
-            )
-
-        df_carga_maquina = resumo_model.carga_induzida_por_maquina().sort_values(
-            by=["Centro de Tratamento", "Quantidade Induzida"], ascending=[True, False]
+        fig_carga = self.gerar_graficos(
+            self._resumo_model.carga_induzida_por_centro(),
+            coluna_x="Centro de Tratamento",
+            coluna_y="Quantidade Induzida",
+            titulo="Carga Induzida por Centro",
         )
-        if df_carga_maquina is None or df_carga_maquina.empty:
-            fig_carga_maquina = px.bar(title="Carga Induzida por Máquina")
-        else:
-            colors_map = get_color_palette(df_carga_maquina["Centro de Tratamento"])  # type: ignore
-            cores_atribuidas = [colors_map[name] for name in df_carga_maquina["Centro de Tratamento"]]  # type: ignore
-            fig_carga_maquina = go.Figure(
-                data=go.Bar(
-                    x=df_carga_maquina["Nº Máquina"],
-                    y=df_carga_maquina["Quantidade Induzida"],
-                    text=df_carga_maquina["Quantidade Induzida"],
-                    marker_color=cores_atribuidas,
-                    textposition="outside",
-                    textfont={"size": 18},
-                )
-            )
 
-            fig_carga_maquina.update_traces(texttemplate="%{text:.2s}")
-            fig_carga_maquina.update_layout(
-                title={
-                    "text": "Carga Induzida por Máquina",
-                    "y": 0.9,
-                    "x": 0.5,
-                    "xanchor": "center",
-                    "yanchor": "top",
-                    "font": {
-                        "size": 20,
-                        "color": "black",
-                        # "family": "Arial",
-                    },
-                },
-                xaxis=dict(
-                    type="category",
-                    tickvals=df_carga_maquina["Nº Máquina"],
-                    # ticktext=[
-                    #     m.replace(" ", "<br>") for m in df_carga_maquina["Nº Máquina"]
-                    # ],
-                ),
-            )
-            fig_carga_maquina.update_yaxes(
-                range=[0, df_carga_maquina["Quantidade Induzida"].max() * 1.15]
-            )
-
-        df_rend_maquina = resumo_model.rendimento_efetivo_por_maquina().sort_values(
-            by=["Centro de Tratamento", "Rendimento Efetivo/h"], ascending=[True, False]
+        fig_rend = self.gerar_graficos(
+            self._resumo_model.rendimento_efetivo_por_centro(),
+            coluna_x="Centro de Tratamento",
+            coluna_y="Rendimento Efetivo/h",
+            titulo="Rendimento Efetivo por Centro",
         )
-        if df_rend_maquina is None or df_rend_maquina.empty:
-            fig_rend_maquina = px.bar(title="Rendimento Efetivo por Máquina")
-        else:
-            colors_map = get_color_palette(df_rend_maquina["Centro de Tratamento"])  # type: ignore
-            cores_atribuidas = [colors_map[name] for name in df_rend_maquina["Centro de Tratamento"]]  # type: ignore
 
-            fig_rend_maquina = go.Figure(
-                data=go.Bar(
-                    x=df_rend_maquina["Nº Máquina"],
-                    y=df_rend_maquina["Rendimento Efetivo/h"],
-                    text=df_rend_maquina["Rendimento Efetivo/h"],
-                    marker_color=cores_atribuidas,
-                    textposition="outside",
-                    textfont={"size": 18},
-                )
-            )
+        # Gerar gráfico de carga por máquina com ordenação dupla
+        fig_carga_maquina = self.gerar_graficos(
+            self._resumo_model.carga_induzida_por_maquina().sort_values(
+                by=["Centro de Tratamento", "Quantidade Induzida"],
+                ascending=[True, False],
+            ),
+            coluna_x="Nº Máquina",
+            coluna_y="Quantidade Induzida",
+            titulo="Carga Induzida por Máquina",
+            # aplicar_ordenacao=True,
+            # sort_columns=["Centro de Tratamento", "Quantidade Induzida"],
+        )
 
-            fig_rend_maquina.update_traces(texttemplate="%{text:.2s}")
-            fig_rend_maquina.update_layout(
-                title={
-                    "text": "Rendimento Efetivo por Máquina",
-                    "y": 0.9,
-                    "x": 0.5,
-                    "xanchor": "center",
-                    "yanchor": "top",
-                    "font": {
-                        "size": 20,
-                        "color": "black",
-                        # "family": "Arial",
-                    },
-                },
-                xaxis=dict(
-                    type="category",
-                    tickvals=df_rend_maquina["Nº Máquina"],
-                    # ticktext=[
-                    #     m.replace(" ", "<br>") for m in df_carga_maquina["Nº Máquina"]
-                    # ],
-                ),
-            )
-            fig_rend_maquina.update_yaxes(
-                range=[0, df_rend_maquina["Rendimento Efetivo/h"].max() * 1.15]
-            )
+        fig_rend_maquina = self.gerar_graficos(
+            self._resumo_model.rendimento_efetivo_por_maquina().sort_values(
+                by=["Centro de Tratamento", "Rendimento Efetivo/h"],
+                ascending=[True, False],
+            ),
+            coluna_x="Nº Máquina",
+            coluna_y="Rendimento Efetivo/h",
+            titulo="Rendimento Efetivo por Máquina",
+            # aplicar_ordenacao=True,
+            # sort_columns=["Centro de Tratamento", "Rendimento Efetivo/h"],
+        )
 
         return (
             performance_metrics.get("carga_induzida", "—"),
