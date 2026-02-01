@@ -139,3 +139,40 @@ class CargaInduzidaModel:
             .agg({"Rendimento Efetivo/h": "mean", "Centro de Tratamento": "first"})
             .reset_index()
         )
+
+    @staticmethod
+    def _adicionar_rotulo_maquina(df):
+        """Adiciona uma coluna com rótulo formatado para máquinas.
+
+        O rótulo segue o padrão: NºMáquina<br>IND - TIPO{sequência}
+        onde IND são as 3 iniciais do Centro de Tratamento e a sequência
+        reinicia para cada Centro de Tratamento.
+
+        Args:
+            df: DataFrame com colunas 'Nº Máquina' e 'Centro de Tratamento'
+
+        Returns:
+            DataFrame: com coluna adicional 'Rótulo Máquina'
+        """
+        df = df.copy().sort_values(by=["Centro de Tratamento", "Nº Máquina"])
+
+        # Agrupar por centro e adicionar sequência dentro de cada grupo
+        df["Sequência"] = df.groupby("Centro de Tratamento", sort=False).cumcount() + 1
+
+        # Extrair as 3 primeiras letras do Centro de Tratamento
+        df["Sigla Centro"] = df["Centro de Tratamento"].str[5:8].str.upper()
+
+        # Criar o rótulo formatado
+        df["Rótulo Máquina"] = (
+            df["Nº Máquina"].astype(str)
+            + "<br>"
+            + df["Sigla Centro"].astype(str)
+            + " - PBVS"
+            + df["Sequência"].astype(str)
+        )
+
+        print(df["Rótulo Máquina"])
+
+        # Remover colunas auxiliares
+        df.drop(columns=["Sequência", "Sigla Centro"])
+        return df

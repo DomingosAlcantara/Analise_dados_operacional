@@ -14,17 +14,26 @@ class Sidebar:
         # Lista dos nomes das páginas na ordem desejada
         self.ordered_page = [
             "Resumo",
+            "Resumos",
             "Análise Operacional",
             "Detalhamento",
             "Monitoramento",
             "Paradas",
         ]
 
-        # Mapeia os nomes da sidebar para o objeto Page do Dash
+        # Mapeia todos os nomes das páginas registradas pelo Dash
+        all_pages: Dict[str, Any] = {
+            page["name"]: page for page in page_registry.values()
+        }
+
+        # Monta a ordem final: primeiro os nomes definidos em `ordered_page`
+        # (se existirem), depois as demais páginas registradas (ordenadas por nome).
+        ordered_names = [name for name in self.ordered_page if name in all_pages]
+        remaining = sorted([n for n in all_pages.keys() if n not in ordered_names])
+
+        # Mapeia os nomes visíveis no sidebar para o objeto Page do Dash
         self.page_map: Dict[str, Any] = {
-            page["name"]: page
-            for page in page_registry.values()
-            if page["name"] in self.ordered_page
+            name: all_pages[name] for name in ordered_names + remaining
         }
 
     def layout(self, current_path: str):

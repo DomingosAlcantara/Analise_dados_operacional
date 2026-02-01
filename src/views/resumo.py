@@ -73,6 +73,7 @@ class ResumoPage:
         eh_por_centro=True,
         aplicar_ordenacao=False,
         sort_columns=None,
+        usar_rotulo_maquina=False,
     ):
         """Gera um gráfico de barras padronizado.
 
@@ -84,6 +85,7 @@ class ResumoPage:
             eh_por_centro: Se True, aplica cores por Centro de Tratamento
             aplicar_sort: Se True, ordena os dados
             sort_columns: Lista de colunas para ordenação [col1, col2]
+            usar_rotulo_maquina: Se True, aplica rótulo formatado para máquinas
 
         Returns:
             go.Figure: Figura Plotly pronta para renderizar
@@ -100,6 +102,13 @@ class ResumoPage:
         if aplicar_ordenacao and sort_columns:
             df = df.sort_values(by=sort_columns, ascending=[True, False])
 
+        # Aplicar rótulo formatado para máquinas
+        if usar_rotulo_maquina:
+            df = self._resumo_model._adicionar_rotulo_maquina(df)
+            coluna_x_display = "Rótulo Máquina"
+        else:
+            coluna_x_display = coluna_x
+
         # Determinar cores
         if eh_por_centro and "Centro de Tratamento" in df.columns:
             colors_map = get_color_palette(df["Centro de Tratamento"])  # type: ignore
@@ -110,7 +119,7 @@ class ResumoPage:
         # Criar figura
         figura = go.Figure(
             data=go.Bar(
-                x=df[coluna_x],
+                x=df[coluna_x_display],
                 y=df[coluna_y],
                 text=df[coluna_y],
                 marker_color=cores_atribuidas,
@@ -136,10 +145,10 @@ class ResumoPage:
             xaxis=dict(
                 type="category" if coluna_x == "Nº Máquina" else None,
                 # tickmode="array",
-                tickvals=df[coluna_x],
+                tickvals=df[coluna_x_display],
                 ticktext=(
-                    [m.replace(" ", "<br>") for m in df[coluna_x]]
-                    if coluna_x != "Nº Máquina"
+                    [m.replace(" ", "<br>") for m in df[coluna_x_display]]
+                    if coluna_x_display != "Rótulo Máquina"
                     else None
                 ),
             ),
@@ -289,7 +298,6 @@ class ResumoPage:
         # Converter de string para datetime
         start_date = date.fromisoformat(start_date_str)
         end_date = date.fromisoformat(end_date_str)
-        cores_atribuidas = []
 
         try:
             performance_metrics = self._resumo_model.get_performance_metrics(
@@ -337,8 +345,7 @@ class ResumoPage:
             coluna_x="Nº Máquina",
             coluna_y="Quantidade Induzida",
             titulo="Carga Induzida por Máquina",
-            # aplicar_ordenacao=True,
-            # sort_columns=["Centro de Tratamento", "Quantidade Induzida"],
+            usar_rotulo_maquina=True,
         )
 
         fig_rend_maquina = self.gerar_graficos(
@@ -349,8 +356,7 @@ class ResumoPage:
             coluna_x="Nº Máquina",
             coluna_y="Rendimento Efetivo/h",
             titulo="Rendimento Efetivo por Máquina",
-            # aplicar_ordenacao=True,
-            # sort_columns=["Centro de Tratamento", "Rendimento Efetivo/h"],
+            usar_rotulo_maquina=True,
         )
 
         return (
@@ -377,8 +383,7 @@ def get_layout():
     from src.app import app  # noqa F401
 
     # Não re-registrar callbacks novamente (já registramos no startup)
-    resumo_page_instance = ResumoPage(app, register_callbacks=False)
-    return resumo_page_instance.layout()
+    return ResumoPage(app, register_callbacks=False).layout()
 
 
 # A variável global 'layout' deve ser uma FUNÇÃO que o Dash pode chamar

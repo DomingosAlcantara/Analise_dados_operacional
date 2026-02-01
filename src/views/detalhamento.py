@@ -9,11 +9,12 @@ dash.register_page(__name__, path="/detalhamento", name="Detalhamento")
 
 
 class Detalhamento:
-    def __init__(self, app_instance):
+    def __init__(self, app_instance, register_callbacks=True):
         self.app = app_instance
         self.dropdown_id = "comparativo-dropdown"
         self.graph_id = "comparativo-graph"
-        self.register_callbacks()
+        if register_callbacks:
+            self.register_callbacks()
 
     def layout(self):
         carga_induzida_centro = KpiCard(
@@ -111,8 +112,7 @@ class Detalhamento:
 def get_layout():
     from src.app import app
 
-    comparativo_page_instance = Detalhamento(app)
-    return comparativo_page_instance.layout()
+    return Detalhamento(app, register_callbacks=False).layout()
 
 
 layout = get_layout

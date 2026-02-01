@@ -115,6 +115,7 @@ import src.views.analise_operacional  # noqa: F401
 import src.views.detalhamento  # noqa: F401
 import src.views.monitoramento  # noqa: F401
 import src.views.resumo  # noqa: F401
+import src.views.resumos  # noqa: F401
 
 # Instanciamos a página de resumo no startup para garantir que seus callbacks
 # sejam registrados mesmo antes de o usuário navegar até a página.
@@ -136,5 +137,6 @@ if __name__ == "__main__":
     import views.analise_operacional  # noqa: E402, F401
     import views.monitoramento  # noqa: E402, F401
     import views.resumo  # noqa: E402, F401
+    import views.resumos  # noqa: E402, F401
 
     app.run(debug=True)

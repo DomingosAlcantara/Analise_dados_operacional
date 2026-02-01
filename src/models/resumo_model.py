@@ -72,3 +72,17 @@ class ResumoModel:
         Método para obter o rendimento efetivo por máquina.
         """
         return self._model_carga_induzida.rendimento_efetivo_por_maquina()
+
+    def _adicionar_rotulo_maquina(self, df):
+        """
+        Adiciona uma coluna 'Rótulo Máquina' ao DataFrame com o formato
+        'Máquina {Nº Máquina} - Centro {Centro de Tratamento}'.
+
+        Args:
+            df (pandas.DataFrame): DataFrame contendo as colunas
+            'Nº Máquina' e 'Centro de Tratamento'.
+
+        Returns:
+            pandas.DataFrame: DataFrame com a nova coluna 'Rótulo Máquina'.
+        """
+        return self._model_carga_induzida._adicionar_rotulo_maquina(df)
