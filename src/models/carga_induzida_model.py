@@ -171,8 +171,6 @@ class CargaInduzidaModel:
             + df["Sequência"].astype(str)
         )
 
-        print(df["Rótulo Máquina"])
-
         # Remover colunas auxiliares
         df.drop(columns=["Sequência", "Sigla Centro"])
         return df

@@ -13,12 +13,8 @@ class Sidebar:
         """Inicializa a classe Sidebar."""
         # Lista dos nomes das páginas na ordem desejada
         self.ordered_page = [
-            "Resumo",
             "Resumos",
-            "Análise Operacional",
             "Detalhamento",
-            "Monitoramento",
-            "Paradas",
         ]
 
         # Mapeia todos os nomes das páginas registradas pelo Dash
@@ -75,17 +71,6 @@ class Sidebar:
                 html.H1("Menu de Navegação", className="logo"),
                 html.Nav(nav_links),
             ],
-            style={
-                # Estilos básicos
-                "width": "200px",
-                "height": "100vh",
-                "position": "fixed",
-                "top": "0",
-                "left": "0",
-                "backgroundColor": "#84878A",
-                "padding": "20px",
-                "color": "white",
-            },
         )
 
 

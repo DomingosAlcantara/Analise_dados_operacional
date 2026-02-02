@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from dash import Input, Output, dcc, html, page_container
 
 from src.app import app
+from src.components.back_button import BackButton
 
 # Importa a instância da classe Sidebar
 from src.components.sidebar import sidebar_component as Sidebar
@@ -21,6 +22,7 @@ class IndexApp:
         self.sidebar_container_id = "sidebar-container"
         self.page_content_id = "page-content"
         self.global_date_picker_id = "global-date-picker"
+        self.back_button = BackButton()
 
         # O self.app.layout deve ser definido  pelo método layout
         self.app.layout = self.layout()
@@ -48,28 +50,35 @@ class IndexApp:
                         # Cabeçalho com Filtro de Data Global
                         html.Div(
                             [
-                                html.H2(
-                                    "Período de Análise:",
-                                    style={"margin-right": "20px"},
+                                html.Div(
+                                    [
+                                        html.H2(
+                                            "Período de Análise:",
+                                            style={"margin-right": "20px"},
+                                        ),
+                                        dcc.DatePickerRange(
+                                            id=self.global_date_picker_id,
+                                            start_date=str(start_date),
+                                            end_date=str(end_date),
+                                            display_format="DD/MM/YYYY",
+                                            persistence=True,
+                                            persistence_type="session",
+                                        ),
+                                    ],
+                                    style={
+                                        "flex": 1,
+                                        # "display": "flex",
+                                        # "alignItems": "center",
+                                        # "right": "250px",
+                                        # "padding": "15px",
+                                        # "backgroundColor": "#f8f9fa",
+                                        # "borderBottom": "1px solid #dee2e6",
+                                        # "marginBottom": "25px",
+                                    },
                                 ),
-                                dcc.DatePickerRange(
-                                    id=self.global_date_picker_id,
-                                    start_date=str(start_date),
-                                    end_date=str(end_date),
-                                    display_format="DD/MM/YYYY",
-                                    persistence=True,
-                                    persistence_type="session",
-                                ),
+                                self.back_button.layout(),
                             ],
-                            style={
-                                "display": "flex",
-                                "alignItems": "center",
-                                "right": "250px",
-                                "padding": "15px",
-                                "backgroundColor": "#f8f9fa",
-                                "borderBottom": "1px solid #dee2e6",
-                                "marginBottom": "25px",
-                            },
+                            id="header-controls",
                         ),
                         page_container,
                     ],
@@ -100,6 +109,27 @@ class IndexApp:
             """
             return Sidebar.layout(current_path=pathname)
 
+        # Callback para mostrar/ocultar o botão de voltar
+        @self.app.callback(
+            Output(self.back_button.container_id, "style"),
+            Input(self.url_location_id, "pathname"),
+        )
+        def toggle_back_button(pathname):
+            """Mostra ou oculta o botão de voltar baseado na página atual.
+
+            Args:
+                pathname (str): Caminho da URL atual.
+
+            Returns:
+                dict: Estilo CSS para mostrar ou ocultar o botão.
+            """
+            # Mostra o botão de voltar apenas se não estivermos na página de
+            # resumos
+            if pathname and pathname.startswith("/resumos/") and pathname != "/resumos":
+                return {"display": "flex", "alignItems": "center"}
+            else:
+                return {"display": "none"}
+
 
 # 3. INSTÂNCIA E EXECUÇÃO
 
@@ -114,17 +144,18 @@ class IndexApp:
 import src.views.analise_operacional  # noqa: F401
 import src.views.detalhamento  # noqa: F401
 import src.views.monitoramento  # noqa: F401
-import src.views.resumo  # noqa: F401
 import src.views.resumos  # noqa: F401
+import src.views.resumos.carga_induzida  # noqa: F401
 
 # Instanciamos a página de resumo no startup para garantir que seus callbacks
 # sejam registrados mesmo antes de o usuário navegar até a página.
 try:
-    import src.views.resumo as _resumo
+    import src.views.resumos.carga_induzida as _carga_induzida
 
-    _resumo.ResumoPage(app)
-except Exception:
+    _carga_induzida.CargaInduzida(app)
+except Exception as e:
     # Silencioso no startup — isso só tenta garantir registro de callbacks
+    print(f"Erro ao registrar callbacks da página de Carga Induzida: {e}")
     pass
 
 # 3.2. Criamos a instância da classe principal
@@ -133,10 +164,10 @@ except Exception:
 if __name__ == "__main__":
     index_app = IndexApp(app)
 
+    import src.views.analise_operacional  # noqa: E402, F401
     import src.views.detalhamento  # noqa: E402, F401
-    import views.analise_operacional  # noqa: E402, F401
-    import views.monitoramento  # noqa: E402, F401
-    import views.resumo  # noqa: E402, F401
-    import views.resumos  # noqa: E402, F401
+    import src.views.monitoramento  # noqa: E402, F401
+    import src.views.resumos  # noqa: E402, F401
+    import src.views.resumos.carga_induzida  # noqa: E402, F401
 
     app.run(debug=True)

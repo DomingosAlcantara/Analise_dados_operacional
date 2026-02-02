@@ -18,14 +18,14 @@ from src.path_files import PathFiles
 from src.views.colors import get_color_palette
 
 try:
-    dash.register_page(__name__, path="/", name="Resumo")
+    dash.register_page(__name__, path="/resumos/carga-induzida", name="Carga Induzida")
 except Exception:
     # Em ambientes de teste o app pode não estar instanciado ainda. Ignoramos
     # o erro para permitir a importação do módulo sem uma instância do app.
     pass
 
 
-class ResumoPage:
+class CargaInduzida:
     """Classe para apresentar o resumo da produtividade e eficiência das
     máquinas de triagem de cartas do CTCE.
     """
@@ -383,7 +383,7 @@ def get_layout():
     from src.app import app  # noqa F401
 
     # Não re-registrar callbacks novamente (já registramos no startup)
-    return ResumoPage(app, register_callbacks=False).layout()
+    return CargaInduzida(app, register_callbacks=False).layout()
 
 
 # A variável global 'layout' deve ser uma FUNÇÃO que o Dash pode chamar

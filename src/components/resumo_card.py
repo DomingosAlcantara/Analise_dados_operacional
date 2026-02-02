@@ -5,7 +5,8 @@ from dash import dcc, html
 
 class ResumoCard:
     """
-    Componente ResumoCard que representa um card de resumo com título e conteúdo.
+    Componente ResumoCard que representa um card de resumo com título e
+    conteúdo.
     """
 
     def __init__(self):
@@ -15,31 +16,10 @@ class ResumoCard:
         """
 
         self.opcoes: List[Dict[str, str]] = [
-            {"titulo": "Carga Induzida", "href": "/"},
-            {"titulo": "Falhas Técnicas", "href": "/"},
-            {"titulo": "Atolamentos", "href": "/"},
+            {"titulo": "Carga Induzida", "href": "/resumos/carga-induzida"},
+            {"titulo": "Falhas Técnicas", "href": "/resumos/falhas-tecnicas"},
+            {"titulo": "Atolamentos", "href": "/resumos/atolamentos"},
         ]
-
-        self.card_style = {
-            "backgroundColor": "#4A90E2",
-            "borderRadius": "8px",
-            "padding": "20px",
-            "margin": "10px",
-            "cursor": "pointer",
-            "flex": "1",
-            "minWidth": "200px",
-            "boxShadow": "0 2px 8px rgba(0, 0, 0, 0.1)",
-            "transition": "all 0.3s ease",
-        }
-
-        self.container_style = {
-            "display": "flex",
-            "justifyContent": "center",
-            "alignItems": "center",
-            "flexWrap": "wrap",
-            "gap": "20px",
-            "padding": "20px",
-        }
 
     def set_opcoes(self, opcoes: List[Dict[str, str]]) -> None:
         """
