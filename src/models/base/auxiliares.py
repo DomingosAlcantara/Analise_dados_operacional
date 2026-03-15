@@ -76,6 +76,7 @@ class Auxiliares:
         """
         Método placeholder para processamento de dados.
         """
+
         with ThreadPoolExecutor() as executor:
             dataframes = list(
                 executor.map(

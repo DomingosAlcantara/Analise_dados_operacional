@@ -12,7 +12,12 @@ def sample_df():
         {
             "Data de triagem": ["01/08/2023", "15/08/2023", "19/08/2023", "10/09/2023"],
             "Código MCU CTC": [1, 2, 2, 3],
-            "Centro de Tratamento": ["A", "A", "B", "B"],
+            "Centro de Tratamento": [
+                "CTCE INDAIATUBA",
+                "CTCE INDAIATUBA",
+                "CTCE JABOATAO DOS GUARARAPES",
+                "CTCE JABOATAO DOS GUARARAPES",
+            ],
             "Nº Máquina": [1, 1, 2, 3],
             "Nome do Plano de Triagem": ["P1", "P1", "P2", "P3"],
             "Quantidade Induzida": [100, 150, 200, 50],
@@ -46,6 +51,7 @@ def test_filtrar_sem_resultados(monkeypatch):
 
     # Intervalo sem correspondência
     model.filtrar_dados_por_data(date(2022, 1, 1), date(2022, 1, 31))
+    print(f"shape: {model._dados_filtrados.shape}")
     assert model._dados_filtrados.shape[0] == 0
     assert model.total_de_carga_induzida() == 0
     assert model.media_carga_induzida() == 0

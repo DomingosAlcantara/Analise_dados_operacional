@@ -36,11 +36,12 @@
 }
 
 .kpi-table { /*> div.nth-child(3) {*/
-    display: grid;
-    /* grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); */
+    display: flex;
+    flex-direction: row;
+    height: 84vh;
+    width: 100%;
+    flex: 1;
     gap: 0px;
-    padding-left: 0px;
-    align-items: start;
 }
 
 .kpi-graph {

@@ -5,6 +5,7 @@ automatizadas nos Centros de Tratamento.
 import pandas as pd
 
 from src.models.base.auxiliares import Auxiliares
+from src.utils.cache import cache
 
 
 class CargaInduzidaModel:
@@ -29,11 +30,24 @@ class CargaInduzidaModel:
         self._auxiliares = Auxiliares(
             str(path), self._linhas_desconsiderar, self._colunas_utilizar
         )
-        self._dados = self._auxiliares.processar_dados()
+        self._dados = self.remover_linhas_vazias(self._auxiliares.processar_dados())
+
         self._dados["Data de triagem"] = pd.to_datetime(
             self._dados["Data de triagem"], format="%d/%m/%Y"
         )
         self._dados_filtrados = pd.DataFrame()
+
+    def remover_linhas_vazias(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Remove linhas vazias de um DataFrame.
+
+        Args:
+            df (DataFrame): DataFrame do qual as linhas vazias serão removidas.
+
+        Returns:
+            DataFrame: DataFrame sem linhas vazias.
+        """
+        return df.loc[df["Quantidade Induzida"].fillna(0) != 0]  # noqa: E712
 
     def filtrar_dados_por_data(self, data_inicial, data_final):
         """
@@ -59,7 +73,9 @@ class CargaInduzidaModel:
         Retorna:
             int64: Total de carga induzida.
         """
-        return self._dados_filtrados["Quantidade Induzida"].sum()
+        total = self._dados_filtrados["Quantidade Induzida"].sum()
+        cache.set("total_carga_induzida", total)  # Armazenar no cache
+        return total
 
     def media_carga_induzida(self):
         """
@@ -81,11 +97,10 @@ class CargaInduzidaModel:
         """Retorna a soma da `Quantidade Induzida` por `Centro de Tratamento`.
 
         Returns:
-            pandas.Series: índice = Centro de Tratamento, valores = soma da carga.
+            pandas.Series: índice = Centro de Tratamento, valores = soma da
+            carga.
         """
         if self._dados_filtrados is None or self._dados_filtrados.empty:
-            import pandas as pd
-
             return pd.Series(dtype="int64")
 
         return self._dados_filtrados.groupby("Centro de Tratamento")[
@@ -96,7 +111,8 @@ class CargaInduzidaModel:
         """Retorna a média de `Rendimento Efetivo/h` por `Centro de Tratamento`.
 
         Returns:
-            Series: índice = Centro de Tratamento, valores = média do rendimento.
+            Series: índice = Centro de Tratamento, valores = média do
+            rendimento.
         """
         if self._dados_filtrados is None or self._dados_filtrados.empty:
             return pd.Series(dtype="float64")

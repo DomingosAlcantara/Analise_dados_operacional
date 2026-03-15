@@ -2,12 +2,10 @@
 incluindo a soma de cargas tratadas e falhas técnicas.
 """
 
-import os
-from concurrent.futures import ThreadPoolExecutor
-
 import pandas as pd
 from pandas import DataFrame
 
+from src.models.base.auxiliares import Auxiliares
 from src.uteis import Uteis
 
 
@@ -17,34 +15,21 @@ class ParadasModel(Uteis):
     """
 
     def __init__(self, path="/home/domingos/Documentos/Dados/Engarrafamento/"):
-        self._file_path = path
-        self.processar_dados()
-
-    def carregar_planilha(self, path) -> DataFrame:
-        """
-            Carrega a planilha de dados de atolamentos.
-
-        Args:
-            path (str): Caminho para o arquivo da planilha.
-
-        Returns:
-            DataFrame: Dados carregados da planilha.
-        """
-        dtypes = {
+        self._linhas_desconsiderar = 7
+        self._colunas_utilizar = {
             "Código MCU CTC": str,
             "Centro de Tratamento": str,
             "Nº Máquina de triagem": int,
             "Descrição da Falha": str,
-            # "Data/hora inicial da Falha": datetime
+            "Data/hora inicial da Falha": str,
+            "Data/hora final da Falha": str,
         }
 
-        try:
-            df = self._carregar_planilha(path, 7, [0, 1, 2, 5, 6], dtypes)
-            # df = pd.read_excel(path, skiprows=7, usecols=[
-            #     0, 1, 2, 5, 6], dtype=dtypes)
-            return df
-        except ValueError:
-            raise ValueError(f"Erro ao carregar a planilha: {path}")
+        self._auxiliares = Auxiliares(
+            str(path), self._linhas_desconsiderar, self._colunas_utilizar
+        )
+        self._set_dados(self._auxiliares.processar_dados())
+        self._dados_filtrados = pd.DataFrame()
 
     def padronizar_colunas(self, df: DataFrame) -> DataFrame:
         """
@@ -70,10 +55,9 @@ class ParadasModel(Uteis):
             DataFrame: DataFrame filtrado.
         """
         # Exemplo de filtro, ajuste conforme necessário
-        df = df[
+        df = df.loc[
             df["Descrição da Falha"]
-            != "Máquina desabilitada - pressione \
-            e mantenha o botão de habilitar por 1 segundo p"
+            != "Máquina desabilitada - pressione e mantenha o botão de habilitar por 1 segundo p"
         ]
         return df
 
@@ -88,6 +72,7 @@ class ParadasModel(Uteis):
         Returns:
             DataFrame: DataFrame com a coluna convertida.
         """
+        df = df.copy()
         df["Data/hora inicial da Falha"] = pd.to_datetime(
             df["Data/hora inicial da Falha"],
             format="%d/%m/%Y %H:%M:%S",  # ajuste o formato conforme necessário
@@ -104,6 +89,7 @@ class ParadasModel(Uteis):
         Returns:
             DataFrame: DataFrame com as colunas de data e hora extraídas.
         """
+        df = df.copy()
         df["Data da Falha"] = df["Data/hora inicial da Falha"].dt.date
         return df
 
@@ -117,6 +103,7 @@ class ParadasModel(Uteis):
         Returns:
             DataFrame: DataFrame com a coluna de hora extraída.
         """
+        df = df.copy()
         df["Hora da Falha"] = df["Data/hora inicial da Falha"].dt.time
         return df
 
@@ -130,37 +117,10 @@ class ParadasModel(Uteis):
         Returns:
             DataFrame: DataFrame sem a coluna de data.
         """
-        if "Data/hora inicial do Atolamento" in df.columns:
+        df = df.copy()
+        if "Data/hora inicial da Falha" in df.columns:
             df.drop(columns=["Data/hora inicial da Falha"], inplace=True)
         return df
-
-    def processar_dados(self) -> None:
-        """
-        Processa os arquivos de atolamentos e retorna um DataFrame consolidado.
-        """
-        files = [f for f in os.listdir(self._file_path) if f.endswith(".xls")]
-        dataframes = []
-        df_dados = None
-        caminhos = [os.path.join(self._file_path, nome) for nome in files]
-
-        def pipeline(df: DataFrame) -> DataFrame:
-            df = self.remover_desabilitacoes(df)
-            df = self.converter_para_datetime(df)
-            df = self.extrair_data(df)
-            df = self.extrair_hora(df)
-            df = self.remover_coluna_de_data(df)
-            df = self.padronizar_colunas(df)
-            return df
-
-        with ThreadPoolExecutor() as executor:
-            dataframes = list(executor.map(self.carregar_planilha, caminhos))
-        if dataframes:
-            df_dados = pd.concat(dataframes, ignore_index=True)
-            df_dados = pipeline(df_dados)
-            df_dados.set_index("código_mcu_ctc", inplace=True)
-            self._set_dados(df_dados)
-        else:
-            raise ValueError("Nenhum dado foi carregado.")
 
     def get_maiores_paradas(self, n: int = 5) -> DataFrame:
         """

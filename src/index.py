@@ -65,16 +65,7 @@ class IndexApp:
                                             persistence_type="session",
                                         ),
                                     ],
-                                    style={
-                                        "flex": 1,
-                                        # "display": "flex",
-                                        # "alignItems": "center",
-                                        # "right": "250px",
-                                        # "padding": "15px",
-                                        # "backgroundColor": "#f8f9fa",
-                                        # "borderBottom": "1px solid #dee2e6",
-                                        # "marginBottom": "25px",
-                                    },
+                                    className="header-date",
                                 ),
                                 self.back_button.layout(),
                             ],
@@ -146,13 +137,16 @@ import src.views.detalhamento  # noqa: F401
 import src.views.monitoramento  # noqa: F401
 import src.views.resumos  # noqa: F401
 import src.views.resumos.carga_induzida  # noqa: F401
+import src.views.resumos.falhas_tecnicas  # noqa: F401
 
 # Instanciamos a página de resumo no startup para garantir que seus callbacks
 # sejam registrados mesmo antes de o usuário navegar até a página.
 try:
     import src.views.resumos.carga_induzida as _carga_induzida
+    import src.views.resumos.falhas_tecnicas as _falhas_tecnicas
 
     _carga_induzida.CargaInduzida(app)
+    _falhas_tecnicas.FalhasTecnicasView(app)
 except Exception as e:
     # Silencioso no startup — isso só tenta garantir registro de callbacks
     print(f"Erro ao registrar callbacks da página de Carga Induzida: {e}")
@@ -169,5 +163,6 @@ if __name__ == "__main__":
     import src.views.monitoramento  # noqa: E402, F401
     import src.views.resumos  # noqa: E402, F401
     import src.views.resumos.carga_induzida  # noqa: E402, F401
+    import src.views.resumos.falhas_tecnicas  # noqa: E402, F401
 
     app.run(debug=True)

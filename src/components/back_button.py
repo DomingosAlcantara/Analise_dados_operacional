@@ -30,7 +30,7 @@ class BackButton:
                     id=self.button_id,
                     className="back-button",
                 ),
-                href="/resumos",
+                href="/",
                 style={"textDecoration": "none"},
             ),
             id=self.container_id,

@@ -6,6 +6,22 @@ incluindo a soma de cargas tratadas e falhas técnicas.
 import math
 
 
+def _pt_format_number(n: float, decimals: int) -> str:
+    """
+    Formata um número para o padrão brasileiro com separador de milhar
+    como ponto e decimal como vírgula.
+
+    Args:
+        n (float): Número a ser formatado.
+        decimals (int): Número de casas decimais.
+
+    Returns:
+        str: Número formatado no padrão brasileiro.
+    """
+    s = f"{n:,.{decimals}f}"
+    return s.replace(",", "X").replace(".", ",").replace("X", ".")
+
+
 class ResumoModel:
     """
     Classe para gerenciar o resumo de dados.
@@ -17,11 +33,18 @@ class ResumoModel:
         """
         self._model_carga_induzida = model_carga_induzida
 
-    # def get_dados_resumo(self):
-    #     """
-    #     Método para obter os dados do resumo.
-    #     """
-    #     return self._dados
+    def formatacao_compacta_de_valores(self, v):
+        try:
+            if v is None or (isinstance(v, float) and math.isnan(v)):
+                return "—"
+            val = float(v)
+            if abs(val) >= 1_000_000:
+                return f"{_pt_format_number(val / 1_000_000, 2)} M"
+            if abs(val) >= 1_000:
+                return f"{_pt_format_number(val / 1_000, 1)} Mil"
+            return _pt_format_number(val, 0)
+        except Exception:
+            return "—"
 
     def get_performance_metrics(self, start_date, end_date):
         """
@@ -35,18 +58,10 @@ class ResumoModel:
         media_carga = self._model_carga_induzida.media_carga_induzida()
         eficiencia = self._model_carga_induzida.rendimento_efetivo_hora()
 
-        def fmt(v):
-            try:
-                if v is None or (isinstance(v, float) and math.isnan(v)):
-                    return "—"
-                return f"{v:.0f}"
-            except Exception:
-                return "—"
-
         return {
-            "carga_induzida": fmt(total_carga),
-            "media_carga": fmt(media_carga),
-            "eficiencia": fmt(eficiencia),
+            "carga_induzida": self.formatacao_compacta_de_valores(total_carga),
+            "media_carga": self.formatacao_compacta_de_valores(media_carga),
+            "eficiencia": self.formatacao_compacta_de_valores(eficiencia),
         }
 
     def carga_induzida_por_centro(self):

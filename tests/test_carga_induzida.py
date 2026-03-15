@@ -86,7 +86,11 @@ class TestCargaInduzidaModel:
                 {
                     "Data de triagem": ["01/08/2023", "15/08/2023", "10/09/2023"],
                     "Código MCU CTC": [1, 2, 3],
-                    "Centro de Tratamento": ["A", "B", "B"],
+                    "Centro de Tratamento": [
+                        "CTCE INDAIATUBA",
+                        "CTCE JABOATAO DOS GUARARAPES",
+                        "CTCE JABOATAO DOS GUARARAPES",
+                    ],
                     "Nº Máquina": [1, 2, 3],
                     "Nome do Plano de Triagem": ["P1", "P2", "P3"],
                     "Quantidade Induzida": [100, 200, 50],
@@ -101,9 +105,12 @@ class TestCargaInduzidaModel:
         res = model.carga_induzida_por_centro()
 
         assert isinstance(res, pd.Series)
-        assert "A" in res.index and "B" in res.index
-        assert res["A"] == 100
-        assert res["B"] == 200
+        assert (
+            "CTCE INDAIATUBA" in res.index
+            and "CTCE JABOATAO DOS GUARARAPES" in res.index
+        )
+        assert res["CTCE INDAIATUBA"] == 100
+        assert res["CTCE JABOATAO DOS GUARARAPES"] == 250
 
     def test_rendimento_efetivo_por_centro(self, model, monkeypatch):
         """

@@ -4,7 +4,7 @@ from dash import html
 from src.components.resumo_card import ResumoCard
 
 try:
-    dash.register_page(__name__, path="/resumos", name="Resumos")
+    dash.register_page(__name__, path="/", name="Resumos")
 except Exception:  # Registro já feito em testes
     pass
 

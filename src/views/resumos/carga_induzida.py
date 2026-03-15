@@ -116,12 +116,17 @@ class CargaInduzida:
         else:
             cores_atribuidas = None
 
+        texts = [
+            self._resumo_model.formatacao_compacta_de_valores(val)
+            for val in df[coluna_y]
+        ]
+
         # Criar figura
         figura = go.Figure(
             data=go.Bar(
                 x=df[coluna_x_display],
                 y=df[coluna_y],
-                text=df[coluna_y],
+                text=texts,
                 marker_color=cores_atribuidas,
                 textposition="outside",
                 textfont={"size": 18},
@@ -129,7 +134,7 @@ class CargaInduzida:
         )
 
         # Aplicar formatação padrao
-        figura.update_traces(texttemplate="%{text:.2s}")
+        figura.update_traces(texttemplate="%{text}")
         figura.update_layout(
             title={
                 "text": titulo,
@@ -255,15 +260,6 @@ class CargaInduzida:
                     },
                 ),
             ],
-            style={
-                "display": "flex",
-                "flex-direction": "row",
-                # "flex-wrap": "wrap",
-                "height": "84vh",
-                "width": "100%",
-                "flex": "1",
-                "gap": "0px",
-            },
             className="kpi-table",
         )
 
