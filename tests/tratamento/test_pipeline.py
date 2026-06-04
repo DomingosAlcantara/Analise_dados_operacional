@@ -4,16 +4,16 @@ from src.tratamento.pipeline import Pipeline
 
 
 @pytest.fixture
-def mock_transformacoes(monkeypatch, mock_dataframe):
+def mock_transformacoes(monkeypatch, mock_carga_tratada):
     def mock_method(*args, **kwargs):
-        return mock_dataframe
+        return mock_carga_tratada
 
     monkeypatch.setattr(Pipeline, "aplicar_transformacoes", mock_method)
 
 
 @pytest.fixture
-def model(mock_dataframe, mock_transformacoes):
-    return Pipeline(mock_dataframe, transformacoes=mock_transformacoes)
+def model(mock_carga_tratada, mock_transformacoes):
+    return Pipeline(mock_carga_tratada, transformacoes=mock_transformacoes)
 
 
 class TestPipeline:
@@ -26,8 +26,8 @@ class TestPipeline:
         with pytest.raises(ValueError, match="DataFrame não fornecido"):
             pipeline.aplicar_transformacoes()
 
-    def test_executar_sem_transformacoes(self, mock_dataframe):
-        pipeline = Pipeline(mock_dataframe, transformacoes=[])
+    def test_executar_sem_transformacoes(self, mock_carga_tratada):
+        pipeline = Pipeline(mock_carga_tratada, transformacoes=[])
         with pytest.raises(ValueError, match="Transformações não fornecidas"):
             pipeline.aplicar_transformacoes()
 

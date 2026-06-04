@@ -3,7 +3,7 @@ import pytest
 
 
 @pytest.fixture
-def mock_dataframe():
+def mock_carga_tratada():
     dados = {
         "data_de_triagem": [
             "14/08/2023",
@@ -17,7 +17,7 @@ def mock_dataframe():
             "15/08/2023",
             "15/08/2023",
         ],
-        "codigo_mcu_ctc": [
+        "código_mcu_ctc": [
             431115,
             431083,
             437023,
@@ -91,5 +91,5 @@ def mock_dataframe():
         ],
     }
 
-    df = pd.DataFrame(dados, index=dados["codigo_mcu_ctc"])
+    df = pd.DataFrame(dados, index=dados["código_mcu_ctc"])
     return df

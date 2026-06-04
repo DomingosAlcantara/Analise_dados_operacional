@@ -3,7 +3,7 @@ from datetime import date
 
 import pandas as pd
 
-from src.models.base.auxiliares import Auxiliares
+from src.carregamento.data_loader import DataLoader
 from src.models.carga_induzida_model import CargaInduzidaModel
 
 
@@ -28,7 +28,7 @@ def sample_df():
 
 def test_filtrar_e_aggregados(monkeypatch):
     # Substitui processar_dados para controlar o DataFrame de entrada
-    monkeypatch.setattr(Auxiliares, "processar_dados", lambda self: sample_df())
+    monkeypatch.setattr(DataLoader, "processar_dados", lambda self: sample_df())
 
     model = CargaInduzidaModel(path="dummy")
 
@@ -45,7 +45,7 @@ def test_filtrar_e_aggregados(monkeypatch):
 
 
 def test_filtrar_sem_resultados(monkeypatch):
-    monkeypatch.setattr(Auxiliares, "processar_dados", lambda self: sample_df())
+    monkeypatch.setattr(DataLoader, "processar_dados", lambda self: sample_df())
 
     model = CargaInduzidaModel(path="dummy")
 

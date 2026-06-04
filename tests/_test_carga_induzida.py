@@ -27,9 +27,7 @@ class TestCargaInduzidaModel:
 
         print(f"Dados filtrados: {dados_filtrados.shape}")
 
-        assert (
-            not dados_filtrados.empty
-        ), "Os dados filtrados não devem estar \
+        assert not dados_filtrados.empty, "Os dados filtrados não devem estar \
             vazios."
         assert all(
             (dados_filtrados["Data de triagem"] >= np.datetime64(data_inicial))
@@ -69,9 +67,7 @@ class TestCargaInduzidaModel:
         assert isinstance(
             rendimento, (int, float)
         ), "O rendimento efetivo por hora deve ser um número."
-        assert (
-            rendimento >= 0
-        ), "O rendimento efetivo por hora não pode ser \
+        assert rendimento >= 0, "O rendimento efetivo por hora não pode ser \
             negativo."
 
     def test_carga_induzida_por_centro(self, model, monkeypatch):
@@ -79,7 +75,7 @@ class TestCargaInduzidaModel:
         Testa o método carga_induzida_por_centro.
         """
 
-        from src.models.base.auxiliares import Auxiliares
+        from src.carregamento.data_loader import DataLoader
 
         def sample_df():
             return pd.DataFrame(
@@ -98,7 +94,7 @@ class TestCargaInduzidaModel:
                 }
             )
 
-        monkeypatch.setattr(Auxiliares, "processar_dados", lambda self: sample_df())
+        monkeypatch.setattr(DataLoader, "processar_dados", lambda self: sample_df())
         # model = CargaInduzidaModel(pf.ARQUIVOS_CARGA_TRATADA)
 
         model.filtrar_dados_por_data("2023-08-01", "2023-08-31")
@@ -117,7 +113,7 @@ class TestCargaInduzidaModel:
         Testa o método rendimento_efetivo_por_centro.
         """
 
-        from src.models.base.auxiliares import Auxiliares
+        from src.carregamento.data_loader import DataLoader
 
         def sample_df():
             return pd.DataFrame(
@@ -132,7 +128,7 @@ class TestCargaInduzidaModel:
                 }
             )
 
-        monkeypatch.setattr(Auxiliares, "processar_dados", lambda self: sample_df())
+        monkeypatch.setattr(DataLoader, "processar_dados", lambda self: sample_df())
         try:
             mod = CargaInduzidaModel(pf.ARQUIVOS_CARGA_TRATADA)
             mod.filtrar_dados_por_data("2023-08-01", "2023-08-31")

@@ -5,7 +5,7 @@ incluindo a soma de cargas tratadas e falhas técnicas.
 import pandas as pd
 from pandas import DataFrame
 
-from src.models.base.auxiliares import Auxiliares
+from src.carregamento.data_loader import DataLoader
 from src.uteis import Uteis
 
 
@@ -25,7 +25,7 @@ class ParadasModel(Uteis):
             "Data/hora final da Falha": str,
         }
 
-        self._auxiliares = Auxiliares(
+        self._auxiliares = DataLoader(
             str(path), self._linhas_desconsiderar, self._colunas_utilizar
         )
         self._set_dados(self._auxiliares.processar_dados())

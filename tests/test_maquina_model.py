@@ -5,12 +5,12 @@ from src.models.base.maquina_model import MaquinaModel
 
 
 @pytest.fixture
-def model(mock_dataframe: DataFrame):
+def model(mock_carga_tratada: DataFrame):
     """
     Configuração inicial para os testes.
     """
-
-    return MaquinaModel("M001", mock_dataframe)
+    mock_maquina = mock_carga_tratada[mock_carga_tratada["nº_máquina"] == "M001"]
+    return MaquinaModel("M001", {"carga_tratada": mock_maquina})
 
 
 class Test_MaquinaModel:
@@ -37,11 +37,11 @@ class Test_MaquinaModel:
             14806, 0.01
         ), "A média de carga induzida deve ser aproximadamente 14806"
 
-    def test_media_rendimento_efetivo(self, model):
+    def test_retornar_rendimento_efetivo_medio(self, model):
         """
-        Testa o método media_rendimento_efetivo.
+        Testa o método retornar_rendimento_efetivo_medio.
         """
-        rendimento = model.media_rendimento_efetivo()
+        rendimento = model.retornar_rendimento_efetivo_medio()
 
         assert isinstance(rendimento, float), "Deve retornar um float"
         assert rendimento == pytest.approx(

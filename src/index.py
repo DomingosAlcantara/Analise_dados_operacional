@@ -7,6 +7,14 @@ from src.components.back_button import BackButton
 
 # Importa a instância da classe Sidebar
 from src.components.sidebar import sidebar_component as Sidebar
+from src.models.base.empresa_model import EmpresaModel
+from src.utils.cache import cache
+
+cache.set("correios_model", EmpresaModel())
+# Dar continuidade a implementação do modelo singleton para a classe
+# CorreiosModel, garantindo que apenas uma instância seja criada e reutilizada
+# em toda a aplicação, evitando recarregamentos desnecessários dos dados e
+# melhorando a performance.
 
 
 class IndexApp:

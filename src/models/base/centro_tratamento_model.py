@@ -2,6 +2,8 @@
 Encomendas dos Correios.
 """
 
+from statistics import mean
+
 from pandas import DataFrame
 
 from src.models.base.maquina_model import MaquinaModel
@@ -14,48 +16,55 @@ class CentroTratamentoModel:
     relacionados aos centros de tratamento de cargas e encomendas.
     """
 
-    def __init__(self, id_centro: int, df: DataFrame):
+    def __init__(self, id_centro: int):
         """Inicializa a classe com os dados pertinentes, bem como suas
             maquinas associadas.
 
         Args:
             id_centro (int): Código identificador do centro de tratamento.
-            df (DataFrame): DataFrame contendo os dados dos centros de
-            tratamento.
+            dict_dfs_centro (dict): Dicionário contendo os DataFrames dos centros.
         """
         self._id_centro = id_centro
-        self._df = df[df["codigo_mcu_ctc"] == self._id_centro]
+        self.maquinas = {}
 
-    def retornar_nome_centro(self) -> str:
-        """Retorna o nome do centro de tratamento com base no código
-        identificador.
-
-        Returns:
-            str: Nome do centro de tratamento.
-        """
-        return self._df[self._df["codigo_mcu_ctc"] == self._id_centro][
-            "centro_de_tratamento"
-        ].iloc[0]
-
-    def retornar_maquinas(self) -> list[MaquinaModel]:
-        """Retorna uma lista de objetos MaquinaModel contendo as máquinas
-        associadas a um centro de tratamento específico.
+    def configurar(self, dict_dfs_centro: dict):
+        """Configura a classe com os dados pertinentes, bem como suas
+            maquinas associadas.
 
         Args:
-            centro (int): Código identificador do centro de tratamento.
+            dict_dfs_centro (dict): Dicionário contendo os DataFrames dos centros.
+        """
+        df_produtividade = dict_dfs_centro.get("carga tratada", DataFrame()).set_index(
+            "nº_máquina"
+        )
+        codigos_maquinas = df_produtividade.index.unique()
+
+        print(f"Maquinas: {codigos_maquinas}")
+
+        mapeamento = (
+            df_produtividade[["centro_de_tratamento"]]
+            .drop_duplicates()
+            .to_dict()["centro_de_tratamento"]
+        )
+
+        for categoria, df in dict_dfs_centro.items():
+            if "nº_máquina" in df.columns:
+                for maquina in df["nº_máquina"].unique():
+                    self.maquinas[maquina] = MaquinaModel(maquina, df)
+
+    def _extrair_maquinas(self, df: DataFrame) -> list:
+        """Extrai os códigos das máquinas de um DataFrame.
+
+        Args:
+            df (DataFrame): DataFrame contendo a coluna 'nº_máquina'.
 
         Returns:
-            list[MaquinaModel]: Lista de objetos contendo as máquinas
-            associadas ao centro.
+            list: Lista de códigos de máquinas.
         """
-        return [
-            MaquinaModel(maquina, self._df)
-            for maquina in self._df[self._df["codigo_mcu_ctc"] == self._id_centro][
-                "nº_máquina"
-            ]
-            .unique()
-            .tolist()
-        ]
+        if "nº_máquina" not in df.columns:
+            return []
+
+        return sorted(df["nº_máquina"].dropna().unique().tolist())
 
     def total_carga_induzida(self) -> int:
         """Calcula o total de carga induzida para o centro de tratamento.
@@ -63,9 +72,8 @@ class CentroTratamentoModel:
         Returns:
             int: Total de carga induzida.
         """
-        maquinas = self.retornar_maquinas()
-        total_carga = sum(maquina.total_carga_induzida() for maquina in maquinas)
-        return total_carga
+        # maquinas = self.retornar_maquinas()
+        return sum(maquina.total_carga_induzida() for maquina in self.maquinas)
 
     def media_carga_induzida(self) -> int:
         """Calcula a média de carga induzida para o centro de tratamento.
@@ -76,3 +84,15 @@ class CentroTratamentoModel:
         print(f"Total de carga induzida: {self.total_carga_induzida()}")
         print(f"Total de maquinas: {len(self.retornar_maquinas())}")
         return round(self.total_carga_induzida() / len(self.retornar_maquinas()))
+
+    def retornar_rendimento_efetivo_medio(self) -> float:
+        """Calcula o rendimento efetivo médio para o centro de tratamento.
+
+        Returns:
+            float: Rendimento efetivo médio.
+        """
+        maquinas = self.retornar_maquinas()
+        return round(
+            mean(maquina.retornar_rendimento_efetivo_medio() for maquina in maquinas),
+            2,
+        )

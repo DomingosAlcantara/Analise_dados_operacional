@@ -15,6 +15,7 @@ from src.components.kpi_graph_card import KpiGraphCard
 from src.models.carga_induzida_model import CargaInduzidaModel
 from src.models.resumo_model import ResumoModel
 from src.path_files import PathFiles
+from src.utils.cache import cache
 from src.views.colors import get_color_palette
 
 try:
@@ -43,6 +44,12 @@ class CargaInduzida:
         # Inicializando o modelo de resumo
         self._resumo_model = ResumoModel(
             CargaInduzidaModel(path=PathFiles.ARQUIVOS_CARGA_TRATADA)
+        )
+        correios = cache.get("correios_model")
+        correios._carregar_carga_induzida(
+            CargaInduzidaModel(
+                path=PathFiles.ARQUIVOS_CARGA_TRATADA
+            ).filtrar_dados_por_data
         )
 
         # Calcula métricas iniciais usando o intervalo padrão (últimos 30 dias)

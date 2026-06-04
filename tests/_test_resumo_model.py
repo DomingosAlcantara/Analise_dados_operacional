@@ -2,7 +2,7 @@ from datetime import date
 
 import pandas as pd
 
-from src.models.base.auxiliares import Auxiliares
+from src.carregamento.data_loader import DataLoader
 from src.models.carga_induzida_model import CargaInduzidaModel
 from src.models.resumo_model import ResumoModel
 
@@ -22,7 +22,7 @@ def sample_df():
 
 
 def test_get_performance_metrics_com_dados(monkeypatch):
-    monkeypatch.setattr(Auxiliares, "processar_dados", lambda self: sample_df())
+    monkeypatch.setattr(DataLoader, "processar_dados", lambda self: sample_df())
     model = CargaInduzidaModel(path="dummy")
     resumo = ResumoModel(model)
 
@@ -34,7 +34,7 @@ def test_get_performance_metrics_com_dados(monkeypatch):
 
 
 def test_get_performance_metrics_sem_dados(monkeypatch):
-    monkeypatch.setattr(Auxiliares, "processar_dados", lambda self: sample_df())
+    monkeypatch.setattr(DataLoader, "processar_dados", lambda self: sample_df())
     model = CargaInduzidaModel(path="dummy")
     resumo = ResumoModel(model)
 

@@ -4,7 +4,7 @@ automatizadas nos Centros de Tratamento.
 
 import pandas as pd
 
-from src.models.base.auxiliares import Auxiliares
+from src.carregamento.data_loader import DataLoader
 from src.utils.cache import cache
 
 
@@ -27,7 +27,7 @@ class CargaInduzidaModel:
             "Quantidade Induzida": int,
             "Rendimento Efetivo/h": int,
         }
-        self._auxiliares = Auxiliares(
+        self._auxiliares = DataLoader(
             str(path), self._linhas_desconsiderar, self._colunas_utilizar
         )
         self._dados = self.remover_linhas_vazias(self._auxiliares.processar_dados())
