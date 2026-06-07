@@ -2,6 +2,8 @@
 Centros de Tratamento
 """
 
+from src.models.carga_induzida_model import CargaInduzidaModel
+
 
 class MaquinaModel:
     """
@@ -15,9 +17,24 @@ class MaquinaModel:
 
         if not isinstance(dict_df, dict):
             raise ValueError("O parâmetro 'dict_df' deve ser um dicionário.")
-        self._df_carga_tratada = dict_df[
-            "carga_tratada"
-        ]  # [dict_df["nº_máquina"] == self._id_maquina]
+        self._carga_tratada = CargaInduzidaModel(
+            dict_df["carga_tratada"]
+        )  # [dict_df["nº_máquina"] == self._id_maquina]
+
+    def filtrar_dados_por_data(self, data_inicial: str, data_final: str):
+        """
+        Filtra os dados da máquina com base em um intervalo de datas.
+
+        Args:
+            data_inicial (str): Data inicial no formato 'YYYY-MM-DD'.
+            data_final (str): Data final no formato 'YYYY-MM-DD'.
+
+        Returns:
+            MaquinaModel: A própria instância da classe, permitindo encadeamento
+            de métodos.
+        """
+        self._carga_tratada.filtrar_dados_por_data(data_inicial, data_final)
+        return self
 
     def total_carga_induzida(self) -> int:
         """
@@ -26,7 +43,7 @@ class MaquinaModel:
         Returns:
             int: Total de carga processada.
         """
-        return int(self._df_carga_tratada["quantidade_induzida"].sum())
+        return int(self._carga_tratada.total_de_carga_induzida())
 
     def media_carga_induzida(self) -> float:
         """
@@ -35,7 +52,7 @@ class MaquinaModel:
         Returns:
             float: Média de carga processada.
         """
-        return float(self._df_carga_tratada["quantidade_induzida"].mean())
+        return float(self._carga_tratada.media_carga_induzida())
 
     def retornar_rendimento_efetivo_medio(self) -> float:
         """
@@ -45,7 +62,7 @@ class MaquinaModel:
         Returns:
             float: Rendimento efetivo em porcentagem.
         """
-        return float(self._df_carga_tratada["rendimento_efetivo/h"].mean())
+        return float(self._carga_tratada.rendimento_efetivo_hora())
 
     def tempo_plano_carregado(self) -> float:
         """
@@ -60,7 +77,7 @@ class MaquinaModel:
             return horas + minutos / 60.0
 
         total_tempo = (
-            self._df_carga_tratada["tempo_total_do_plano"]
+            self._carga_tratada._df_dados["tempo_total_do_plano"]
             .apply(converter_para_horas)
             .sum()
         )
@@ -73,4 +90,4 @@ class MaquinaModel:
         Returns:
             list: Lista de nomes dos planos carregados.
         """
-        return self._df_carga_tratada["nome_do_plano_de_triagem"].tolist()
+        return self._carga_tratada._df_dados["nome_do_plano_de_triagem"].tolist()

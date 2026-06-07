@@ -10,7 +10,9 @@ def model(mock_carga_tratada: DataFrame):
     Configuração inicial para os testes.
     """
     mock_maquina = mock_carga_tratada[mock_carga_tratada["nº_máquina"] == "M001"]
-    return MaquinaModel("M001", {"carga_tratada": mock_maquina})
+    return MaquinaModel("M001", {"carga_tratada": mock_maquina}).filtrar_dados_por_data(
+        "2023-01-01", "2023-12-31"
+    )
 
 
 class Test_MaquinaModel:
@@ -20,6 +22,7 @@ class Test_MaquinaModel:
         Testa o método total_carga_induzida.
         """
         total_carga = model.total_carga_induzida()
+        print(f"Total de carga induzida: {total_carga}")
 
         assert isinstance(total_carga, int), "Deve retornar um inteiro"
         assert total_carga == 29612, "O total de carga deve ser 29612"

@@ -92,4 +92,5 @@ def mock_carga_tratada():
     }
 
     df = pd.DataFrame(dados, index=dados["código_mcu_ctc"])
+    df["data_de_triagem"] = pd.to_datetime(df["data_de_triagem"], format="%d/%m/%Y")
     return df

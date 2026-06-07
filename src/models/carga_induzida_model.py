@@ -4,7 +4,6 @@ automatizadas nos Centros de Tratamento.
 
 import pandas as pd
 
-from src.carregamento.data_loader import DataLoader
 from src.utils.cache import cache
 
 
@@ -16,25 +15,8 @@ class CargaInduzidaModel:
     tratamento.
     """
 
-    def __init__(self, path):
-        self._linhas_desconsiderar = 8
-        self._colunas_utilizar = {
-            "Data de triagem": str,
-            "Código MCU CTC": int,
-            "Centro de Tratamento": str,
-            "Nº Máquina": int,
-            "Nome do Plano de Triagem": str,
-            "Quantidade Induzida": int,
-            "Rendimento Efetivo/h": int,
-        }
-        self._auxiliares = DataLoader(
-            str(path), self._linhas_desconsiderar, self._colunas_utilizar
-        )
-        self._dados = self.remover_linhas_vazias(self._auxiliares.processar_dados())
-
-        self._dados["Data de triagem"] = pd.to_datetime(
-            self._dados["Data de triagem"], format="%d/%m/%Y"
-        )
+    def __init__(self, df_dados: pd.DataFrame):
+        self._df_dados = df_dados.copy()
         self._dados_filtrados = pd.DataFrame()
 
     def remover_linhas_vazias(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -63,9 +45,10 @@ class CargaInduzidaModel:
             return
 
         # Garantir que a comparação use o mesmo tipo (Timestamp)
-        self._dados_filtrados = self._dados.loc[
-            self._dados["Data de triagem"].between(start, end)
+        self._dados_filtrados = self._df_dados.loc[
+            self._df_dados["data_de_triagem"].between(start, end)
         ]
+        return self
 
     def total_de_carga_induzida(self):
         """
@@ -73,7 +56,10 @@ class CargaInduzidaModel:
         Retorna:
             int64: Total de carga induzida.
         """
-        total = self._dados_filtrados["Quantidade Induzida"].sum()
+        total = self._dados_filtrados["quantidade_induzida"].sum()
+        print(
+            f"Total de carga induzida calculado: {total}"
+        )  # Debug: Exibir o total calculado
         cache.set("total_carga_induzida", total)  # Armazenar no cache
         return total
 
@@ -83,7 +69,7 @@ class CargaInduzidaModel:
         Retorna:
             float: Média de carga induzida.
         """
-        return self._dados_filtrados["Quantidade Induzida"].mean()
+        return self._dados_filtrados["quantidade_induzida"].mean()
 
     def rendimento_efetivo_hora(self):
         """

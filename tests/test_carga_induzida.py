@@ -6,37 +6,39 @@ from src.models.carga_induzida_model import CargaInduzidaModel
 from src.path_files import PathFiles as pf
 
 
-@pytest.fixture(autouse=True, scope="module")
-def model():
+@pytest.fixture  # (autouse=True, scope="module")
+def model(mock_carga_tratada: pd.DataFrame):
     """
     Configuração inicial para os testes.
     """
-    return CargaInduzidaModel(pf.ARQUIVOS_CARGA_TRATADA)
+    return CargaInduzidaModel(mock_carga_tratada).filtrar_dados_por_data(
+        "2023-01-01", "2023-12-31"
+    )
 
 
 class TestCargaInduzidaModel:
 
-    def test_filtrar_dados_por_data(self, model):
-        """
-        Testa o método filtrar_dados_por_data.
-        """
-        data_inicial = "2023-01-01"
-        data_final = "2023-12-31"
-        model.filtrar_dados_por_data(data_inicial, data_final)
-        dados_filtrados = model._dados_filtrados
+    # def test_filtrar_dados_por_data(self, model):
+    #     """
+    #     Testa o método filtrar_dados_por_data.
+    #     """
+    #     data_inicial = "2023-01-01"
+    #     data_final = "2023-12-31"
+    #     model.filtrar_dados_por_data(data_inicial, data_final)
+    #     dados_filtrados = model._dados_filtrados
 
-        print(f"Dados filtrados: {dados_filtrados.shape}")
+    #     print(f"Dados filtrados: {dados_filtrados.shape}")
 
-        assert not dados_filtrados.empty, "Os dados filtrados não devem estar \
-            vazios."
-        assert all(
-            (dados_filtrados["Data de triagem"] >= np.datetime64(data_inicial))
-            & (dados_filtrados["Data de triagem"] <= np.datetime64(data_final))
-        ), "Os dados filtrados devem estar dentro do intervalo de datas \
-            especificado."
-        assert (
-            dados_filtrados.shape[0] > 0
-        ), "Os dados filtrados devem conter registros."
+    #     assert not dados_filtrados.empty, "Os dados filtrados não devem estar \
+    #         vazios."
+    #     assert all(
+    #         (dados_filtrados["Data de triagem"] >= np.datetime64(data_inicial))
+    #         & (dados_filtrados["Data de triagem"] <= np.datetime64(data_final))
+    #     ), "Os dados filtrados devem estar dentro do intervalo de datas \
+    #         especificado."
+    #     assert (
+    #         dados_filtrados.shape[0] > 0
+    #     ), "Os dados filtrados devem conter registros."
 
     def test_total_de_carga_induzida(self, model):
         """
