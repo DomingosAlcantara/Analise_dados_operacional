@@ -37,7 +37,7 @@ class CentroTratamentoModel:
         df_produtividade = dict_dfs_centro.get("carga tratada", DataFrame()).set_index(
             "nº_máquina"
         )
-        codigos_maquinas = df_produtividade.index.unique()
+        codigos_maquinas = sorted(df_produtividade.index.unique())
 
         print(f"Maquinas: {codigos_maquinas}")
 
@@ -47,10 +47,33 @@ class CentroTratamentoModel:
             .to_dict()["centro_de_tratamento"]
         )
 
-        for categoria, df in dict_dfs_centro.items():
-            if "nº_máquina" in df.columns:
-                for maquina in df["nº_máquina"].unique():
-                    self.maquinas[maquina] = MaquinaModel(maquina, df)
+        # for categoria, df in dict_dfs_centro.items():
+        #     if "nº_máquina" in df.columns:
+        #         for maquina in df["nº_máquina"].unique():
+        #             self.maquinas[maquina] = MaquinaModel(maquina, df)
+        for codigo_maquina in codigos_maquinas:
+            df_maquina = df_produtividade[df_produtividade.index == codigo_maquina]
+            self.maquinas[codigo_maquina] = MaquinaModel(
+                codigo_maquina, {"carga_tratada": df_maquina}
+            )
+
+        return self
+
+    def filtrar_dados_por_data(self, data_inicial: str, data_final: str):
+        """Filtra os dados do centro de tratamento com base em um intervalo de
+            datas.
+
+        Args:
+            data_inicial (str): Data inicial no formato 'YYYY-MM-DD'.
+            data_final (str): Data final no formato 'YYYY-MM-DD'.
+
+        Returns:
+            CentroTratamentoModel: A própria instância da classe, permitindo
+            encadeamento de métodos.
+        """
+        for maquina in self.maquinas.values():
+            maquina.filtrar_dados_por_data(data_inicial, data_final)
+        return self
 
     def _extrair_maquinas(self, df: DataFrame) -> list:
         """Extrai os códigos das máquinas de um DataFrame.
@@ -72,8 +95,10 @@ class CentroTratamentoModel:
         Returns:
             int: Total de carga induzida.
         """
-        # maquinas = self.retornar_maquinas()
-        return sum(maquina.total_carga_induzida() for maquina in self.maquinas)
+        print(f"Maquinas Encontradas: {self.maquinas.keys()}")
+        if len(self.maquinas) == 1:
+            return self.maquinas[list(self.maquinas.keys())[0]].total_carga_induzida()
+        return sum(maquina.total_carga_induzida() for maquina in self.maquinas.values())
 
     def media_carga_induzida(self) -> int:
         """Calcula a média de carga induzida para o centro de tratamento.
@@ -82,8 +107,8 @@ class CentroTratamentoModel:
             int: Média de carga induzida.
         """
         print(f"Total de carga induzida: {self.total_carga_induzida()}")
-        print(f"Total de maquinas: {len(self.retornar_maquinas())}")
-        return round(self.total_carga_induzida() / len(self.retornar_maquinas()))
+        # print(f"Total de maquinas: {len(self.retornar_maquinas())}")
+        return round(self.total_carga_induzida() / len(self.maquinas))
 
     def retornar_rendimento_efetivo_medio(self) -> float:
         """Calcula o rendimento efetivo médio para o centro de tratamento.

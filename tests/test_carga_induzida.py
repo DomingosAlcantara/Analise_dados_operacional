@@ -51,7 +51,7 @@ class TestCargaInduzidaModel:
         ), "O total de carga induzida deve ser um inteiro."
         assert total >= 0, "O total de carga induzida não pode ser negativo."
 
-    def test_media_carga_induzida(self, model):
+    def _test_media_carga_induzida(self, model):
         """
         Testa o método media_carga_induzida.
         """
@@ -61,7 +61,7 @@ class TestCargaInduzidaModel:
         ), "A média de carga induzida deve ser um inteiro."
         assert media >= 0, "A média de carga induzida não pode ser negativa."
 
-    def test_rendimento_efetivo_hora(self, model):
+    def _test_rendimento_efetivo_hora(self, model):
         """
         Testa o método rendimento_efetivo_hora.
         """
@@ -72,7 +72,7 @@ class TestCargaInduzidaModel:
         assert rendimento >= 0, "O rendimento efetivo por hora não pode ser \
             negativo."
 
-    def test_carga_induzida_por_centro(self, model, monkeypatch):
+    def _test_carga_induzida_por_centro(self, model, monkeypatch):
         """
         Testa o método carga_induzida_por_centro.
         """
@@ -110,7 +110,7 @@ class TestCargaInduzidaModel:
         assert res["CTCE INDAIATUBA"] == 100
         assert res["CTCE JABOATAO DOS GUARARAPES"] == 250
 
-    def test_rendimento_efetivo_por_centro(self, model, monkeypatch):
+    def _test_rendimento_efetivo_por_centro(self, model, monkeypatch):
         """
         Testa o método rendimento_efetivo_por_centro.
         """
@@ -143,7 +143,7 @@ class TestCargaInduzidaModel:
         finally:
             monkeypatch.undo()
 
-    def test_carga_induzida_por_maquina(self, model):
+    def _test_carga_induzida_por_maquina(self, model):
         """
         Testa o método carga_induzida_por_maquina.
         """

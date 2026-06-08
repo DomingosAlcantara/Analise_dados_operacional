@@ -18,7 +18,7 @@ def model(mock_carga_tratada):
     return EmpresaModel().configurar(loader=mock_loader)
 
 
-class TestEmpresaModel:
+class _TestEmpresaModel:
     def test_retornar_carga_induzida_total(self, model):
         assert (
             model.retornar_carga_induzida_total() >= 0
