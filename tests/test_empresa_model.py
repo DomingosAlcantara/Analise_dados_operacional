@@ -15,10 +15,14 @@ def model(mock_carga_tratada):
     mock_loader.carregar_tudo.return_value = {"carga tratada": mock_carga_tratada}
     # empresa = EmpresaModel()
     # empresa.configurar(loader=mock_loader)
-    return EmpresaModel().configurar(loader=mock_loader)
+    return (
+        EmpresaModel()
+        .configurar(loader=mock_loader)
+        .definir_intervalo_de_pesquisa("2023-01-01", "2023-12-31")
+    )
 
 
-class _TestEmpresaModel:
+class TestEmpresaModel:
     def test_retornar_carga_induzida_total(self, model):
         assert (
             model.retornar_carga_induzida_total() >= 0
@@ -28,7 +32,7 @@ class _TestEmpresaModel:
             model.retornar_carga_induzida_total() == 94832
         ), "A carga total deve ser 94832"
 
-    def test_retornar_carga_induzida_total_com_dataframe_vazio(self, model):
+    def _test_retornar_carga_induzida_total_com_dataframe_vazio(self, model):
         empty_model = EmpresaModel()
         empty_model._carregar_carga_induzida(df=pd.DataFrame())
         assert (
@@ -39,7 +43,7 @@ class _TestEmpresaModel:
             len(empty_model.retornar_centros_de_tratamento()) == 0
         ), "Deve retornar uma lista vazia para um DataFrame vazio"
 
-    def test_retornar_rendimento_efetivo_medio(self, model):
+    def _test_retornar_rendimento_efetivo_medio(self, model):
         # centros = model.retornar_centros_de_tratamento()
         # rendimentos = [
         #     centro.retornar_maquinas()[0].media_rendimento_efetivo()
@@ -52,7 +56,7 @@ class _TestEmpresaModel:
             model.retornar_rendimento_efetivo_medio() >= 0
         ), "O rendimento efetivo médio deve ser não negativo"
 
-    def test_retornar_media_diaria_de_carga_induzida(self, model):
+    def _test_retornar_media_diaria_de_carga_induzida(self, model):
         assert (
             model.retornar_media_diaria_de_carga_induzida() >= 0
         ), "A média diária de carga induzida deve ser não negativa"

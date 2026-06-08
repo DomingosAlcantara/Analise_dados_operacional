@@ -40,17 +40,20 @@ class EmpresaModel:
                     dados_centro[categoria] = df[df["código_mcu_ctc"] == id_centro]
 
             nome_centro = mapeamento.get(id_centro, "Desconhecido")
-            self.centros[id_centro] = CentroTratamentoModel(nome_centro, dados_centro)
+            self.centros[nome_centro] = CentroTratamentoModel(id_centro).configurar(
+                dados_centro
+            )
 
-        return mapeamento
+        return self
 
-    def definir_intervalo_de_pesquisa(self, data_inicio, data_fim):
+    def definir_intervalo_de_pesquisa(self, data_inicio: str, data_fim: str):
         """
         Define o intervalo de pesquisa para os dados de carga induzida.
         """
-        self._df_carga_induzida = self._df_carga_induzida[
-            self._df_carga_induzida["data"].between(data_inicio, data_fim)
-        ]
+        for centro in self.centros.values():
+            centro.filtrar_dados_por_data(data_inicio, data_fim)
+
+        return self
 
     def retornar_centros_de_tratamento(self):
         """
@@ -67,24 +70,23 @@ class EmpresaModel:
         Calcula a carga total induzida somando a carga induzida de todos
         os centros de tratamento.
         """
-        if not self._df_carga_induzida.empty:
-            return sum(
-                centro.total_carga_induzida()
-                for centro in self.retornar_centros_de_tratamento()
-            )
-        return 0
+        if not self.centros:
+            return 0
+
+        return sum(centro.total_carga_induzida() for centro in self.centros.values())
 
     def retornar_rendimento_efetivo_medio(self):
         """
         Calcula o rendimento efetivo médio somando o rendimento efetivo de
         todos os centros de tratamento.
         """
-        if not self._df_carga_induzida.empty:
-            return mean(
-                centro.retornar_rendimento_efetivo_medio()
-                for centro in self.retornar_centros_de_tratamento()
-            )
-        return 0
+        if not self.centros:
+            return 0
+
+        return mean(
+            centro.retornar_rendimento_efetivo_medio()
+            for centro in self.centros.values()
+        )
 
     def retornar_media_diaria_de_carga_induzida(self):
         """
