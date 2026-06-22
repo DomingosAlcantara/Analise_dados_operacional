@@ -27,11 +27,11 @@ class ResumoModel:
     Classe para gerenciar o resumo de dados.
     """
 
-    def __init__(self, model_carga_induzida):
+    def __init__(self, empresa):
         """
         Inicializa o modelo de resumo.
         """
-        self._model_carga_induzida = model_carga_induzida
+        self._empresa = empresa
 
     def formatacao_compacta_de_valores(self, v):
         try:
@@ -50,17 +50,16 @@ class ResumoModel:
         """
         Método para calcular métricas de performance.
         """
-        # dias = (end_date - start_date).days if start_date and end_date
-        # else 30
-        self._model_carga_induzida.filtrar_dados_por_data(start_date, end_date)
+        self._empresa.definir_intervalo_de_pesquisa(start_date, end_date)
+        print(f"Calculando métricas para o período de {start_date} a {end_date}...")
 
-        total_carga = self._model_carga_induzida.total_de_carga_induzida()
-        media_carga = self._model_carga_induzida.media_carga_induzida()
-        eficiencia = self._model_carga_induzida.rendimento_efetivo_hora()
+        total_carga = self._empresa.retornar_carga_induzida_total()
+        media_diaria = self._empresa.retornar_media_diaria()
+        eficiencia = self._empresa.retornar_rendimento_efetivo_medio()
 
         return {
             "carga_induzida": self.formatacao_compacta_de_valores(total_carga),
-            "media_carga": self.formatacao_compacta_de_valores(media_carga),
+            "media_carga": self.formatacao_compacta_de_valores(media_diaria),
             "eficiencia": self.formatacao_compacta_de_valores(eficiencia),
         }
 
@@ -68,25 +67,25 @@ class ResumoModel:
         """
         Método para obter a carga induzida por centro.
         """
-        return self._model_carga_induzida.carga_induzida_por_centro()
+        return self._empresa.retornar_carga_induzida_por_centro()
 
     def rendimento_efetivo_por_centro(self):
         """
         Método para obter o rendimento efetivo por centro.
         """
-        return self._model_carga_induzida.rendimento_efetivo_por_centro()
+        return self._empresa.retornar_rendimento_efetivo_por_centro()
 
     def carga_induzida_por_maquina(self):
         """
         Método para obter a carga induzida por máquina.
         """
-        return self._model_carga_induzida.carga_induzida_por_maquina()
+        return self._empresa.retornar_carga_induzida_por_maquina()
 
     def rendimento_efetivo_por_maquina(self):
         """
         Método para obter o rendimento efetivo por máquina.
         """
-        return self._model_carga_induzida.rendimento_efetivo_por_maquina()
+        return self._empresa.retornar_rendimento_efetivo_por_maquina()
 
     def _adicionar_rotulo_maquina(self, df):
         """
@@ -100,4 +99,4 @@ class ResumoModel:
         Returns:
             pandas.DataFrame: DataFrame com a nova coluna 'Rótulo Máquina'.
         """
-        return self._model_carga_induzida._adicionar_rotulo_maquina(df)
+        return self._empresa.retornar_carga_induzida_por_maquina()

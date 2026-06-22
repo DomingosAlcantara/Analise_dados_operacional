@@ -43,7 +43,20 @@ class MaquinaModel:
         Returns:
             int: Total de carga processada.
         """
-        return int(self._carga_tratada.total_de_carga_induzida())
+        return self._carga_tratada.total_de_carga_induzida()
+        # print(
+        #     f"Total de carga induzida na maquina {self._id_maquina}: {teste}"
+        # )  # Debug
+        # return teste  # self._carga_tratada.total_de_carga_induzida()
+
+    def obter_media_diaria(self) -> float:  # media_diaria
+        """
+        Retorna a média diária de carga processada pela máquina.
+
+        Returns:
+            float: Média diária de carga processada.
+        """
+        return self._carga_tratada.obter_media_diaria()
 
     def media_carga_induzida(self) -> float:
         """
@@ -62,7 +75,7 @@ class MaquinaModel:
         Returns:
             float: Rendimento efetivo em porcentagem.
         """
-        return float(self._carga_tratada.rendimento_efetivo_hora())
+        return float(self._carga_tratada.rendimento_efetivo_medio())
 
     def tempo_plano_carregado(self) -> float:
         """

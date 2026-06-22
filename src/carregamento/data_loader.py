@@ -96,6 +96,14 @@ class DataLoader:
         dados_carregados = {}
 
         for categoria, conf in self._configs.items():
-            dados_carregados[categoria] = self.processar_categoria(categoria, conf)
+            df_bruto = self.processar_categoria(categoria, conf)
 
+            pipeline = conf.get("pipeline")
+
+            if pipeline and not df_bruto.empty:
+                df_limpo = pipeline.processar(df_bruto)
+            else:
+                df_limpo = df_bruto
+
+            dados_carregados[categoria] = df_limpo
         return dados_carregados

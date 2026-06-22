@@ -2,9 +2,9 @@ import dash
 from dash import html
 
 from src.components.resumo_card import ResumoCard
-from src.models.carga_induzida_model import CargaInduzidaModel
-from src.path_files import PathFiles
-from src.utils.cache import cache
+
+# from src.models.carga_induzida_model import CargaInduzidaModel
+# from src.utils.cache import cache
 
 try:
     dash.register_page(__name__, path="/", name="Resumos")
@@ -21,10 +21,10 @@ class ResumosView:
         self.app = app_instance
         self.resumo_card = ResumoCard()
 
-        correios = cache.get("correios_model")
-        correios._carregar_carga_induzida(
-            CargaInduzidaModel(PathFiles.ARQUIVOS_CARGA_TRATADA)
-        )
+        # correios = cache.get("correios_model")
+        # correios._carregar_carga_induzida(
+        #     CargaInduzidaModel(PathFiles.ARQUIVOS_CARGA_TRATADA)
+        # )
 
         if register_callbacks:
             self.register_callbacks()

@@ -43,20 +43,17 @@ class TestEmpresaModel:
             len(empty_model.retornar_centros_de_tratamento()) == 0
         ), "Deve retornar uma lista vazia para um DataFrame vazio"
 
-    def _test_retornar_rendimento_efetivo_medio(self, model):
-        # centros = model.retornar_centros_de_tratamento()
-        # rendimentos = [
-        #     centro.retornar_maquinas()[0].media_rendimento_efetivo()
-        #     for centro in centros
-        # ]
-        # assert all(
-        #     rendimento >= 0 for rendimento in rendimentos
-        # ), "O rendimento efetivo médio deve ser não negativo"
+    def test_retornar_rendimento_efetivo_medio(self, model):
         assert (
             model.retornar_rendimento_efetivo_medio() >= 0
         ), "O rendimento efetivo médio deve ser não negativo"
 
-    def _test_retornar_media_diaria_de_carga_induzida(self, model):
+    def test_retornar_media_diaria_de_carga_induzida(self, model):
         assert (
-            model.retornar_media_diaria_de_carga_induzida() >= 0
+            model.retornar_media_diaria() >= 0
         ), "A média diária de carga induzida deve ser não negativa"
+
+    def test_retornar_quantidade_de_carga_induzida_por_centro(self, model):
+        carga_por_centro = model.retornar_carga_induzida_por_centro()
+        assert isinstance(carga_por_centro, pd.DataFrame), "Deve retornar um DataFrame"
+        assert not carga_por_centro.empty, "O DataFrame não deve estar vazio"

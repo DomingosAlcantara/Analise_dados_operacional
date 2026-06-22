@@ -5,6 +5,8 @@ Automatizados
 
 from statistics import mean
 
+import pandas as pd
+
 from src.carregamento.data_loader import DataLoader
 from src.models.base.centro_tratamento_model import CentroTratamentoModel
 
@@ -29,15 +31,16 @@ class EmpresaModel:
             .to_dict()["centro_de_tratamento"]
         )
 
-        print(f"Centros de Tratamento: {codigos_centros}")
-
         for id_centro in codigos_centros:
             dados_centro = {}
             for categoria, df in dados_globais.items():
-                if "código_mcu_ctc" in df.columns:
-                    dados_centro[categoria] = df.loc[[id_centro]]
-                else:
+                if id_centro in df["código_mcu_ctc"].values:
                     dados_centro[categoria] = df[df["código_mcu_ctc"] == id_centro]
+                else:
+                    dados_centro[categoria] = df[df.index == id_centro]
+                    print(
+                        f"Dados para o centro {id_centro} na categoria '{categoria}' estão vazios."
+                    )
 
             nome_centro = mapeamento.get(id_centro, "Desconhecido")
             self.centros[nome_centro] = CentroTratamentoModel(id_centro).configurar(
@@ -75,6 +78,16 @@ class EmpresaModel:
 
         return sum(centro.total_carga_induzida() for centro in self.centros.values())
 
+    def retornar_media_diaria(self):
+        """
+        Calcula a média diária de carga induzida somando a carga induzida de
+        todos os centros de tratamento.
+        """
+        if not self.centros:
+            return 0
+
+        return sum(centro.obter_media_diaria() for centro in self.centros.values())
+
     def retornar_rendimento_efetivo_medio(self):
         """
         Calcula o rendimento efetivo médio somando o rendimento efetivo de
@@ -88,14 +101,19 @@ class EmpresaModel:
             for centro in self.centros.values()
         )
 
-    def retornar_media_diaria_de_carga_induzida(self):
+    def retornar_carga_induzida_por_centro(self):
         """
-        Calcula a média diária de carga induzida dividindo a carga total
-        induzida pelo número de dias presentes no DataFrame.
+        Retorna a carga induzida por centro de tratamento.
         """
-        # É necessaŕio definir melhor o calculo da média diária
-        if not self._df_carga_induzida.empty:
-            dias = self._df_carga_induzida["data"].nunique()
-            if dias > 0:
-                return self.retornar_carga_induzida_total() / dias
-        return 0
+        if not self.centros:
+            return pd.DataFrame(columns=["Centro de Tratamento", "Quantidade Induzida"])
+
+        return pd.DataFrame(
+            [
+                {
+                    "Centro de Tratamento": nome_centro,
+                    "Quantidade Induzida": centro.total_carga_induzida(),
+                }
+                for nome_centro, centro in self.centros.items()
+            ]
+        )

@@ -95,10 +95,20 @@ class CentroTratamentoModel:
         Returns:
             int: Total de carga induzida.
         """
-        print(f"Maquinas Encontradas: {self.maquinas.keys()}")
         if len(self.maquinas) == 1:
             return self.maquinas[list(self.maquinas.keys())[0]].total_carga_induzida()
         return sum(maquina.total_carga_induzida() for maquina in self.maquinas.values())
+
+    def obter_media_diaria(self) -> float:
+        """Calcula a média diária de carga induzida para o centro de tratamento.
+
+        Returns:
+            float: Média diária de carga induzida.
+        """
+        # maquinas = self.retornar_maquinas()
+        return round(
+            sum(maquina.obter_media_diaria() for maquina in self.maquinas.values()), 2
+        )
 
     def media_carga_induzida(self) -> int:
         """Calcula a média de carga induzida para o centro de tratamento.
@@ -116,8 +126,7 @@ class CentroTratamentoModel:
         Returns:
             float: Rendimento efetivo médio.
         """
-        maquinas = self.retornar_maquinas()
-        return round(
-            mean(maquina.retornar_rendimento_efetivo_medio() for maquina in maquinas),
-            2,
+        return mean(
+            maquina.retornar_rendimento_efetivo_medio()
+            for maquina in self.maquinas.values()
         )

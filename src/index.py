@@ -7,10 +7,11 @@ from src.components.back_button import BackButton
 
 # Importa a instância da classe Sidebar
 from src.components.sidebar import sidebar_component as Sidebar
-from src.models.base.empresa_model import EmpresaModel
-from src.utils.cache import cache
 
-cache.set("correios_model", EmpresaModel())
+# from src.models.base.empresa_model import EmpresaModel
+# from src.utils.cache import cache
+
+# cache.set("correios_model", EmpresaModel())
 # Dar continuidade a implementação do modelo singleton para a classe
 # CorreiosModel, garantindo que apenas uma instância seja criada e reutilizada
 # em toda a aplicação, evitando recarregamentos desnecessários dos dados e
@@ -144,17 +145,19 @@ import src.views.analise_operacional  # noqa: F401
 import src.views.detalhamento  # noqa: F401
 import src.views.monitoramento  # noqa: F401
 import src.views.resumos  # noqa: F401
-import src.views.resumos.carga_induzida  # noqa: F401
-import src.views.resumos.falhas_tecnicas  # noqa: F401
+
+# import src.views.resumos.carga_induzida  # noqa: F401
+# import src.views.resumos.falhas_tecnicas  # noqa: F401
 
 # Instanciamos a página de resumo no startup para garantir que seus callbacks
 # sejam registrados mesmo antes de o usuário navegar até a página.
 try:
     import src.views.resumos.carga_induzida as _carga_induzida
-    import src.views.resumos.falhas_tecnicas as _falhas_tecnicas
+
+    # import src.views.resumos.falhas_tecnicas as _falhas_tecnicas
 
     _carga_induzida.CargaInduzida(app)
-    _falhas_tecnicas.FalhasTecnicasView(app)
+    # _falhas_tecnicas.FalhasTecnicasView(app)
 except Exception as e:
     # Silencioso no startup — isso só tenta garantir registro de callbacks
     print(f"Erro ao registrar callbacks da página de Carga Induzida: {e}")
@@ -170,7 +173,8 @@ if __name__ == "__main__":
     import src.views.detalhamento  # noqa: E402, F401
     import src.views.monitoramento  # noqa: E402, F401
     import src.views.resumos  # noqa: E402, F401
-    import src.views.resumos.carga_induzida  # noqa: E402, F401
-    import src.views.resumos.falhas_tecnicas  # noqa: E402, F401
+
+    # import src.views.resumos.carga_induzida  # noqa: E402, F401
+    # import src.views.resumos.falhas_tecnicas  # noqa: E402, F401
 
     app.run(debug=True)

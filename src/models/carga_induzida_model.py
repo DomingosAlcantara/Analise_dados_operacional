@@ -4,7 +4,7 @@ automatizadas nos Centros de Tratamento.
 
 import pandas as pd
 
-from src.utils.cache import cache
+# from src.utils.cache import cache
 
 
 class CargaInduzidaModel:
@@ -18,18 +18,6 @@ class CargaInduzidaModel:
     def __init__(self, df_dados: pd.DataFrame):
         self._df_dados = df_dados.copy()
         self._dados_filtrados = pd.DataFrame()
-
-    def remover_linhas_vazias(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Remove linhas vazias de um DataFrame.
-
-        Args:
-            df (DataFrame): DataFrame do qual as linhas vazias serão removidas.
-
-        Returns:
-            DataFrame: DataFrame sem linhas vazias.
-        """
-        return df.loc[df["Quantidade Induzida"].fillna(0) != 0]  # noqa: E712
 
     def filtrar_dados_por_data(self, data_inicial, data_final):
         """
@@ -45,9 +33,12 @@ class CargaInduzidaModel:
             return
 
         # Garantir que a comparação use o mesmo tipo (Timestamp)
-        self._dados_filtrados = self._df_dados.loc[
-            self._df_dados["data_de_triagem"].between(start, end)
-        ]
+        mascara = self._df_dados["data_de_triagem"].between(start, end)
+
+        self._dados_filtrados = self._df_dados.loc[mascara].copy()
+        print(
+            f"Dados apos filtragem: {len(self._dados_filtrados)} registros"
+        )  # Debug: Exibir número de registros antes
         return self
 
     def total_de_carga_induzida(self):
@@ -56,12 +47,31 @@ class CargaInduzidaModel:
         Retorna:
             int64: Total de carga induzida.
         """
-        total = self._dados_filtrados["quantidade_induzida"].sum()
+        return int(self._dados_filtrados["quantidade_induzida"].sum())
+        # print(
+        #     f"Total de carga induzida calculado: {total}"
+        # )  # Debug: Exibir o total calculado
+        # # cache.set("total_carga_induzida", total)  # Armazenar no cache
+        # return total
+
+    def obter_media_diaria(self):
+        """
+        Método para calcular a média diária de carga induzida.
+        Retorna:
+            float: Média diária de carga induzida.
+        """
+        self._dados_filtrados["dia exato"] = self._dados_filtrados[
+            "data_de_triagem"
+        ].dt.date
+
         print(
-            f"Total de carga induzida calculado: {total}"
-        )  # Debug: Exibir o total calculado
-        cache.set("total_carga_induzida", total)  # Armazenar no cache
-        return total
+            f"Dados apos agrupamento por dia: {len(self._dados_filtrados['dia exato'].unique())} dias"
+        )
+        return (
+            self._dados_filtrados.groupby("dia exato")["quantidade_induzida"]
+            .sum()
+            .mean()
+        )
 
     def media_carga_induzida(self):
         """
@@ -71,13 +81,13 @@ class CargaInduzidaModel:
         """
         return self._dados_filtrados["quantidade_induzida"].mean()
 
-    def rendimento_efetivo_hora(self):
+    def rendimento_efetivo_medio(self) -> float:
         """
         Método para calcular o rendimento efetivo por hora.
         Retorna:
             float: Rendimento efetivo por hora.
         """
-        return self._dados_filtrados["Rendimento Efetivo/h"].mean()
+        return self._dados_filtrados["rendimento_efetivo/h"].mean()
 
     def carga_induzida_por_centro(self):
         """Retorna a soma da `Quantidade Induzida` por `Centro de Tratamento`.
@@ -89,8 +99,8 @@ class CargaInduzidaModel:
         if self._dados_filtrados is None or self._dados_filtrados.empty:
             return pd.Series(dtype="int64")
 
-        return self._dados_filtrados.groupby("Centro de Tratamento")[
-            "Quantidade Induzida"
+        return self._dados_filtrados.groupby("centro_de_tratamento")[
+            "quantidade_induzida"
         ].sum()
 
     def rendimento_efetivo_por_centro(self):
@@ -103,8 +113,8 @@ class CargaInduzidaModel:
         if self._dados_filtrados is None or self._dados_filtrados.empty:
             return pd.Series(dtype="float64")
 
-        return self._dados_filtrados.groupby("Centro de Tratamento")[
-            "Rendimento Efetivo/h"
+        return self._dados_filtrados.groupby("centro_de_tratamento")[
+            "rendimento_efetivo/h"
         ].mean()
 
     def carga_induzida_por_maquina(self):
@@ -116,12 +126,12 @@ class CargaInduzidaModel:
         """
         if self._dados_filtrados is None or self._dados_filtrados.empty:
             return pd.DataFrame(
-                columns=["Nº Máquina", "Quantidade Induzida", "Centro de Tratamento"]
+                columns=["nº_máquina", "quantidade_induzida", "centro_de_tratamento"]
             )
 
         return (
-            self._dados_filtrados.groupby("Nº Máquina")
-            .agg({"Quantidade Induzida": "sum", "Centro de Tratamento": "first"})
+            self._dados_filtrados.groupby("nº_máquina")
+            .agg({"quantidade_induzida": "sum", "centro_de_tratamento": "first"})
             .reset_index()
         )
 
@@ -133,12 +143,12 @@ class CargaInduzidaModel:
         """
         if self._dados_filtrados is None or self._dados_filtrados.empty:
             return pd.DataFrame(
-                columns=["Nº Máquina", "Rendimento Efetivo/h", "Centro de Tratamento"]
+                columns=["nº_máquina", "rendimento_efetivo/h", "centro_de_tratamento"]
             )
 
         return (
-            self._dados_filtrados.groupby("Nº Máquina")
-            .agg({"Rendimento Efetivo/h": "mean", "Centro de Tratamento": "first"})
+            self._dados_filtrados.groupby("nº_máquina")
+            .agg({"rendimento_efetivo/h": "mean", "centro_de_tratamento": "first"})
             .reset_index()
         )
 
@@ -156,17 +166,17 @@ class CargaInduzidaModel:
         Returns:
             DataFrame: com coluna adicional 'Rótulo Máquina'
         """
-        df = df.copy().sort_values(by=["Centro de Tratamento", "Nº Máquina"])
+        df = df.copy().sort_values(by=["centro_de_tratamento", "nº_máquina"])
 
         # Agrupar por centro e adicionar sequência dentro de cada grupo
-        df["Sequência"] = df.groupby("Centro de Tratamento", sort=False).cumcount() + 1
+        df["Sequência"] = df.groupby("centro_de_tratamento", sort=False).cumcount() + 1
 
         # Extrair as 3 primeiras letras do Centro de Tratamento
-        df["Sigla Centro"] = df["Centro de Tratamento"].str[5:8].str.upper()
+        df["Sigla Centro"] = df["centro_de_tratamento"].str[5:8].str.upper()
 
         # Criar o rótulo formatado
         df["Rótulo Máquina"] = (
-            df["Nº Máquina"].astype(str)
+            df["nº_máquina"].astype(str)
             + "<br>"
             + df["Sigla Centro"].astype(str)
             + " - PBVS"

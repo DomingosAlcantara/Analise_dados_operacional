@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -47,9 +46,21 @@ class TestCargaInduzidaModel:
         total = model.total_de_carga_induzida()
         print(f"Total de Carga Induzida: {total}")
         assert isinstance(
-            total, (np.int64, float)
+            total, (int, float)
         ), "O total de carga induzida deve ser um inteiro."
         assert total >= 0, "O total de carga induzida não pode ser negativo."
+
+    def test_obter_media_diaria(self, model):
+        """
+        Testa o método obter_media_diaria.
+        """
+        media = model.obter_media_diaria()
+        print(f"Média diária de carga induzida: {media}")
+        assert isinstance(
+            media, (int, float)
+        ), "A média diária de carga induzida deve ser um número."
+        assert media >= 0, "A média diária de carga induzida não pode ser \
+            negativa."
 
     def _test_media_carga_induzida(self, model):
         """

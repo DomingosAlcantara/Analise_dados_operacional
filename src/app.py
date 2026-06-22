@@ -1,5 +1,7 @@
 import dash
 
+from src.engine import empresa  # noqa: F401
+
 # 1. Instância principal do Dash app
 # use_pages = True - habilita o roteamento automático do Dash
 # suppress_callback_exceptions = True - Essencial para layouts dinâmicos e

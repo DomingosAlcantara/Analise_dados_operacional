@@ -37,7 +37,7 @@ def test_filtrar_e_aggregados(monkeypatch):
     assert model._dados_filtrados.shape[0] == 3
     total = model.total_de_carga_induzida()
     media = model.media_carga_induzida()
-    rendimento = model.rendimento_efetivo_hora()
+    rendimento = model.rendimento_efetivo_medio()
 
     assert total == 450
     assert math.isclose(media, 150.0)
@@ -55,6 +55,6 @@ def test_filtrar_sem_resultados(monkeypatch):
     assert model._dados_filtrados.shape[0] == 0
     assert model.total_de_carga_induzida() == 0
     assert model.media_carga_induzida() == 0
-    assert model.rendimento_efetivo_hora() == 0
+    assert model.rendimento_efetivo_medio() == 0
     assert pd.isna(model.media_carga_induzida())
-    assert pd.isna(model.rendimento_efetivo_hora())
+    assert pd.isna(model.rendimento_efetivo_medio())

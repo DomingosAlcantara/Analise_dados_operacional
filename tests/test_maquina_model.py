@@ -27,11 +27,11 @@ class Test_MaquinaModel:
         assert isinstance(total_carga, int), "Deve retornar um inteiro"
         assert total_carga == 29612, "O total de carga deve ser 29612"
 
-    def _test_media_carga_induzida(self, model):
+    def test_media_diaria_de_carga_induzida(self, model):
         """
         Testa o método media_carga_induzida.
         """
-        media_carga = model.media_carga_induzida()
+        media_carga = model.obter_media_diaria()
 
         print(f"Média de carga induzida: {media_carga}")
 

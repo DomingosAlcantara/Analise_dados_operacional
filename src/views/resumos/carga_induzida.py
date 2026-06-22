@@ -12,10 +12,8 @@ from plotly import express as px
 
 from src.components.kpi_card import KpiCard
 from src.components.kpi_graph_card import KpiGraphCard
-from src.models.carga_induzida_model import CargaInduzidaModel
+from src.engine import empresa  # noqa: F401
 from src.models.resumo_model import ResumoModel
-from src.path_files import PathFiles
-from src.utils.cache import cache
 from src.views.colors import get_color_palette
 
 try:
@@ -38,25 +36,13 @@ class CargaInduzida:
         self.ID_VALOR_MEDIA = "resumo-val-media"
         self.ID_VALOR_RENDIMENTO = "resumo-val-rendimento"
 
-        # Inicializando o modelo de carga induzida
-        # self._carga_induzida = CargaInduzidaModel(path=PathFiles.ARQUIVOS_CARGA_TRATADA)
-
         # Inicializando o modelo de resumo
-        self._resumo_model = ResumoModel(
-            CargaInduzidaModel(path=PathFiles.ARQUIVOS_CARGA_TRATADA)
-        )
-        correios = cache.get("correios_model")
-        correios._carregar_carga_induzida(
-            CargaInduzidaModel(
-                path=PathFiles.ARQUIVOS_CARGA_TRATADA
-            ).filtrar_dados_por_data
-        )
+        self._resumo_model = ResumoModel(empresa)
 
         # Calcula métricas iniciais usando o intervalo padrão (últimos 30 dias)
         try:
             end_date = date.today()
             start_date = end_date - timedelta(days=30)
-            # resumo_model = ResumoModel(self._carga_induzida)
             self._initial_metrics = self._resumo_model.get_performance_metrics(
                 start_date, end_date
             )
@@ -279,9 +265,9 @@ class CargaInduzida:
                 Output(self.ID_VALOR_MEDIA, "children"),
                 Output(self.ID_VALOR_RENDIMENTO, "children"),
                 Output("graph-carga-centro", "figure"),
-                Output("graph-rendimento-centro", "figure"),
-                Output("graph-carga-maquina", "figure"),
-                Output("graph-rendimento-maquina", "figure"),
+                # Output("graph-rendimento-centro", "figure"),
+                # Output("graph-carga-maquina", "figure"),
+                # Output("graph-rendimento-maquina", "figure"),
             ],
             [
                 Input("global-date-picker", "start_date"),
@@ -332,44 +318,44 @@ class CargaInduzida:
             titulo="Carga Induzida por Centro",
         )
 
-        fig_rend = self.gerar_graficos(
-            self._resumo_model.rendimento_efetivo_por_centro(),
-            coluna_x="Centro de Tratamento",
-            coluna_y="Rendimento Efetivo/h",
-            titulo="Rendimento Efetivo por Centro",
-        )
+        # fig_rend = self.gerar_graficos(
+        #     self._resumo_model.rendimento_efetivo_por_centro(),
+        #     coluna_x="Centro de Tratamento",
+        #     coluna_y="Rendimento Efetivo/h",
+        #     titulo="Rendimento Efetivo por Centro",
+        # )
 
-        # Gerar gráfico de carga por máquina com ordenação dupla
-        fig_carga_maquina = self.gerar_graficos(
-            self._resumo_model.carga_induzida_por_maquina().sort_values(
-                by=["Centro de Tratamento", "Quantidade Induzida"],
-                ascending=[True, False],
-            ),
-            coluna_x="Nº Máquina",
-            coluna_y="Quantidade Induzida",
-            titulo="Carga Induzida por Máquina",
-            usar_rotulo_maquina=True,
-        )
+        # # Gerar gráfico de carga por máquina com ordenação dupla
+        # fig_carga_maquina = self.gerar_graficos(
+        #     self._resumo_model.carga_induzida_por_maquina().sort_values(
+        #         by=["Centro de Tratamento", "Quantidade Induzida"],
+        #         ascending=[True, False],
+        #     ),
+        #     coluna_x="Nº Máquina",
+        #     coluna_y="Quantidade Induzida",
+        #     titulo="Carga Induzida por Máquina",
+        #     usar_rotulo_maquina=True,
+        # )
 
-        fig_rend_maquina = self.gerar_graficos(
-            self._resumo_model.rendimento_efetivo_por_maquina().sort_values(
-                by=["Centro de Tratamento", "Rendimento Efetivo/h"],
-                ascending=[True, False],
-            ),
-            coluna_x="Nº Máquina",
-            coluna_y="Rendimento Efetivo/h",
-            titulo="Rendimento Efetivo por Máquina",
-            usar_rotulo_maquina=True,
-        )
+        # fig_rend_maquina = self.gerar_graficos(
+        #     self._resumo_model.rendimento_efetivo_por_maquina().sort_values(
+        #         by=["Centro de Tratamento", "Rendimento Efetivo/h"],
+        #         ascending=[True, False],
+        #     ),
+        #     coluna_x="Nº Máquina",
+        #     coluna_y="Rendimento Efetivo/h",
+        #     titulo="Rendimento Efetivo por Máquina",
+        #     usar_rotulo_maquina=True,
+        # )
 
         return (
             performance_metrics.get("carga_induzida", "—"),
             performance_metrics.get("media_carga", "—"),
             performance_metrics.get("eficiencia", "—"),
             fig_carga,
-            fig_rend,
-            fig_carga_maquina,
-            fig_rend_maquina,
+            # fig_rend,
+            # fig_carga_maquina,
+            # fig_rend_maquina,
         )
 
 
