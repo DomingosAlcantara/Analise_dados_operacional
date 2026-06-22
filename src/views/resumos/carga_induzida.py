@@ -265,7 +265,7 @@ class CargaInduzida:
                 Output(self.ID_VALOR_MEDIA, "children"),
                 Output(self.ID_VALOR_RENDIMENTO, "children"),
                 Output("graph-carga-centro", "figure"),
-                # Output("graph-rendimento-centro", "figure"),
+                Output("graph-rendimento-centro", "figure"),
                 # Output("graph-carga-maquina", "figure"),
                 # Output("graph-rendimento-maquina", "figure"),
             ],
@@ -318,12 +318,12 @@ class CargaInduzida:
             titulo="Carga Induzida por Centro",
         )
 
-        # fig_rend = self.gerar_graficos(
-        #     self._resumo_model.rendimento_efetivo_por_centro(),
-        #     coluna_x="Centro de Tratamento",
-        #     coluna_y="Rendimento Efetivo/h",
-        #     titulo="Rendimento Efetivo por Centro",
-        # )
+        fig_rend = self.gerar_graficos(
+            self._resumo_model.rendimento_efetivo_por_centro(),
+            coluna_x="Centro de Tratamento",
+            coluna_y="Rendimento Efetivo Médio",
+            titulo="Rendimento Efetivo por Centro",
+        )
 
         # # Gerar gráfico de carga por máquina com ordenação dupla
         # fig_carga_maquina = self.gerar_graficos(
@@ -353,7 +353,7 @@ class CargaInduzida:
             performance_metrics.get("media_carga", "—"),
             performance_metrics.get("eficiencia", "—"),
             fig_carga,
-            # fig_rend,
+            fig_rend,
             # fig_carga_maquina,
             # fig_rend_maquina,
         )

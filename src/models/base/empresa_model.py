@@ -117,3 +117,22 @@ class EmpresaModel:
                 for nome_centro, centro in self.centros.items()
             ]
         )
+
+    def retornar_rendimento_efetivo_por_centro(self):
+        """
+        Retorna o rendimento efetivo por centro de tratamento.
+        """
+        if not self.centros:
+            return pd.DataFrame(
+                columns=["Centro de Tratamento", "Rendimento Efetivo Médio"]
+            )
+
+        return pd.DataFrame(
+            [
+                {
+                    "Centro de Tratamento": nome_centro,
+                    "Rendimento Efetivo Médio": centro.retornar_rendimento_efetivo_medio(),
+                }
+                for nome_centro, centro in self.centros.items()
+            ]
+        )
