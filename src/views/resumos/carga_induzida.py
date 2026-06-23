@@ -145,7 +145,7 @@ class CargaInduzida:
                 # tickmode="array",
                 tickvals=df[coluna_x_display],
                 ticktext=(
-                    [m.replace(" ", "<br>") for m in df[coluna_x_display]]
+                    [str(m).replace(" ", "<br>") for m in df[coluna_x_display]]
                     if coluna_x_display != "Rótulo Máquina"
                     else None
                 ),
@@ -266,7 +266,7 @@ class CargaInduzida:
                 Output(self.ID_VALOR_RENDIMENTO, "children"),
                 Output("graph-carga-centro", "figure"),
                 Output("graph-rendimento-centro", "figure"),
-                # Output("graph-carga-maquina", "figure"),
+                Output("graph-carga-maquina", "figure"),
                 # Output("graph-rendimento-maquina", "figure"),
             ],
             [
@@ -326,16 +326,16 @@ class CargaInduzida:
         )
 
         # # Gerar gráfico de carga por máquina com ordenação dupla
-        # fig_carga_maquina = self.gerar_graficos(
-        #     self._resumo_model.carga_induzida_por_maquina().sort_values(
-        #         by=["Centro de Tratamento", "Quantidade Induzida"],
-        #         ascending=[True, False],
-        #     ),
-        #     coluna_x="Nº Máquina",
-        #     coluna_y="Quantidade Induzida",
-        #     titulo="Carga Induzida por Máquina",
-        #     usar_rotulo_maquina=True,
-        # )
+        fig_carga_maquina = self.gerar_graficos(
+            self._resumo_model.carga_induzida_por_maquina().sort_values(
+                by=["Centro de Tratamento", "Quantidade Induzida"],
+                ascending=[True, False],
+            ),
+            coluna_x="Nº Máquina",
+            coluna_y="Quantidade Induzida",
+            titulo="Carga Induzida por Máquina",
+            usar_rotulo_maquina=False,  # True para usar rótulo formatado, False para usar Nº Máquina
+        )
 
         # fig_rend_maquina = self.gerar_graficos(
         #     self._resumo_model.rendimento_efetivo_por_maquina().sort_values(
@@ -354,7 +354,7 @@ class CargaInduzida:
             performance_metrics.get("eficiencia", "—"),
             fig_carga,
             fig_rend,
-            # fig_carga_maquina,
+            fig_carga_maquina,
             # fig_rend_maquina,
         )
 

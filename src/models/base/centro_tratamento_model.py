@@ -130,3 +130,19 @@ class CentroTratamentoModel:
             maquina.retornar_rendimento_efetivo_medio()
             for maquina in self.maquinas.values()
         )
+
+    def retornar_carga_induzida_por_maquina(self) -> DataFrame:
+        """Retorna a carga induzida por máquina para o centro de tratamento.
+
+        Returns:
+            DataFrame: DataFrame contendo a carga induzida por máquina.
+        """
+        return DataFrame(
+            [
+                {
+                    "Nº Máquina": maquina._id_maquina,
+                    "Quantidade Induzida": maquina.total_carga_induzida(),
+                }
+                for maquina in self.maquinas.values()
+            ]
+        )

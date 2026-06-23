@@ -136,3 +136,48 @@ class EmpresaModel:
                 for nome_centro, centro in self.centros.items()
             ]
         )
+
+    def retornar_carga_induzida_por_maquina(self):
+        """
+        Retorna a carga induzida por máquina.
+         - Se não houver centros, retorna um DataFrame vazio.
+         - Se houver centros, concatena os DataFrames de carga por máquina de
+           cada centro, adicionando uma coluna para o nome do centro.
+         - O resultado é um DataFrame com as colunas 'Nº Máquina',
+           'Quantidade Induzida', 'Centro de Tratamento' e 'Nome do Centro'.
+         - O DataFrame resultante é ordenado por 'Quantidade Induzida' em
+           ordem decrescente.
+         - Se o DataFrame resultante estiver vazio, retorna um DataFrame vazio
+           com as colunas esperadas.
+         - Caso contrário, retorna o DataFrame concatenado e ordenado.
+         - O método é projetado para lidar com a ausência de dados e garantir
+           que a estrutura do DataFrame seja consistente, mesmo quando não há
+           dados disponíveis.
+        """
+        if not self.centros:
+            return pd.DataFrame(
+                columns=["Nº Máquina", "Quantidade Induzida", "Centro de Tratamento"]
+            )
+
+        df_concatenado = pd.concat(
+            [
+                centro.retornar_carga_induzida_por_maquina().assign(
+                    **{"Centro de Tratamento": nome_centro}
+                )
+                for nome_centro, centro in self.centros.items()
+            ],
+            ignore_index=True,
+        )
+
+        print(df_concatenado)
+
+        if df_concatenado.empty:
+            return pd.DataFrame(
+                columns=[
+                    "Nº Máquina",
+                    "Quantidade Induzida",
+                    "Centro de Tratamento",
+                ]
+            )
+
+        return df_concatenado.sort_values(by="Quantidade Induzida", ascending=False)
