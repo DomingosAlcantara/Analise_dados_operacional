@@ -181,3 +181,48 @@ class EmpresaModel:
             )
 
         return df_concatenado.sort_values(by="Quantidade Induzida", ascending=False)
+
+    def retornar_rendimento_efetivo_por_maquina(self):
+        """
+        Retorna o rendimento efetivo por máquina.
+         - Se não houver centros, retorna um DataFrame vazio.
+         - Se houver centros, concatena os DataFrames de rendimento por máquina
+           de cada centro, adicionando uma coluna para o nome do centro.
+         - O resultado é um DataFrame com as colunas 'Nº Máquina',
+           'Rendimento Efetivo', 'Centro de Tratamento' e 'Nome do Centro'.
+         - O DataFrame resultante é ordenado por 'Rendimento Efetivo' em ordem
+           decrescente.
+         - Se o DataFrame resultante estiver vazio, retorna um DataFrame vazio
+           com as colunas esperadas.
+         - Caso contrário, retorna o DataFrame concatenado e ordenado.
+         - O método é projetado para lidar com a ausência de dados e garantir
+           que a estrutura do DataFrame seja consistente, mesmo quando não há
+           dados disponíveis.
+        """
+        if not self.centros:
+            return pd.DataFrame(
+                columns=["Nº Máquina", "Rendimento Efetivo", "Centro de Tratamento"]
+            )
+
+        df_concatenado = pd.concat(
+            [
+                centro.retornar_rendimento_efetivo_por_maquina().assign(
+                    **{"Centro de Tratamento": nome_centro}
+                )
+                for nome_centro, centro in self.centros.items()
+            ],
+            ignore_index=True,
+        )
+
+        if df_concatenado.empty:
+            return pd.DataFrame(
+                columns=[
+                    "Nº Máquina",
+                    "Rendimento Efetivo Médio",
+                    "Centro de Tratamento",
+                ]
+            )
+
+        return df_concatenado.sort_values(
+            by="Rendimento Efetivo Médio", ascending=False
+        )

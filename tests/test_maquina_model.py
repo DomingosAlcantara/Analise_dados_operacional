@@ -40,7 +40,7 @@ class Test_MaquinaModel:
             14806, 0.01
         ), "A média de carga induzida deve ser aproximadamente 14806"
 
-    def _test_retornar_rendimento_efetivo_medio(self, model):
+    def test_retornar_rendimento_efetivo_medio(self, model):
         """
         Testa o método retornar_rendimento_efetivo_medio.
         """

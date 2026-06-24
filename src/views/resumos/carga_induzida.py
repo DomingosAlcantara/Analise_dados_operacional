@@ -267,7 +267,7 @@ class CargaInduzida:
                 Output("graph-carga-centro", "figure"),
                 Output("graph-rendimento-centro", "figure"),
                 Output("graph-carga-maquina", "figure"),
-                # Output("graph-rendimento-maquina", "figure"),
+                Output("graph-rendimento-maquina", "figure"),
             ],
             [
                 Input("global-date-picker", "start_date"),
@@ -337,16 +337,16 @@ class CargaInduzida:
             usar_rotulo_maquina=False,  # True para usar rótulo formatado, False para usar Nº Máquina
         )
 
-        # fig_rend_maquina = self.gerar_graficos(
-        #     self._resumo_model.rendimento_efetivo_por_maquina().sort_values(
-        #         by=["Centro de Tratamento", "Rendimento Efetivo/h"],
-        #         ascending=[True, False],
-        #     ),
-        #     coluna_x="Nº Máquina",
-        #     coluna_y="Rendimento Efetivo/h",
-        #     titulo="Rendimento Efetivo por Máquina",
-        #     usar_rotulo_maquina=True,
-        # )
+        fig_rend_maquina = self.gerar_graficos(
+            self._resumo_model.rendimento_efetivo_por_maquina().sort_values(
+                by=["Centro de Tratamento", "Rendimento Efetivo Médio"],
+                ascending=[True, False],
+            ),
+            coluna_x="Nº Máquina",
+            coluna_y="Rendimento Efetivo Médio",
+            titulo="Rendimento Efetivo por Máquina",
+            usar_rotulo_maquina=False,  # True para usar rótulo formatado, False para usar Nº Máquina
+        )
 
         return (
             performance_metrics.get("carga_induzida", "—"),
@@ -355,7 +355,7 @@ class CargaInduzida:
             fig_carga,
             fig_rend,
             fig_carga_maquina,
-            # fig_rend_maquina,
+            fig_rend_maquina,
         )
 
 

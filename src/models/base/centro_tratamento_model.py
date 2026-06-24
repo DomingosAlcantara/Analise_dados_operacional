@@ -116,8 +116,6 @@ class CentroTratamentoModel:
         Returns:
             int: Média de carga induzida.
         """
-        print(f"Total de carga induzida: {self.total_carga_induzida()}")
-        # print(f"Total de maquinas: {len(self.retornar_maquinas())}")
         return round(self.total_carga_induzida() / len(self.maquinas))
 
     def retornar_rendimento_efetivo_medio(self) -> float:
@@ -142,6 +140,22 @@ class CentroTratamentoModel:
                 {
                     "Nº Máquina": maquina._id_maquina,
                     "Quantidade Induzida": maquina.total_carga_induzida(),
+                }
+                for maquina in self.maquinas.values()
+            ]
+        )
+
+    def retornar_rendimento_efetivo_por_maquina(self) -> DataFrame:
+        """Retorna o rendimento efetivo por máquina para o centro de tratamento.
+
+        Returns:
+            DataFrame: DataFrame contendo o rendimento efetivo por máquina.
+        """
+        return DataFrame(
+            [
+                {
+                    "Nº Máquina": maquina._id_maquina,
+                    "Rendimento Efetivo Médio": maquina.retornar_rendimento_efetivo_medio(),
                 }
                 for maquina in self.maquinas.values()
             ]

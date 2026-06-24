@@ -69,3 +69,10 @@ class TestEmpresaModel:
         carga_por_maquina = model.retornar_carga_induzida_por_maquina()
         assert isinstance(carga_por_maquina, pd.DataFrame), "Deve retornar um DataFrame"
         assert not carga_por_maquina.empty, "O DataFrame não deve estar vazio"
+
+    def test_retornar_rendimento_efetivo_por_maquina(self, model):
+        rendimento_por_maquina = model.retornar_rendimento_efetivo_por_maquina()
+        assert isinstance(
+            rendimento_por_maquina, pd.DataFrame
+        ), "Deve retornar um DataFrame"
+        assert not rendimento_por_maquina.empty, "O DataFrame não deve estar vazio"
