@@ -38,9 +38,6 @@ class EmpresaModel:
                     dados_centro[categoria] = df[df["código_mcu_ctc"] == id_centro]
                 else:
                     dados_centro[categoria] = df[df.index == id_centro]
-                    print(
-                        f"Dados para o centro {id_centro} na categoria '{categoria}' estão vazios."
-                    )
 
             nome_centro = mapeamento.get(id_centro, "Desconhecido")
             self.centros[nome_centro] = CentroTratamentoModel(id_centro).configurar(
@@ -118,6 +115,26 @@ class EmpresaModel:
             ]
         )
 
+    def _concatenar_dataframes(self, dataframes, nome_coluna):
+        """
+        Concatena uma lista de DataFrames, adicionando uma coluna com o nome
+        do centro de tratamento.
+        """
+        if not self.centros or not dataframes:
+            return pd.DataFrame(
+                columns=["Nº Máquina", nome_coluna, "Centro de Tratamento"]
+            )
+
+        df_concatenado = pd.concat(
+            [
+                df.assign(**{"Centro de Tratamento": nome_centro})
+                for nome_centro, df in dataframes.items()
+            ],
+            ignore_index=True,
+        )
+
+        return df_concatenado
+
     def retornar_rendimento_efetivo_por_centro(self):
         """
         Retorna o rendimento efetivo por centro de tratamento.
@@ -154,33 +171,13 @@ class EmpresaModel:
            que a estrutura do DataFrame seja consistente, mesmo quando não há
            dados disponíveis.
         """
-        if not self.centros:
-            return pd.DataFrame(
-                columns=["Nº Máquina", "Quantidade Induzida", "Centro de Tratamento"]
-            )
-
-        df_concatenado = pd.concat(
-            [
-                centro.retornar_carga_induzida_por_maquina().assign(
-                    **{"Centro de Tratamento": nome_centro}
-                )
+        return self._concatenar_dataframes(
+            {
+                nome_centro: centro.retornar_carga_induzida_por_maquina()
                 for nome_centro, centro in self.centros.items()
-            ],
-            ignore_index=True,
-        )
-
-        print(df_concatenado)
-
-        if df_concatenado.empty:
-            return pd.DataFrame(
-                columns=[
-                    "Nº Máquina",
-                    "Quantidade Induzida",
-                    "Centro de Tratamento",
-                ]
-            )
-
-        return df_concatenado.sort_values(by="Quantidade Induzida", ascending=False)
+            },
+            "Quantidade Induzida",
+        ).sort_values(by="Quantidade Induzida", ascending=False)
 
     def retornar_rendimento_efetivo_por_maquina(self):
         """
@@ -199,30 +196,10 @@ class EmpresaModel:
            que a estrutura do DataFrame seja consistente, mesmo quando não há
            dados disponíveis.
         """
-        if not self.centros:
-            return pd.DataFrame(
-                columns=["Nº Máquina", "Rendimento Efetivo", "Centro de Tratamento"]
-            )
-
-        df_concatenado = pd.concat(
-            [
-                centro.retornar_rendimento_efetivo_por_maquina().assign(
-                    **{"Centro de Tratamento": nome_centro}
-                )
+        return self._concatenar_dataframes(
+            {
+                nome_centro: centro.retornar_rendimento_efetivo_por_maquina()
                 for nome_centro, centro in self.centros.items()
-            ],
-            ignore_index=True,
-        )
-
-        if df_concatenado.empty:
-            return pd.DataFrame(
-                columns=[
-                    "Nº Máquina",
-                    "Rendimento Efetivo Médio",
-                    "Centro de Tratamento",
-                ]
-            )
-
-        return df_concatenado.sort_values(
-            by="Rendimento Efetivo Médio", ascending=False
-        )
+            },
+            "Rendimento Efetivo Médio",
+        ).sort_values(by="Rendimento Efetivo Médio", ascending=False)
