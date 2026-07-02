@@ -1,24 +1,29 @@
-from abc import ABC, abstractmethod
+import pandas as pd
 
 
-class Uteis(ABC):
+class Uteis:
+    """
+    Classe utilitária para fornecer métodos auxiliares.
+    """
 
-    @abstractmethod
-    def processar_dados(self):
-        """Método abstrato para processar dados."""
-        pass
-
-    @abstractmethod
-    def pipeline(self, funcs: list):
-        """Método abstrato para executar uma pipeline de funções."""
-        pass
-
-    def carregar_planilhas(self, diretorio: str) -> list[pd.DataFrame]:
-        """Carrega todas as planilhas Excel de um diretório em uma lista de 
-        DataFrames.
+    def normalizar_colunas(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Normaliza os nomes das colunas do DataFrame, convertendo para
+        minúsculas e substituindo espaços por underscores.
 
         Args:
-            diretorio (str): Caminho do diretório contendo os arquivos Excel.
+            df (pd.DataFrame): DataFrame a ser normalizado.
+
         Returns:
-            list[pd.DataFrame]: Lista de DataFrames carregados.
+            pd.DataFrame: DataFrame com as colunas normalizadas.
         """
+        if df is not None and not df.empty:
+            df.columns = (
+                df.columns.str.strip()
+                .str.lower()
+                .str.replace(" ", "_")
+                .str.normalize("NFKD")
+                .str.encode("ascii", errors="ignore")
+                .str.decode("utf-8")
+            )
+        return df

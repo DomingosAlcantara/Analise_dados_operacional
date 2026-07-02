@@ -10,9 +10,9 @@ from src.models.base.empresa_model import EmpresaModel
 
 
 @pytest.fixture
-def model(mock_carga_tratada):
+def model(mock_dados_globais: dict):
     mock_loader = MagicMock(spec=DataLoader)
-    mock_loader.carregar_tudo.return_value = {"carga tratada": mock_carga_tratada}
+    mock_loader.carregar_tudo.return_value = mock_dados_globais
     # empresa = EmpresaModel()
     # empresa.configurar(loader=mock_loader)
     return (
@@ -76,3 +76,8 @@ class TestEmpresaModel:
             rendimento_por_maquina, pd.DataFrame
         ), "Deve retornar um DataFrame"
         assert not rendimento_por_maquina.empty, "O DataFrame não deve estar vazio"
+
+    def test_retornar_total_de_falhas(self, model):
+        total_falhas = model.retornar_total_de_falhas()
+        assert isinstance(total_falhas, int), "Deve retornar um inteiro"
+        assert total_falhas == 4, "O total de falhas deve ser 4"

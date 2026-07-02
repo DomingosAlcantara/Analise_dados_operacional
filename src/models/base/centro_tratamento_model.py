@@ -35,11 +35,13 @@ class CentroTratamentoModel:
             dict_dfs_centro (dict): Dicionário contendo os DataFrames dos centros.
         """
         df_produtividade = dict_dfs_centro.get("carga tratada", DataFrame()).set_index(
-            "nº_máquina"
+            "no_maquina"
+        )
+
+        df_falhas_tecnicas = dict_dfs_centro.get("tecnicas", DataFrame()).set_index(
+            "no_maquina"
         )
         codigos_maquinas = sorted(df_produtividade.index.unique())
-
-        print(f"Maquinas: {codigos_maquinas}")
 
         mapeamento = (
             df_produtividade[["centro_de_tratamento"]]
@@ -54,7 +56,8 @@ class CentroTratamentoModel:
         for codigo_maquina in codigos_maquinas:
             df_maquina = df_produtividade[df_produtividade.index == codigo_maquina]
             self.maquinas[codigo_maquina] = MaquinaModel(
-                codigo_maquina, {"carga_tratada": df_maquina}
+                codigo_maquina,
+                {"carga tratada": df_maquina, "tecnicas": df_falhas_tecnicas},
             )
 
         return self
@@ -79,15 +82,15 @@ class CentroTratamentoModel:
         """Extrai os códigos das máquinas de um DataFrame.
 
         Args:
-            df (DataFrame): DataFrame contendo a coluna 'nº_máquina'.
+            df (DataFrame): DataFrame contendo a coluna 'nº_maquina'.
 
         Returns:
             list: Lista de códigos de máquinas.
         """
-        if "nº_máquina" not in df.columns:
+        if "no_maquina" not in df.columns:
             return []
 
-        return sorted(df["nº_máquina"].dropna().unique().tolist())
+        return sorted(df["no_maquina"].dropna().unique().tolist())
 
     def total_carga_induzida(self) -> int:
         """Calcula o total de carga induzida para o centro de tratamento.
@@ -159,4 +162,14 @@ class CentroTratamentoModel:
                 }
                 for maquina in self.maquinas.values()
             ]
+        )
+
+    def retornar_total_de_falhas(self) -> int:
+        """Retorna o total de falhas para o centro de tratamento.
+
+        Returns:
+            int: Total de falhas.
+        """
+        return sum(
+            maquina.retornar_total_de_falhas() for maquina in self.maquinas.values()
         )

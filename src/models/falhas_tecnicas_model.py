@@ -1,6 +1,5 @@
 import pandas as pd
 
-from src.models.paradas_model import ParadasModel
 from src.utils.cache import cache
 
 
@@ -9,27 +8,9 @@ class FalhasTecnicasModel:
     Classe para gerenciar os dados de falhas técnicas.
     """
 
-    def __init__(self, path="/home/domingos/Documentos/Dados/Técnica/"):
-        self._paradas_model = ParadasModel(path)
-        self._dados_tratados = self.aplicar_tratamento_dados()
+    def __init__(self, df_dados: pd.DataFrame):
+        self._dados = df_dados.copy()
         self._dados_filtrados = pd.DataFrame()
-
-    def aplicar_tratamento_dados(self):
-        """
-        Aplica o tratamento necessário aos dados de falhas técnicas.
-        """
-
-        return self._paradas_model._pipeline(
-            self._paradas_model.get_dados(),
-            [
-                self._paradas_model.remover_desabilitacoes,
-                self._paradas_model.converter_para_datetime,
-                self._paradas_model.extrair_data,
-                self._paradas_model.extrair_hora,
-                self._paradas_model.remover_coluna_de_data,
-                self._paradas_model.padronizar_colunas,
-            ],
-        )
 
     def filtrar_dados_por_data(self, data_inicial, data_final):
         """
@@ -49,9 +30,27 @@ class FalhasTecnicasModel:
             self._dados_filtrados = pd.DataFrame()
             return
 
-        self._dados_filtrados = self._dados_tratados.loc[
-            self._dados_tratados["data_da_falha"].between(start, end)
-        ]
+        mascara = self._dados["data_da_falha"].between(start, end)
+        self._dados_filtrados = self._dados.loc[mascara].copy()
+
+        return self
+
+    def aplicar_tratamento_dados(self):
+        """
+        Aplica o tratamento necessário aos dados de falhas técnicas.
+        """
+
+        return self._paradas_model._pipeline(
+            self._paradas_model.get_dados(),
+            [
+                self._paradas_model.remover_desabilitacoes,
+                self._paradas_model.converter_para_datetime,
+                self._paradas_model.extrair_data,
+                self._paradas_model.extrair_hora,
+                self._paradas_model.remover_coluna_de_data,
+                self._paradas_model.padronizar_colunas,
+            ],
+        )
 
     def total_falhas_tecnicas(self) -> int:
         """

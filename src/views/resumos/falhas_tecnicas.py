@@ -5,8 +5,8 @@ from dash import Input, Output, html
 
 from src.components.kpi_card import KpiCard
 from src.components.kpi_graph_card import KpiGraphCard
-from src.models.falhas_tecnicas_model import FalhasTecnicasModel
-from src.path_files import PathFiles
+from src.engine import empresa
+from src.models.resumo_model import ResumoModel
 
 try:
     dash.register_page(
@@ -25,7 +25,7 @@ class FalhasTecnicasView:
 
     def __init__(self, app_instance, register_callbacks=True) -> None:
         self.app = app_instance
-        self._model = FalhasTecnicasModel(PathFiles.ARQUIVOS_FALHAS_TECNICAS)
+        self._resumo_model = ResumoModel(empresa)
         self._TOTAL_FALHAS = "resumo-total-falhas"
         self._MEDIA_OBJETOS_POR_FALHAS = "resumo-media-objetos-por-falhas"
         self._TEMPO_TOTAL_OCORRENCIAS = "resumo-tempo-total-ocorrencias"
@@ -35,8 +35,10 @@ class FalhasTecnicasView:
             end_date = date.today()
             start_date = end_date - timedelta(days=30)
 
-            self._metricas_iniciais = self._model.retornar_metricas_falhas_tecnicas(
-                start_date, end_date
+            self._metricas_iniciais = (
+                self._resumo_model.retornar_metricas_falhas_tecnicas(
+                    start_date, end_date
+                )
             )
         except Exception as e:
             print(f"Erro ao calcular métricas iniciais: {e}")
@@ -193,7 +195,9 @@ class FalhasTecnicasView:
         start_date = date.fromisoformat(start_date_str)
         end_date = date.fromisoformat(end_date_str)
 
-        metricas = self._model.retornar_metricas_falhas_tecnicas(start_date, end_date)
+        metricas = self._resumo_model.retornar_metricas_falhas_tecnicas(
+            start_date, end_date
+        )
         return (
             str(
                 metricas.get("total_de_falhas", 0)

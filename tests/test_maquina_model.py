@@ -1,18 +1,21 @@
 import pytest
-from pandas import DataFrame
 
 from src.models.base.maquina_model import MaquinaModel
 
 
 @pytest.fixture
-def model(mock_carga_tratada: DataFrame):
+def model(mock_dados_globais: dict):
     """
     Configuração inicial para os testes.
     """
-    mock_maquina = mock_carga_tratada[mock_carga_tratada["nº_máquina"] == 138]
-    return MaquinaModel(138, {"carga_tratada": mock_maquina}).filtrar_dados_por_data(
-        "2023-01-01", "2023-12-31"
-    )
+    id_alvo = 138
+    return MaquinaModel(
+        id_alvo,
+        {
+            chave: df[df["no_maquina"] == id_alvo]
+            for chave, df in mock_dados_globais.items()
+        },
+    ).filtrar_dados_por_data("2023-01-01", "2023-12-31")
 
 
 class Test_MaquinaModel:
@@ -22,7 +25,6 @@ class Test_MaquinaModel:
         Testa o método total_carga_induzida.
         """
         total_carga = model.total_carga_induzida()
-        print(f"Total de carga induzida: {total_carga}")
 
         assert isinstance(total_carga, int), "Deve retornar um inteiro"
         assert total_carga == 29612, "O total de carga deve ser 29612"
@@ -32,8 +34,6 @@ class Test_MaquinaModel:
         Testa o método media_carga_induzida.
         """
         media_carga = model.obter_media_diaria()
-
-        print(f"Média de carga induzida: {media_carga}")
 
         assert isinstance(media_carga, float), "Deve retornar um float"
         assert media_carga == pytest.approx(
@@ -50,6 +50,15 @@ class Test_MaquinaModel:
         assert rendimento == pytest.approx(
             16714, 0.01
         ), "O rendimento deve ser aproximadamente 16714"
+
+    def test_retornar_total_de_falhas(self, model):
+        """
+        Testa o método retornar_total_de_falhas.
+        """
+        total_falhas = model.retornar_total_de_falhas()
+
+        assert isinstance(total_falhas, int), "Deve retornar um inteiro"
+        assert total_falhas == 4, "O total de falhas deve ser 4"
 
     def _test_tempo_plano_carregado(self, model):
         """

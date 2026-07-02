@@ -5,7 +5,7 @@ from src.models.carga_induzida_model import CargaInduzidaModel
 from src.path_files import PathFiles as pf
 
 
-@pytest.fixture  # (autouse=True, scope="module")
+@pytest.fixture(scope="module")
 def model(mock_carga_tratada: pd.DataFrame):
     """
     Configuração inicial para os testes.
@@ -44,7 +44,6 @@ class TestCargaInduzidaModel:
         Testa o método total_de_carga_induzida.
         """
         total = model.total_de_carga_induzida()
-        print(f"Total de Carga Induzida: {total}")
         assert isinstance(
             total, (int, float)
         ), "O total de carga induzida deve ser um inteiro."
@@ -55,7 +54,6 @@ class TestCargaInduzidaModel:
         Testa o método obter_media_diaria.
         """
         media = model.obter_media_diaria()
-        print(f"Média diária de carga induzida: {media}")
         assert isinstance(
             media, (int, float)
         ), "A média diária de carga induzida deve ser um número."

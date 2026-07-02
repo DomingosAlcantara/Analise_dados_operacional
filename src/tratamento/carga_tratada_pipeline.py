@@ -1,11 +1,14 @@
 import pandas as pd
 
+from src.tratamento.uteis import Uteis
+
 
 class CargaTratadaPipeline:
     """Classe para tratar dados de carga tratada."""
 
     def __init__(self):
         self._df = pd.DataFrame()
+        self._uteis = Uteis()
 
     def processar(self, df: pd.DataFrame):
         if df.empty:
@@ -21,9 +24,7 @@ class CargaTratadaPipeline:
         """Normaliza os nomes das colunas do DataFrame, convertendo para
         minúsculas e substituindo espaços por underscores.
         """
-        self._df.columns = (
-            self._df.columns.str.strip().str.lower().str.replace(" ", "_")
-        )
+        self._df = self._uteis.normalizar_colunas(self._df)
         return self
 
     def remover_linhas_vazias(self):

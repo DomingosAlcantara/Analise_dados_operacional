@@ -3,6 +3,7 @@ Centros de Tratamento
 """
 
 from src.models.carga_induzida_model import CargaInduzidaModel
+from src.models.falhas_tecnicas_model import FalhasTecnicasModel
 
 
 class MaquinaModel:
@@ -18,8 +19,9 @@ class MaquinaModel:
         if not isinstance(dict_df, dict):
             raise ValueError("O parâmetro 'dict_df' deve ser um dicionário.")
         self._carga_tratada = CargaInduzidaModel(
-            dict_df["carga_tratada"]
+            dict_df["carga tratada"]
         )  # [dict_df["nº_máquina"] == self._id_maquina]
+        self._falhas_tecnicas = FalhasTecnicasModel(dict_df["tecnicas"])
 
     def filtrar_dados_por_data(self, data_inicial: str, data_final: str):
         """
@@ -76,6 +78,15 @@ class MaquinaModel:
             float: Rendimento efetivo em porcentagem.
         """
         return float(self._carga_tratada.rendimento_efetivo_medio())
+
+    def retornar_total_de_falhas(self) -> int:
+        """
+        Retorna o total de falhas da máquina.
+
+        Returns:
+            int: Total de falhas.
+        """
+        return self._falhas_tecnicas.total_de_falhas()
 
     def tempo_plano_carregado(self) -> float:
         """

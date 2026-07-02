@@ -106,4 +106,6 @@ class DataLoader:
                 df_limpo = df_bruto
 
             dados_carregados[categoria] = df_limpo
+
+        print(f"Dados carregados: {', '.join(dados_carregados.keys())}")
         return dados_carregados

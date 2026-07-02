@@ -2,6 +2,7 @@ from src.carregamento.data_loader import DataLoader
 from src.models.base.empresa_model import EmpresaModel
 from src.path_files import PathFiles
 from src.tratamento.carga_tratada_pipeline import CargaTratadaPipeline
+from src.tratamento.falhas_tecnicas_pipeline import FalhasTecnicasPipeline
 
 # Definindo as configurações para cada tipo de planilha
 configuracoes_dashboard = {
@@ -56,18 +57,19 @@ configuracoes_dashboard = {
     #         "Data/hora final da Falha": str,
     #     },
     # },
-    # "tecnicas": {
-    #     "path": PathFiles.ARQUIVOS_FALHAS_TECNICAS,
-    #     "skip": 7,
-    #     "cols": {
-    #         "Código MCU CTC": int,
-    #         "Centro de Tratamento": str,
-    #         "Nº Máquina de triagem": int,
-    #         "Descrição da Falha": str,
-    #         "Data/hora inicial da Falha": str,
-    #         "Data/hora final da Falha": str,
-    #     },
-    # },
+    "tecnicas": {
+        "path": PathFiles.ARQUIVOS_FALHAS_TECNICAS,
+        "skip": 7,
+        "cols": {
+            "Código MCU CTC": int,
+            "Centro de Tratamento": str,
+            "Nº Máquina de triagem": int,
+            "Descrição da Falha": str,
+            "Data/hora inicial da Falha": str,
+            "Data/hora final da Falha": str,
+        },
+        "pipeline": FalhasTecnicasPipeline(),
+    },
     # "planos de triagem": {
     #     "path": PathFiles.ARQUIVOS_PLANOS_TRAIGEM,
     #     "skip": 8,

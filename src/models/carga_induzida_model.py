@@ -36,9 +36,6 @@ class CargaInduzidaModel:
         mascara = self._df_dados["data_de_triagem"].between(start, end)
 
         self._dados_filtrados = self._df_dados.loc[mascara].copy()
-        print(
-            f"Dados apos filtragem: {len(self._dados_filtrados)} registros"
-        )  # Debug: Exibir número de registros antes
         return self
 
     def total_de_carga_induzida(self):
@@ -48,11 +45,6 @@ class CargaInduzidaModel:
             int64: Total de carga induzida.
         """
         return int(self._dados_filtrados["quantidade_induzida"].sum())
-        # print(
-        #     f"Total de carga induzida calculado: {total}"
-        # )  # Debug: Exibir o total calculado
-        # # cache.set("total_carga_induzida", total)  # Armazenar no cache
-        # return total
 
     def obter_media_diaria(self):
         """
@@ -64,9 +56,6 @@ class CargaInduzidaModel:
             "data_de_triagem"
         ].dt.date
 
-        print(
-            f"Dados apos agrupamento por dia: {len(self._dados_filtrados['dia exato'].unique())} dias"
-        )
         return (
             self._dados_filtrados.groupby("dia exato")["quantidade_induzida"]
             .sum()
@@ -126,11 +115,11 @@ class CargaInduzidaModel:
         """
         if self._dados_filtrados is None or self._dados_filtrados.empty:
             return pd.DataFrame(
-                columns=["nº_máquina", "quantidade_induzida", "centro_de_tratamento"]
+                columns=["no_maquina", "quantidade_induzida", "centro_de_tratamento"]
             )
 
         return (
-            self._dados_filtrados.groupby("nº_máquina")
+            self._dados_filtrados.groupby("no_maquina")
             .agg({"quantidade_induzida": "sum", "centro_de_tratamento": "first"})
             .reset_index()
         )
@@ -143,11 +132,11 @@ class CargaInduzidaModel:
         """
         if self._dados_filtrados is None or self._dados_filtrados.empty:
             return pd.DataFrame(
-                columns=["nº_máquina", "rendimento_efetivo/h", "centro_de_tratamento"]
+                columns=["no_maquina", "rendimento_efetivo/h", "centro_de_tratamento"]
             )
 
         return (
-            self._dados_filtrados.groupby("nº_máquina")
+            self._dados_filtrados.groupby("no_maquina")
             .agg({"rendimento_efetivo/h": "mean", "centro_de_tratamento": "first"})
             .reset_index()
         )

@@ -4,12 +4,17 @@ import pytest
 from src.models.base.centro_tratamento_model import CentroTratamentoModel
 
 
-@pytest.fixture
-def model(mock_carga_tratada):
-    mock_ct = mock_carga_tratada[mock_carga_tratada["código_mcu_ctc"] == 431115]
+@pytest.fixture(scope="module")
+def model(mock_dados_globais):
+    id_alvo = 431115
     return (
-        CentroTratamentoModel(id_centro=431115)
-        .configurar({"carga tratada": mock_ct})
+        CentroTratamentoModel(id_centro=id_alvo)
+        .configurar(
+            {
+                chave: df[df["codigo_mcu_ctc"] == id_alvo]
+                for chave, df in mock_dados_globais.items()
+            }
+        )
         .filtrar_dados_por_data("2023-01-01", "2023-12-31")
     )
 
@@ -44,3 +49,8 @@ class TestCentroTratamentoModel:
             rendimento_por_maquina, pd.DataFrame
         ), "Deve retornar um DataFrame"
         assert not rendimento_por_maquina.empty, "O DataFrame não deve estar vazio"
+
+    def test_retornar_total_de_falhas(self, model):
+        total_falhas = model.retornar_total_de_falhas()
+        assert isinstance(total_falhas, int), "Deve retornar um inteiro"
+        assert total_falhas == 4, "O total de falhas deve ser 4"

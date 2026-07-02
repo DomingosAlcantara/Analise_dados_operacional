@@ -22,7 +22,7 @@ class EmpresaModel:
         Configura a empresa com os dados carregados pelo DataLoader.
         """
         dados_globais = loader.carregar_tudo()
-        df_prod = dados_globais["carga tratada"].set_index("código_mcu_ctc")
+        df_prod = dados_globais["carga tratada"].set_index("codigo_mcu_ctc")
         codigos_centros = df_prod.index.unique()
 
         mapeamento = (
@@ -34,8 +34,8 @@ class EmpresaModel:
         for id_centro in codigos_centros:
             dados_centro = {}
             for categoria, df in dados_globais.items():
-                if id_centro in df["código_mcu_ctc"].values:
-                    dados_centro[categoria] = df[df["código_mcu_ctc"] == id_centro]
+                if id_centro in df["codigo_mcu_ctc"].values:
+                    dados_centro[categoria] = df[df["codigo_mcu_ctc"] == id_centro]
                 else:
                     dados_centro[categoria] = df[df.index == id_centro]
 
@@ -203,3 +203,17 @@ class EmpresaModel:
             },
             "Rendimento Efetivo Médio",
         ).sort_values(by="Rendimento Efetivo Médio", ascending=False)
+
+    def retornar_total_de_falhas(self):
+        """
+        Retorna o total de falhas em todos os centros de tratamento.
+         - Se não houver centros, retorna 0.
+         - Caso contrário, soma o total de falhas de cada centro e retorna o
+           valor total.
+        """
+        if not self.centros:
+            return 0
+
+        return sum(
+            centro.retornar_total_de_falhas() for centro in self.centros.values()
+        )

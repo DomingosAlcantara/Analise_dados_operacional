@@ -5,11 +5,13 @@ from src.models.falhas_tecnicas_model import FalhasTecnicasModel
 
 
 @pytest.fixture(scope="module")
-def model():
+def model(mock_falhas_tecnicas: pd.DataFrame):
     """
     Configuração inicial para os testes.
     """
-    return FalhasTecnicasModel("/home/domingos/Documentos/Dados/Técnica/")
+    return FalhasTecnicasModel(mock_falhas_tecnicas).filtrar_dados_por_data(
+        "2023-01-01", "2023-12-31"
+    )
 
 
 class Test_FalhasTecnicasModel:
