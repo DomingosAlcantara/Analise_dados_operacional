@@ -108,10 +108,10 @@ class EmpresaModel:
         return pd.DataFrame(
             [
                 {
-                    "Centro de Tratamento": nome_centro,
+                    "Centro de Tratamento": centro.nome_abreviado,
                     "Quantidade Induzida": centro.total_carga_induzida(),
                 }
-                for nome_centro, centro in self.centros.items()
+                for centro in self.centros.values()
             ]
         )
 
@@ -147,10 +147,10 @@ class EmpresaModel:
         return pd.DataFrame(
             [
                 {
-                    "Centro de Tratamento": nome_centro,
+                    "Centro de Tratamento": centro.nome_abreviado,
                     "Rendimento Efetivo Médio": centro.retornar_rendimento_efetivo_medio(),
                 }
-                for nome_centro, centro in self.centros.items()
+                for centro in self.centros.values()
             ]
         )
 

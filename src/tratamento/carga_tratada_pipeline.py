@@ -1,33 +1,15 @@
 import pandas as pd
 
-from src.tratamento.uteis import Uteis
+from src.tratamento.pipeline_comum import Pipeline_Comum
 
 
 class CargaTratadaPipeline:
     """Classe para tratar dados de carga tratada."""
 
-    def __init__(self):
-        self._df = pd.DataFrame()
-        self._uteis = Uteis()
+    def __init__(self, df_bruto: pd.DataFrame):
+        self._df_bruto = df_bruto.copy() if df_bruto is not None else pd.DataFrame()
 
-    def processar(self, df: pd.DataFrame):
-        if df.empty:
-            return df
-
-        self._df = df.copy()
-
-        self.normalizar_colunas().remover_linhas_vazias().normalizar_datas()
-
-        return self._df
-
-    def normalizar_colunas(self):
-        """Normaliza os nomes das colunas do DataFrame, convertendo para
-        minúsculas e substituindo espaços por underscores.
-        """
-        self._df = self._uteis.normalizar_colunas(self._df)
-        return self
-
-    def remover_linhas_vazias(self):
+    def remover_linhas_vazias(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Remove linhas vazias de um DataFrame.
 
@@ -37,13 +19,12 @@ class CargaTratadaPipeline:
         Returns:
             DataFrame: DataFrame sem linhas vazias.
         """
-        self._df = self._df.loc[
-            self._df["quantidade_induzida"].notnull()
-            & (self._df["quantidade_induzida"].fillna(0) != 0)
+        return df.loc[
+            df["quantidade_induzida"].notnull()
+            & (df["quantidade_induzida"].fillna(0) != 0)
         ]  # noqa: E712
-        return self
 
-    def normalizar_datas(self):
+    def normalizar_datas(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Normaliza as colunas de data do DataFrame, convertendo para o formato
         datetime.
@@ -54,8 +35,19 @@ class CargaTratadaPipeline:
         Returns:
             DataFrame: DataFrame com colunas de data normalizadas.
         """
-        self._df["data_de_triagem"] = pd.to_datetime(
-            self._df["data_de_triagem"],
+        df["data_de_triagem"] = pd.to_datetime(
+            df["data_de_triagem"],
             format="%d/%m/%Y",
         )
-        return self
+        return df
+
+    def processar(self) -> pd.DataFrame:
+        if self._df_bruto.empty:
+            return self._df_bruto
+
+        return (
+            self._df_bruto.pipe(Pipeline_Comum.normalizar_colunas)
+            .pipe(self.remover_linhas_vazias)
+            .pipe(self.normalizar_datas)
+            .pipe(Pipeline_Comum.adicionar_abreviacoes_centros)
+        )

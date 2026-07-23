@@ -101,7 +101,7 @@ class DataLoader:
             pipeline = conf.get("pipeline")
 
             if pipeline and not df_bruto.empty:
-                df_limpo = pipeline.processar(df_bruto)
+                df_limpo = pipeline(df_bruto).processar()
             else:
                 df_limpo = df_bruto
 

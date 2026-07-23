@@ -4,7 +4,7 @@ import pandas as pd
 
 from src.extracoes.extracoes import Extracoes
 from src.path_files import PathFiles
-from src.tratamento.pipeline import Pipeline
+from src.tratamento.pipeline_comum import Pipeline_Comum
 
 
 class Parada(Extracoes):
@@ -25,8 +25,7 @@ class Parada(Extracoes):
         Returns:
             DataFrame: DataFrame com as colunas padronizadas.
         """
-        df.columns = [col.strip().lower().replace(" ", "_")
-                      for col in df.columns]
+        df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
         return df
 
     def remover_desabilitacoes(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -93,8 +92,7 @@ class Parada(Extracoes):
             DataFrame: Lista de DataFrames contendo os dados carregados.
         """
         df_bruto = self.processar_arquivos(
-            path_files=self.construir_caminhos_completos(
-                self.listar_arquivos()),
+            path_files=self.construir_caminhos_completos(self.listar_arquivos()),
             colunas_tipo={
                 "data/hora_inicial_da_falha": datetime,
                 "codigo_mcu_ctc": int,
@@ -102,15 +100,18 @@ class Parada(Extracoes):
                 "nº_máquina_de_triagem": int,
                 "descricao_da_falha": str,
             },
-            linhas_para_pular=7
+            linhas_para_pular=7,
         )
 
-        pipe = Pipeline(dataframe=df_bruto, transformacoes=[
-            self.padronizar_colunas,
-            self.remover_desabilitacoes,
-            self.extrair_data,
-            self.extrair_hora,
-            self.remover_coluna_de_data,
-        ])
+        pipe = Pipeline_Comum(
+            dataframe=df_bruto,
+            transformacoes=[
+                self.padronizar_colunas,
+                self.remover_desabilitacoes,
+                self.extrair_data,
+                self.extrair_hora,
+                self.remover_coluna_de_data,
+            ],
+        )
 
         return pipe.aplicar_transformacoes()

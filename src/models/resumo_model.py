@@ -53,14 +53,16 @@ class ResumoModel:
         self._empresa.definir_intervalo_de_pesquisa(start_date, end_date)
         print(f"Calculando métricas para o período de {start_date} a {end_date}...")
 
-        total_carga = self._empresa.retornar_carga_induzida_total()
-        media_diaria = self._empresa.retornar_media_diaria()
-        eficiencia = self._empresa.retornar_rendimento_efetivo_medio()
-
         return {
-            "carga_induzida": self.formatacao_compacta_de_valores(total_carga),
-            "media_carga": self.formatacao_compacta_de_valores(media_diaria),
-            "eficiencia": self.formatacao_compacta_de_valores(eficiencia),
+            "carga_induzida": self.formatacao_compacta_de_valores(
+                self._empresa.retornar_carga_induzida_total()
+            ),
+            "media_carga": self.formatacao_compacta_de_valores(
+                self._empresa.retornar_media_diaria()
+            ),
+            "eficiencia": self.formatacao_compacta_de_valores(
+                self._empresa.retornar_rendimento_efetivo_medio()
+            ),
         }
 
     def carga_induzida_por_centro(self):

@@ -13,8 +13,11 @@ class MaquinaModel:
     relacionados às máquinas de triagem nos centros de tratamento.
     """
 
-    def __init__(self, id_maquina, dict_df: dict):
+    def __init__(self, id_maquina, dict_df: dict, rotulo: str = ""):
         self._id_maquina = id_maquina
+        self._rotulo = rotulo or str(
+            id_maquina
+        )  # Se não for fornecido, usa o ID da máquina como rótulo
 
         if not isinstance(dict_df, dict):
             raise ValueError("O parâmetro 'dict_df' deve ser um dicionário.")
@@ -115,3 +118,13 @@ class MaquinaModel:
             list: Lista de nomes dos planos carregados.
         """
         return self._carga_tratada._df_dados["nome_do_plano_de_triagem"].tolist()
+
+    @property
+    def rotulo(self) -> str:
+        """
+        Retorna o rótulo da máquina.
+
+        Returns:
+            str: Rótulo da máquina.
+        """
+        return self._rotulo

@@ -96,7 +96,7 @@ def mock_carga_tratada():
 
     df = pd.DataFrame(dados, index=dados["código_mcu_ctc"])
     df["data_de_triagem"] = pd.to_datetime(df["data_de_triagem"], format="%d/%m/%Y")
-    return CargaTratadaPipeline().processar(df)
+    return CargaTratadaPipeline(df).processar()
 
 
 @pytest.fixture(scope="module")
@@ -125,7 +125,7 @@ def mock_falhas_tecnicas():
         ],
     }
 
-    return FalhasTecnicasPipeline().processar(pd.DataFrame(dados))
+    return FalhasTecnicasPipeline(pd.DataFrame(dados)).processar()
 
 
 @pytest.fixture(scope="module")

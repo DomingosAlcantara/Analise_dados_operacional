@@ -18,7 +18,7 @@ configuracoes_dashboard = {
             "Quantidade Induzida": int,
             "Rendimento Efetivo/h": int,
         },
-        "pipeline": CargaTratadaPipeline(),
+        "pipeline": CargaTratadaPipeline,
     },
     # "desempenho": {
     #     "path": PathFiles.ARQUIVOS_DISPONIBILIDADE,
@@ -68,7 +68,7 @@ configuracoes_dashboard = {
             "Data/hora inicial da Falha": str,
             "Data/hora final da Falha": str,
         },
-        "pipeline": FalhasTecnicasPipeline(),
+        "pipeline": FalhasTecnicasPipeline,
     },
     # "planos de triagem": {
     #     "path": PathFiles.ARQUIVOS_PLANOS_TRAIGEM,

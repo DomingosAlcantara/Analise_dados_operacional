@@ -27,6 +27,11 @@ class CentroTratamentoModel:
         self._id_centro = id_centro
         self.maquinas = {}
 
+        # Inicialização defensiva dos atributos de nomeclatura
+        self._nome_centro = f"Centro {self._id_centro}"
+        self._nome_abreviado = f"Centro {self._id_centro}"
+        self._sigla = "N/A"
+
     def configurar(self, dict_dfs_centro: dict):
         """Configura a classe com os dados pertinentes, bem como suas
             maquinas associadas.
@@ -41,23 +46,28 @@ class CentroTratamentoModel:
         df_falhas_tecnicas = dict_dfs_centro.get("tecnicas", DataFrame()).set_index(
             "no_maquina"
         )
+
+        if not df_produtividade.empty:
+            if "centro_de_tratamento" in df_produtividade.columns:
+                self._nome_centro = str(
+                    df_produtividade["centro_de_tratamento"].iloc[0]
+                )
+
+            if "centro_abrev_19" in df_produtividade.columns:
+                self._nome_abreviado = str(df_produtividade["centro_abrev_19"].iloc[0])
+
+            if "centro_abrev_3" in df_produtividade.columns:
+                self._sigla = str(df_produtividade["centro_abrev_3"].iloc[0])
+
         codigos_maquinas = sorted(df_produtividade.index.unique())
 
-        mapeamento = (
-            df_produtividade[["centro_de_tratamento"]]
-            .drop_duplicates()
-            .to_dict()["centro_de_tratamento"]
-        )
-
-        # for categoria, df in dict_dfs_centro.items():
-        #     if "nº_máquina" in df.columns:
-        #         for maquina in df["nº_máquina"].unique():
-        #             self.maquinas[maquina] = MaquinaModel(maquina, df)
-        for codigo_maquina in codigos_maquinas:
+        for ordem, codigo_maquina in enumerate(codigos_maquinas, start=1):
             df_maquina = df_produtividade[df_produtividade.index == codigo_maquina]
+            rotulo_maquina = f"{codigo_maquina}<br>{self._sigla}\xa0-\xa0PBVS{ordem}"
             self.maquinas[codigo_maquina] = MaquinaModel(
                 codigo_maquina,
                 {"carga tratada": df_maquina, "tecnicas": df_falhas_tecnicas},
+                rotulo=rotulo_maquina,
             )
 
         return self
@@ -141,7 +151,7 @@ class CentroTratamentoModel:
         return DataFrame(
             [
                 {
-                    "Nº Máquina": maquina._id_maquina,
+                    "Nº Máquina": maquina.rotulo,
                     "Quantidade Induzida": maquina.total_carga_induzida(),
                 }
                 for maquina in self.maquinas.values()
@@ -157,7 +167,7 @@ class CentroTratamentoModel:
         return DataFrame(
             [
                 {
-                    "Nº Máquina": maquina._id_maquina,
+                    "Nº Máquina": maquina.rotulo,
                     "Rendimento Efetivo Médio": maquina.retornar_rendimento_efetivo_medio(),
                 }
                 for maquina in self.maquinas.values()
@@ -173,3 +183,30 @@ class CentroTratamentoModel:
         return sum(
             maquina.retornar_total_de_falhas() for maquina in self.maquinas.values()
         )
+
+    @property
+    def nome_centro(self) -> str:
+        """Retorna o nome do centro de tratamento.
+
+        Returns:
+            str: Nome do centro de tratamento.
+        """
+        return self._nome_centro
+
+    @property
+    def nome_abreviado(self) -> str:
+        """Retorna o nome abreviado do centro de tratamento.
+
+        Returns:
+            str: Nome abreviado do centro de tratamento.
+        """
+        return self._nome_abreviado
+
+    @property
+    def sigla(self) -> str:
+        """Retorna a sigla do centro de tratamento.
+
+        Returns:
+            str: Sigla do centro de tratamento.
+        """
+        return self._sigla

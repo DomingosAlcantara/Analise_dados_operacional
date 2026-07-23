@@ -25,6 +25,9 @@ class FalhasTecnicasView:
 
     def __init__(self, app_instance, register_callbacks=True) -> None:
         self.app = app_instance
+        """ Na declaração abaixo devo instanciar a classe resposável pela 
+            construção do resumo de falhas técnicas.
+        """
         self._resumo_model = ResumoModel(empresa)
         self._TOTAL_FALHAS = "resumo-total-falhas"
         self._MEDIA_OBJETOS_POR_FALHAS = "resumo-media-objetos-por-falhas"

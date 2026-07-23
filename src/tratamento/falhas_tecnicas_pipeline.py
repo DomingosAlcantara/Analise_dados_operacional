@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.tratamento.uteis import Uteis
+from src.tratamento.pipeline_comum import Pipeline_Comum
 
 
 class FalhasTecnicasPipeline:
@@ -8,57 +8,42 @@ class FalhasTecnicasPipeline:
     Pipeline para processar falhas técnicas.
     """
 
-    def __init__(self):
-        self.uteis = Uteis()
+    def __init__(self, df_bruto: pd.DataFrame):
+        self._df_bruto = df_bruto.copy() if df_bruto is not None else pd.DataFrame()
 
-    def normalizar_colunas(self) -> "FalhasTecnicasPipeline":
-        """
-        Normaliza os nomes das colunas do DataFrame, convertendo para
-        minúsculas e substituindo espaços por underscores.
-
-        Returns:
-            PipelineFalhasTecnicas: Pipeline com o DataFrame normalizado.
-        """
-        self.df_falhas_tecnicas = self.uteis.normalizar_colunas(self.df_falhas_tecnicas)
-        return self
-
-    def remover_desabilitacoes(self) -> "FalhasTecnicasPipeline":
+    def remover_desabilitacoes(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Remove registros de falhas técnicas que correspondem a desabilitações.
 
         Returns:
-            PipelineFalhasTecnicas: Pipeline com o DataFrame filtrado.
+            pd.DataFrame: DataFrame com os registros filtrados.
         """
-        if self.df_falhas_tecnicas.empty:
-            return self
-        print(
-            f"Normalizando colunas do DataFrame de falhas técnicas: {self.df_falhas_tecnicas.columns.tolist()}"
-        )
+        _df = df.copy()  # Cria uma cópia do DataFrame para evitar modificar o original
 
-        self.df_falhas_tecnicas = self.df_falhas_tecnicas.loc[
-            self.df_falhas_tecnicas["descricao_da_falha"]
+        return _df.loc[
+            _df["descricao_da_falha"]
             != "Máquina desabilitada - pressione e mantenha o botão de habilitar por 1 segundo p"
         ]
-        return self
+        # return self
 
-    def renomear_colunas(self) -> "FalhasTecnicasPipeline":
+    def renomear_colunas(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Renomeia as colunas do DataFrame de falhas técnicas.
 
         Returns:
-            PipelineFalhasTecnicas: Pipeline com o DataFrame com colunas renomeadas.
+            pd.DataFrame: DataFrame com as colunas renomeadas.
         """
-        if self.df_falhas_tecnicas.empty:
-            return self
+        if df.empty:
+            return df
 
-        self.df_falhas_tecnicas = self.df_falhas_tecnicas.rename(
+        return df.rename(
             columns={
                 "no_maquina_de_triagem": "no_maquina",
             }
         )
-        return self
+        # return df
 
-    def processar(self, df: pd.DataFrame) -> pd.DataFrame:
+    def processar(self) -> pd.DataFrame:
         """
         Processa o DataFrame de falhas técnicas.
 
@@ -69,11 +54,16 @@ class FalhasTecnicasPipeline:
             pd.DataFrame: DataFrame processado.
         """
         # Aqui você pode adicionar qualquer lógica de processamento necessária
-        if df.empty:
-            return df
+        if self._df_bruto.empty:
+            return self._df_bruto
 
-        self.df_falhas_tecnicas = df.copy()
+        return (
+            self._df_bruto.pipe(Pipeline_Comum.normalizar_colunas)
+            .pipe(self.remover_desabilitacoes)
+            .pipe(self.renomear_colunas)
+            .pipe(Pipeline_Comum.adicionar_abreviacoes_centros)
+        )
 
-        self.normalizar_colunas().remover_desabilitacoes().renomear_colunas()
+        # self.normalizar_colunas().remover_desabilitacoes().renomear_colunas()
 
-        return self.df_falhas_tecnicas
+        # return self.df_falhas_tecnicas

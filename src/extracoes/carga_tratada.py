@@ -3,7 +3,7 @@ from datetime import datetime
 import pandas as pd
 
 from src.extracoes.extracoes import Extracoes
-from src.tratamento.pipeline import Pipeline
+from src.tratamento.pipeline_comum import Pipeline_Comum
 
 
 class CargaTratada:
@@ -64,7 +64,7 @@ class CargaTratada:
             linhas_para_pular=8,
         )
 
-        pipe = Pipeline(
+        pipe = Pipeline_Comum(
             df_bruto,
             [
                 self.padronizar_colunas,

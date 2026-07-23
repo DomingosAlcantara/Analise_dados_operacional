@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.utils.cache import cache
+# from src.utils.cache import cache
 
 
 class FalhasTecnicasModel:
@@ -68,8 +68,8 @@ class FalhasTecnicasModel:
         Returns:
             float: Média de objetos por falha técnica.
         """
-        total_carga = cache.get("total_carga_induzida", 0)  # Recuperar do cache
-        print(f"Total de carga induzida recuperada do cache: {total_carga}")
+        # total_carga = cache.get("total_carga_induzida", 0)  # Recuperar do cache
+        # print(f"Total de carga induzida recuperada do cache: {total_carga}")
         total_falhas = self.total_falhas_tecnicas()
         if total_falhas == 0:
             return 0
