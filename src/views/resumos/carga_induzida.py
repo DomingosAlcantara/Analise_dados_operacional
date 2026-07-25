@@ -7,12 +7,12 @@ from datetime import date, timedelta
 import dash
 import pandas as pd
 import plotly.graph_objects as go
-from dash import Input, Output, html
+from dash import Input, Output, callback, html
 from plotly import express as px
 
 from src.components.kpi_card import KpiCard
 from src.components.kpi_graph_card import KpiGraphCard
-from src.engine import empresa  # noqa: F401
+from src.engine import empresa
 from src.models.resumo_model import ResumoModel
 from src.views.colors import get_color_palette
 
@@ -29,9 +29,9 @@ class CargaInduzida:
     máquinas de triagem de cartas do CTCE.
     """
 
-    def __init__(self, app_instance, model_instance=None, register_callbacks=True):
+    def __init__(self, model_instance=None, register_callbacks=True):
         """Inicializa a classe Resumo."""
-        self.app = app_instance
+        # self.app = app_instance
         self.ID_VALOR_CARGA_INDUZIDA = "resumo-val-carga"
         self.ID_VALOR_MEDIA = "resumo-val-media"
         self.ID_VALOR_RENDIMENTO = "resumo-val-rendimento"
@@ -259,7 +259,7 @@ class CargaInduzida:
     # 3. Método para registrar todos os callbacks da página
     def register_callbacks(self):
         # Registramos o callback que delega a lógica para `compute_kpis`.
-        @self.app.callback(
+        @callback(
             [
                 Output(self.ID_VALOR_CARGA_INDUZIDA, "children"),
                 Output(self.ID_VALOR_MEDIA, "children"),
@@ -368,11 +368,7 @@ def get_layout():
     Returns:
         dash.html.Div: Componente Div contendo o layout da página de resumo.
     """
-    # Primeiro, importamos a instância do app:
-    from src.app import app  # noqa F401
-
-    # Não re-registrar callbacks novamente (já registramos no startup)
-    return CargaInduzida(app, register_callbacks=False).layout()
+    return CargaInduzida(register_callbacks=False).layout()
 
 
 # A variável global 'layout' deve ser uma FUNÇÃO que o Dash pode chamar

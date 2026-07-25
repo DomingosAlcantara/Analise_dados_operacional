@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
 import dash
-from dash import Input, Output, html
+from dash import Input, Output, callback, html
 
 from src.components.kpi_card import KpiCard
 from src.components.kpi_graph_card import KpiGraphCard
@@ -23,10 +23,10 @@ class FalhasTecnicasView:
     View para exibir o resumo de falhas técnicas,
     """
 
-    def __init__(self, app_instance, register_callbacks=True) -> None:
-        self.app = app_instance
-        """ Na declaração abaixo devo instanciar a classe resposável pela 
-            construção do resumo de falhas técnicas.
+    def __init__(self, register_callbacks=True) -> None:
+        # self.app = app_instance
+        """Na declaração abaixo devo instanciar a classe resposável pela
+        construção do resumo de falhas técnicas.
         """
         self._resumo_model = ResumoModel(empresa)
         self._TOTAL_FALHAS = "resumo-total-falhas"
@@ -171,7 +171,7 @@ class FalhasTecnicasView:
             app (dash.Dash): Instância do aplicativo Dash.
         """
 
-        @self.app.callback(
+        @callback(
             [
                 Output(self._TOTAL_FALHAS, "children"),
                 Output(self._MEDIA_OBJETOS_POR_FALHAS, "children"),
@@ -222,9 +222,7 @@ def get_layout() -> html.Div:
     Returns:
         html.Div: Componente Div contendo o layout da página.
     """
-    from src.app import app
-
-    return FalhasTecnicasView(app, register_callbacks=False).layout()
+    return FalhasTecnicasView(register_callbacks=False).layout()
 
 
 layout = get_layout

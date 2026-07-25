@@ -17,8 +17,8 @@ class ResumosView:
     Classe para a view de resumos.
     """
 
-    def __init__(self, app_instance, register_callbacks=True):
-        self.app = app_instance
+    def __init__(self, register_callbacks=True):
+        # self.app = app_instance
         self.resumo_card = ResumoCard()
 
         # correios = cache.get("correios_model")
@@ -33,7 +33,6 @@ class ResumosView:
         """
         Registra os callbacks da view de resumos.
         """
-        pass
 
     def layout(self):
         """
@@ -59,9 +58,8 @@ def get_layout():
     Retorna:
         dash.html.Div: Componente Div contendo o layout da view de resumos.
     """
-    from src.app import app as main_app
 
-    return ResumosView(main_app, register_callbacks=False).layout()
+    return ResumosView(register_callbacks=False).layout()
 
 
 layout = get_layout

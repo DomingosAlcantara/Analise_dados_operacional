@@ -24,7 +24,6 @@ class FalhasTecnicasPipeline:
             _df["descricao_da_falha"]
             != "Máquina desabilitada - pressione e mantenha o botão de habilitar por 1 segundo p"
         ]
-        # return self
 
     def renomear_colunas(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -41,14 +40,25 @@ class FalhasTecnicasPipeline:
                 "no_maquina_de_triagem": "no_maquina",
             }
         )
-        # return df
+
+    def extrair_data_da_falha(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Extrai a data da falha do DataFrame de falhas técnicas.
+
+        Returns:
+            pd.DataFrame: DataFrame com a coluna de data extraída.
+        """
+        if df.empty:
+            return df
+
+        df["data_da_falha"] = pd.to_datetime(
+            df["data/hora_inicial_da_falha"], errors="coerce"
+        ).dt.date
+        return df
 
     def processar(self) -> pd.DataFrame:
         """
         Processa o DataFrame de falhas técnicas.
-
-        Args:
-            df (pd.DataFrame): DataFrame de falhas técnicas a ser processado.
 
         Returns:
             pd.DataFrame: DataFrame processado.
@@ -61,9 +71,6 @@ class FalhasTecnicasPipeline:
             self._df_bruto.pipe(Pipeline_Comum.normalizar_colunas)
             .pipe(self.remover_desabilitacoes)
             .pipe(self.renomear_colunas)
+            .pipe(self.extrair_data_da_falha)
             .pipe(Pipeline_Comum.adicionar_abreviacoes_centros)
         )
-
-        # self.normalizar_colunas().remover_desabilitacoes().renomear_colunas()
-
-        # return self.df_falhas_tecnicas

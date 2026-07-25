@@ -141,13 +141,13 @@ class IndexApp:
 # os callbacks das classes das páginas também sejam registrados.
 # IMPORTANTE: importamos explicitamente as views aqui para garantir que
 # seus callbacks sejam registrados mesmo antes de qualquer navegação.
-import src.views.analise_operacional  # noqa: F401
-import src.views.detalhamento  # noqa: F401
-import src.views.monitoramento  # noqa: F401
-import src.views.resumos  # noqa: F401
+# import src.views.analise_operacional
+# import src.views.detalhamento
+# import src.views.monitoramento
+# import src.views.resumos
 
-# import src.views.resumos.carga_induzida  # noqa: F401
-# import src.views.resumos.falhas_tecnicas  # noqa: F401
+# import src.views.resumos.carga_induzida
+# import src.views.resumos.falhas_tecnicas
 
 # Instanciamos a página de resumo no startup para garantir que seus callbacks
 # sejam registrados mesmo antes de o usuário navegar até a página.
@@ -161,7 +161,6 @@ try:
 except Exception as e:
     # Silencioso no startup — isso só tenta garantir registro de callbacks
     print(f"Erro ao registrar callbacks da página de Carga Induzida: {e}")
-    pass
 
 # 3.2. Criamos a instância da classe principal
 # Isso define app.layout e registra o callback de roteamento da sidebar
@@ -169,12 +168,12 @@ except Exception as e:
 if __name__ == "__main__":
     index_app = IndexApp(app)
 
-    import src.views.analise_operacional  # noqa: E402, F401
-    import src.views.detalhamento  # noqa: E402, F401
-    import src.views.monitoramento  # noqa: E402, F401
-    import src.views.resumos  # noqa: E402, F401
+    # import src.views.analise_operacional
+    # import src.views.detalhamento
+    # import src.views.monitoramento
+    # import src.views.resumos
 
-    # import src.views.resumos.carga_induzida  # noqa: E402, F401
-    # import src.views.resumos.falhas_tecnicas  # noqa: E402, F401
+    # import src.views.resumos.carga_induzida
+    # import src.views.resumos.falhas_tecnicas
 
     app.run(debug=True)
