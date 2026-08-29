@@ -5,7 +5,7 @@ from src.models.carga_induzida_model import CargaInduzidaModel
 from src.path_files import PathFiles as pf
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def model(mock_carga_tratada: pd.DataFrame):
     """
     Configuração inicial para os testes.
@@ -156,4 +156,3 @@ class TestCargaInduzidaModel:
         """
         Testa o método carga_induzida_por_maquina.
         """
-        pass

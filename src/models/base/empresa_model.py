@@ -55,6 +55,7 @@ class EmpresaModel:
 
         return self
 
+    @property
     def retornar_centros_de_tratamento(self):
         """
         Retorna a lista de centros de tratamento automatizados presentes no
@@ -63,7 +64,7 @@ class EmpresaModel:
         if not self.centros:
             return []
 
-        return self.centros
+        return [centro.nome_abreviado for centro in self.centros.values()]
 
     def retornar_carga_induzida_total(self):
         """
@@ -173,11 +174,14 @@ class EmpresaModel:
         """
         return self._concatenar_dataframes(
             {
-                nome_centro: centro.retornar_carga_induzida_por_maquina()
-                for nome_centro, centro in self.centros.items()
+                centro.nome_abreviado: centro.retornar_carga_induzida_por_maquina()
+                for centro in self.centros.values()
             },
             "Quantidade Induzida",
-        ).sort_values(by="Quantidade Induzida", ascending=False)
+        ).sort_values(
+            by=["Centro de Tratamento", "Quantidade Induzida"],
+            ascending=[True, False],
+        )
 
     def retornar_rendimento_efetivo_por_maquina(self):
         """
@@ -198,8 +202,8 @@ class EmpresaModel:
         """
         return self._concatenar_dataframes(
             {
-                nome_centro: centro.retornar_rendimento_efetivo_por_maquina()
-                for nome_centro, centro in self.centros.items()
+                centro.nome_abreviado: centro.retornar_rendimento_efetivo_por_maquina()
+                for centro in self.centros.values()
             },
             "Rendimento Efetivo Médio",
         ).sort_values(by="Rendimento Efetivo Médio", ascending=False)

@@ -4,7 +4,7 @@ import pytest
 from src.models.base.centro_tratamento_model import CentroTratamentoModel
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def model(mock_dados_globais):
     id_alvo = 431115
     return (
@@ -53,4 +53,4 @@ class TestCentroTratamentoModel:
     def test_retornar_total_de_falhas(self, model):
         total_falhas = model.retornar_total_de_falhas()
         assert isinstance(total_falhas, int), "Deve retornar um inteiro"
-        assert total_falhas == 4, "O total de falhas deve ser 4"
+        assert total_falhas == 2, "O total de falhas deve ser 2"

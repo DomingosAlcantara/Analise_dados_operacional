@@ -49,10 +49,15 @@ class MaquinaModel:
             int: Total de carga processada.
         """
         return self._carga_tratada.total_de_carga_induzida()
-        # print(
-        #     f"Total de carga induzida na maquina {self._id_maquina}: {teste}"
-        # )  # Debug
-        # return teste  # self._carga_tratada.total_de_carga_induzida()
+
+    def retornar_media_objetos_por_falhas(self) -> float:
+        """
+        Retorna a média de objetos por falha.
+
+        Returns:
+            float: Média de objetos por falha.
+        """
+        return self.total_carga_induzida() / self.retornar_total_de_falhas()
 
     def obter_media_diaria(self) -> float:  # media_diaria
         """
@@ -89,7 +94,7 @@ class MaquinaModel:
         Returns:
             int: Total de falhas.
         """
-        return self._falhas_tecnicas.total_de_falhas()
+        return self._falhas_tecnicas.total_falhas_tecnicas()
 
     def tempo_plano_carregado(self) -> float:
         """

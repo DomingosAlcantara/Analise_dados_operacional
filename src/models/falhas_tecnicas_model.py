@@ -9,8 +9,8 @@ class FalhasTecnicasModel:
     """
 
     def __init__(self, df_dados: pd.DataFrame):
-        self._dados = df_dados.copy()
-        self._dados_filtrados = pd.DataFrame()
+        self._dados = df_dados.copy() if df_dados is not None else pd.DataFrame()
+        self._dados_filtrados = self._dados.copy()
 
     def filtrar_dados_por_data(self, data_inicial, data_final):
         """
@@ -24,32 +24,34 @@ class FalhasTecnicasModel:
             DataFrame: Dados filtrados pelo intervalo de datas.
         """
         try:
-            start = pd.to_datetime(data_inicial).date()
-            end = pd.to_datetime(data_final).date()
+            start = pd.to_datetime(data_inicial, dayfirst=False).date()
+            end = pd.to_datetime(data_final, dayfirst=False).date()
+
+            mascara = self._dados["data_da_falha"].between(start, end)
+            self._dados_filtrados = self._dados.loc[mascara].copy()
+
         except Exception:
             self._dados_filtrados = pd.DataFrame()
-            return
-
-        mascara = self._dados["data_da_falha"].between(start, end)
-        self._dados_filtrados = self._dados.loc[mascara].copy()
 
         return self
 
-    def aplicar_tratamento_dados(self):
+    def retornar_falhas_por_centro(self):
         """
-        Aplica o tratamento necessário aos dados de falhas técnicas.
+        Retorna o total de falhas agrupadas por centro
+
+        Returns:
+            pd.DataFrame: DataFrame contendo 'centro_de_tratamento' e 'total_de_falhas'
+            ordenado do maior para o menor
         """
 
-        return self._paradas_model._pipeline(
-            self._paradas_model.get_dados(),
-            [
-                self._paradas_model.remover_desabilitacoes,
-                self._paradas_model.converter_para_datetime,
-                self._paradas_model.extrair_data,
-                self._paradas_model.extrair_hora,
-                self._paradas_model.remover_coluna_de_data,
-                self._paradas_model.padronizar_colunas,
-            ],
+        if self._dados_filtrados.empty:
+            return pd.DataFrame(columns=["centro_de_tratamento", "total_de_falhas"])
+
+        return (
+            self._dados_filtrados.groupby("centro_de_tratamento")
+            .size()
+            .reset_index(name="total_de_falhas")
+            .sort_values(by="total_de_falhas", ascending=False)
         )
 
     def total_falhas_tecnicas(self) -> int:
@@ -61,20 +63,6 @@ class FalhasTecnicasModel:
         """
         return int(self._dados_filtrados.shape[0])  # ["descrição_da_falha"].count()
 
-    def media_objetos_por_falhas(self) -> float:
-        """
-        Retorna a média de objetos por falha técnica.
-
-        Returns:
-            float: Média de objetos por falha técnica.
-        """
-        # total_carga = cache.get("total_carga_induzida", 0)  # Recuperar do cache
-        # print(f"Total de carga induzida recuperada do cache: {total_carga}")
-        total_falhas = self.total_falhas_tecnicas()
-        if total_falhas == 0:
-            return 0
-        return total_carga / total_falhas
-
     def retornar_metricas_falhas_tecnicas(self, data_inicial, data_final):
         """
         Retorna as métricas relacionadas às falhas técnicas.
@@ -83,11 +71,10 @@ class FalhasTecnicasModel:
             dict: Dicionário contendo as métricas calculadas.
         """
         self.filtrar_dados_por_data(data_inicial, data_final)
-        print(f"Média de objetos por falha técnica: {self.media_objetos_por_falhas()}")
 
         return {
             "total_de_falhas": self.total_falhas_tecnicas(),
-            "media_objetos_por_falha": round(self.media_objetos_por_falhas(), 2),
+            # "media_objetos_por_falha": round(self.media_objetos_por_falhas(), 2),
             "tempo_total_ocorrencias": 0,
             "duracao_media_falha": 0,
         }

@@ -59,14 +59,30 @@ class CentroTratamentoModel:
             if "centro_abrev_3" in df_produtividade.columns:
                 self._sigla = str(df_produtividade["centro_abrev_3"].iloc[0])
 
-        codigos_maquinas = sorted(df_produtividade.index.unique())
+        maquinas_prod = (
+            set(df_produtividade.index.unique())
+            if not df_produtividade.empty
+            else set()
+        )
+        maquinas_falhas = (
+            set(df_falhas_tecnicas.index.unique())
+            if not df_falhas_tecnicas.empty
+            else set()
+        )
+
+        codigos_maquinas = sorted(maquinas_prod.union(maquinas_falhas))
 
         for ordem, codigo_maquina in enumerate(codigos_maquinas, start=1):
-            df_maquina = df_produtividade[df_produtividade.index == codigo_maquina]
+            df_carga_maquina = df_produtividade[
+                df_produtividade.index == codigo_maquina
+            ]
+            df_falhas_maquina = df_falhas_tecnicas[
+                df_falhas_tecnicas.index == codigo_maquina
+            ]
             rotulo_maquina = f"{codigo_maquina}<br>{self._sigla}\xa0-\xa0PBVS{ordem}"
             self.maquinas[codigo_maquina] = MaquinaModel(
                 codigo_maquina,
-                {"carga tratada": df_maquina, "tecnicas": df_falhas_tecnicas},
+                {"carga tratada": df_carga_maquina, "tecnicas": df_falhas_maquina},
                 rotulo=rotulo_maquina,
             )
 

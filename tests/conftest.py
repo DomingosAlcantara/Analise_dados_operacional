@@ -5,7 +5,7 @@ from src.tratamento.carga_tratada_pipeline import CargaTratadaPipeline
 from src.tratamento.falhas_tecnicas_pipeline import FalhasTecnicasPipeline
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def mock_carga_tratada():
     dados = {
         "data_de_triagem": [
@@ -99,12 +99,12 @@ def mock_carga_tratada():
     return CargaTratadaPipeline(df).processar()
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def mock_falhas_tecnicas():
     dados = {
         "Código MCU CTC": [431115, 431115, 437023, 437023],
         "Centro de Tratamento": ["CTC1", "CTC1", "CTC3", "CTC3"],
-        "Nº Máquina de triagem": [138, 139, 140, 141],
+        "Nº Máquina de triagem": [138, 138, 140, 141],
         "Descrição da Falha": [
             "Falha A",
             "Falha B",
@@ -128,7 +128,7 @@ def mock_falhas_tecnicas():
     return FalhasTecnicasPipeline(pd.DataFrame(dados)).processar()
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def mock_dados_globais(mock_carga_tratada, mock_falhas_tecnicas):
     """
     Retorna um dicionário com dados globais simulados para os testes.

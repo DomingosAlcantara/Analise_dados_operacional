@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from dash import dcc, html, page_registry
 
@@ -17,21 +17,6 @@ class Sidebar:
             "Detalhamento",
         ]
 
-        # Mapeia todos os nomes das páginas registradas pelo Dash
-        all_pages: Dict[str, Any] = {
-            page["name"]: page for page in page_registry.values()
-        }
-
-        # Monta a ordem final: primeiro os nomes definidos em `ordered_page`
-        # (se existirem), depois as demais páginas registradas (ordenadas por nome).
-        ordered_names = [name for name in self.ordered_page if name in all_pages]
-        remaining = sorted([n for n in all_pages.keys() if n not in ordered_names])
-
-        # Mapeia os nomes visíveis no sidebar para o objeto Page do Dash
-        self.page_map: Dict[str, Any] = {
-            name: all_pages[name] for name in ordered_names + remaining
-        }
-
     def layout(self, current_path: str):
         """Retorna o layout da barra lateral.
 
@@ -42,6 +27,20 @@ class Sidebar:
         Returns:
             dash.html.Div: Componente Div contendo o layout da barra lateral.
         """
+        # Mapeia todos os nomes das páginas registradas pelo Dash
+        all_pages: dict[str, Any] = {
+            page["name"]: page for page in page_registry.values()
+        }
+
+        # Monta a ordem final: primeiro os nomes definidos em `ordered_page`
+        # (se existirem), depois as demais páginas registradas (ordenadas por nome).
+        ordered_names = [name for name in self.ordered_page if name in all_pages]
+        remaining = sorted([n for n in all_pages if n not in ordered_names])
+
+        # Mapeia os nomes visíveis no sidebar para o objeto Page do Dash
+        self.page_map: dict[str, Any] = {
+            name: all_pages[name] for name in ordered_names + remaining
+        }
 
         nav_links = []
 
@@ -58,7 +57,7 @@ class Sidebar:
                         dcc.Link(
                             name,
                             href=page["path"],
-                            className=f"nav-link{'active'
+                            className=f"nav-link{' active'
                                                  if is_active else ''}",
                         ),
                         className="nav-item_wrapper",

@@ -58,7 +58,7 @@ class Test_MaquinaModel:
         total_falhas = model.retornar_total_de_falhas()
 
         assert isinstance(total_falhas, int), "Deve retornar um inteiro"
-        assert total_falhas == 4, "O total de falhas deve ser 4"
+        assert total_falhas == 2, "O total de falhas deve ser 2"
 
     def _test_tempo_plano_carregado(self, model):
         """

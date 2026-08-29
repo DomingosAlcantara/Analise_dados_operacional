@@ -51,10 +51,17 @@ class FalhasTecnicasPipeline:
         if df.empty:
             return df
 
-        df["data_da_falha"] = pd.to_datetime(
-            df["data/hora_inicial_da_falha"], errors="coerce"
-        ).dt.date
-        return df
+        _df = df.copy()
+
+        _df["data_hora_falha"] = pd.to_datetime(
+            _df["data/hora_inicial_da_falha"], format="%d/%m/%Y %H:%M:%S", dayfirst=True
+        )
+
+        _df["data_da_falha_str"] = _df["data_hora_falha"].dt.strftime("%d/%m/%Y")
+        _df["hora_da_falha_str"] = _df["data_hora_falha"].dt.strftime("%H:%M:%S")
+        _df["data_da_falha"] = _df["data_hora_falha"].dt.date
+
+        return _df
 
     def processar(self) -> pd.DataFrame:
         """

@@ -52,6 +52,9 @@ class CargaInduzidaModel:
         Retorna:
             float: Média diária de carga induzida.
         """
+
+        if self._dados_filtrados is None or self._dados_filtrados.empty:
+            return 0.0
         self._dados_filtrados["dia exato"] = self._dados_filtrados[
             "data_de_triagem"
         ].dt.date
@@ -76,6 +79,10 @@ class CargaInduzidaModel:
         Retorna:
             float: Rendimento efetivo por hora.
         """
+
+        if self._dados_filtrados is None or self._dados_filtrados.empty:
+            return 0.0
+
         return self._dados_filtrados["rendimento_efetivo/h"].mean()
 
     def carga_induzida_por_centro(self):
