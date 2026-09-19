@@ -21,11 +21,11 @@ class Index_Controller:
             return Sidebar.layout(current_path=pathname)
 
         @callback(
-            Output(self.back_button.container_id, "style"),
+            Output(self.back_button.container_id, "className"),
             Input(self._view.ID_URL_LOCATION, "pathname"),
         )
         def toggle_back_button(pathname):
             if pathname and pathname.startswith("/resumos/") and pathname != "/resumos":
-                return {"display": "flex", "alignItems": "center"}
+                return "back-button-container"
             else:
-                return {"display": "none"}
+                return "back-button-container d-none"

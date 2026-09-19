@@ -43,7 +43,8 @@ class FalhasTecnicasPipeline:
 
     def extrair_data_da_falha(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Extrai a data da falha do DataFrame de falhas técnicas.
+        Extrai as datas e horas de inicio e fim da falha, e calcula a duração
+        em segundos.
 
         Returns:
             pd.DataFrame: DataFrame com a coluna de data extraída.
@@ -60,6 +61,22 @@ class FalhasTecnicasPipeline:
         _df["data_da_falha_str"] = _df["data_hora_falha"].dt.strftime("%d/%m/%Y")
         _df["hora_da_falha_str"] = _df["data_hora_falha"].dt.strftime("%H:%M:%S")
         _df["data_da_falha"] = _df["data_hora_falha"].dt.date
+
+        # Tratamento da Data/Hora Final da Falha
+        coluna_fim = "data/hora_final_da_falha"
+
+        if coluna_fim in _df.columns:
+            _df["data_hora_final"] = pd.to_datetime(
+                _df[coluna_fim], format="%d/%m/%Y %H:%M:%S", dayfirst=True
+            )
+
+            _df["data_final_str"] = _df["data_hora_final"].dt.strftime("%d/%m/%Y")
+            _df["hora_final_str"] = _df["data_hora_final"].dt.strftime("%H:%M:%S")
+
+            # Cálculo da duração (fim - inicio) em segundos
+            _df["duracao_da_falha_em_segundos"] = (
+                (_df["data_hora_final"] - _df["data_hora_falha"]).dt.total_seconds()
+            ).fillna(0.0)
 
         return _df
 

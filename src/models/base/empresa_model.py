@@ -50,8 +50,9 @@ class EmpresaModel:
         """
         Define o intervalo de pesquisa para os dados de carga induzida.
         """
-        for centro in self.centros.values():
-            centro.filtrar_dados_por_data(data_inicio, data_fim)
+        if self.centros:
+            for centro in self.centros.values():
+                centro.filtrar_dados_por_data(data_inicio, data_fim)
 
         return self
 
@@ -221,3 +222,151 @@ class EmpresaModel:
         return sum(
             centro.retornar_total_de_falhas() for centro in self.centros.values()
         )
+
+    def retornar_media_de_objetos_por_falha(self):
+        """
+        Retorna a média de falhas em todos os centros de tratamento.
+         - Se não houver centros, retorna 0.
+         - Caso contrário, calcula a média de falhas de cada centro e retorna a
+           média geral.
+        """
+        if not self.centros or self.retornar_total_de_falhas() == 0:
+            return 0
+
+        return self.retornar_carga_induzida_total() / self.retornar_total_de_falhas()
+
+    def retornar_tempo_total_de_ocorrencias(self):
+        """
+        Retorna o tempo total de ocorrências em todos os centros de tratamento.
+         - Se não houver centros, retorna 0.
+         - Caso contrário, soma o tempo total de ocorrências de cada centro e
+           retorna o valor total.
+        """
+        if not self.centros:
+            return 0
+
+        return sum(
+            centro.retornar_tempo_total_de_ocorrencias()
+            for centro in self.centros.values()
+        )
+
+    def retornar_duracao_media_das_falhas(self):
+        """
+        Retorna a duração média das falhas em todos os centros de tratamento.
+         - Se não houver centros, retorna 0.
+         - Caso contrário, calcula a duração média das falhas de cada centro e
+           retorna a média geral.
+        """
+        if self.retornar_total_de_falhas() == 0:
+            return "00:00:00"
+
+        return (
+            self.retornar_tempo_total_de_ocorrencias() / self.retornar_total_de_falhas()
+        )
+
+    def retornar_total_falhas_por_centro(self):
+        """
+        Retorna o total de falhas agrupado por centro de tratamento.
+         - Se não houver centro, retorna um DataFrame vazio com as colunas
+            esperadas.
+         - Caso contrário, itera sobre os centros, captura o nome e o total de
+            falhas, e retorna um DataFrame ordenado do maior para o menor
+        """
+        if not self.centros:
+            return pd.DataFrame(columns=["Centro de Tratamento", "Total de Falhas"])
+
+        return pd.DataFrame(
+            [
+                {
+                    "Centro de Tratamento": centro.nome_abreviado,
+                    "Total de Falhas": centro.retornar_total_de_falhas(),
+                }
+                for centro in self.centros.values()
+            ]
+        ).sort_values(by="Total de Falhas", ascending=False)
+
+    def retornar_total_falhas_por_maquina(self):
+        """
+        Retorna o total de falhas agrupado por maquina.
+         - Se houver centros, concatena os DataFrames de falhas por máquina
+           de cada centro, adicionando uma coluna para o nome do centro.
+         - O DataFrame resultante é ordenado por 'Total de Falhas' em ordem
+           decrescente.
+        """
+        return self._concatenar_dataframes(
+            {
+                centro.nome_abreviado: centro.retornar_total_falhas_por_maquina()
+                for centro in self.centros.values()
+            },
+            "Total de Falhas",
+        ).sort_values(
+            by=["Total de Falhas", "Centro de Tratamento"], ascending=[False, True]
+        )
+
+    def retornar_resumo_tempo_por_centro(self):
+        """
+        Retorna um DataFrame resumindo o tempo total e médio de falhas
+        agrupado por Centro de Tratamento
+        """
+        if not self.centros:
+            return pd.DataFrame(
+                columns=["Centro de Tratamento", "Tempo Total", "Tempo Médio"]
+            )
+
+        return pd.DataFrame(
+            [
+                {
+                    "Centro de Tratamento": centro.nome_abreviado,
+                    "Tempo Total": centro.retornar_tempo_total_de_ocorrencias(),
+                    "Tempo Médio": centro.retornar_duracao_media_das_falhas(),
+                }
+                for centro in self.centros.values()
+            ]
+        ).sort_values(by="Tempo Total", ascending=False)
+
+    def retornar_duracao_media_falhas_por_centro(self):
+        """
+        Retorna a duração média de falhas agrupada por centro de tratamento.
+        """
+        if not self.centros:
+            return pd.DataFrame(columns=["Centro de Tratamento", "Duração Média"])
+
+        return pd.DataFrame(
+            [
+                {
+                    "Centro de Tratamento": centro.nome_abreviado,
+                    "Duração Média": centro.retornar_duracao_media_das_falhas(),
+                }
+                for centro in self.centros.values()
+            ]
+        ).sort_values(by="Duração Média", ascending=False)
+
+    def retornar_duracao_media_falhas_por_maquina(self):
+        """
+        Retorna a duração média de falhas agrupada por máquina
+        de todos os centros de tratamento.
+        """
+        if not self.centros:
+            return pd.DataFrame(
+                columns=["Nº Máquina", "Duração Média", "Centro de Tratamento"]
+            )
+
+        dados = []
+        for centro in self.centros.values():
+            for maquina in centro.maquinas.values():
+                dados.append(
+                    {
+                        "Nº Máquina": maquina.rotulo,
+                        "Duração Média": maquina.retornar_duracao_media_das_falhas(),
+                        "Centro de Tratamento": centro.nome_abreviado,
+                    }
+                )
+
+        df = pd.DataFrame(dados)
+
+        if df.empty:
+            return pd.DataFrame(
+                columns=["Nº Máquina", "Duração Média", "Centro de Tratamento"]
+            )
+
+        return df.sort_values(by="Duração Média", ascending=False)

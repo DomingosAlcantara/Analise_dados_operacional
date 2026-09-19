@@ -54,3 +54,15 @@ class TestCentroTratamentoModel:
         total_falhas = model.retornar_total_de_falhas()
         assert isinstance(total_falhas, int), "Deve retornar um inteiro"
         assert total_falhas == 2, "O total de falhas deve ser 2"
+
+    def test_retornar_tempo_total_de_ocorrencias(self, model):
+        tempo_total = model.retornar_tempo_total_de_ocorrencias()
+        assert isinstance(tempo_total, (int, float)), "O tempo total deve ser númerico"
+        assert tempo_total >= 0, "O tempo não pode ser negativo, deve ser 0 ou maior"
+
+    def test_retornar_duracao_media_das_falhas(self, model):
+        duracao_media = model.retornar_duracao_media_das_falhas()
+        assert isinstance(
+            duracao_media, (float, int)
+        ), "A duração média deve ser um número"
+        assert duracao_media >= 0, "A duração média deve ser positiva"

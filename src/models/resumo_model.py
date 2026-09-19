@@ -33,7 +33,8 @@ class ResumoModel:
         """
         self._empresa = empresa
 
-    def formatacao_compacta_de_valores(self, v):
+    @staticmethod
+    def formatacao_compacta_de_valores(v):
         try:
             if v is None or (isinstance(v, float) and math.isnan(v)):
                 return "—"

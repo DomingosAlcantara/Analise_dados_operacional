@@ -1,6 +1,7 @@
 import pandas as pd
 import pytest
 
+from src.models.base.empresa_model import EmpresaModel
 from src.tratamento.carga_tratada_pipeline import CargaTratadaPipeline
 from src.tratamento.falhas_tecnicas_pipeline import FalhasTecnicasPipeline
 
@@ -137,3 +138,8 @@ def mock_dados_globais(mock_carga_tratada, mock_falhas_tecnicas):
         "carga tratada": mock_carga_tratada,
         "tecnicas": mock_falhas_tecnicas,
     }
+
+
+@pytest.fixture(scope="function")
+def mock_empresa_model(mock_dados_globais):
+    return EmpresaModel(mock_dados_globais)

@@ -1,0 +1,84 @@
+/* ================================================================
+    CONTAINER ESTRUTURAL DA TELA DE MONITORAMENTO
+    ================================================================ */
+
+/* Container Principal Flexbox de Altura Total */
+.ctce-dashboard-container {
+    flex: 1 !important;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    gap: 12px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Coluna de KPIs (Proporção 1/8) */
+.ctce-kpi-column {
+    display: flex;
+    flex-direction: column;
+    flex: 1 !important; /* 0 0 12.5%; */
+    max-width: 12.5%;
+    min-width: 160px;
+    gap: 12px;
+    height: 100%;
+    overflow-y: auto;
+    padding-right: 4px;
+    box-sizing: border-box;
+}
+
+/* Distribuição igualitária da altura para cada KPI injetado */
+.ctce-kpi-column > * {
+    flex: 1 1 0% !important; /* Força cada KPI a ocupar exatamente o mesmo espaço vertical */
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    padding: 2px !important;
+    margin: 0 !important;
+}
+
+/* Títulos dos KPIs (Compactação e Alinhamento) */
+.ctce-kpi-column div > *:first-child,
+.ctce-kpi-column h1, .ctce-kpi-column h2, .ctce-kpi-column h3, 
+.ctce-kpi-column h4, .ctce-kpi-column h5, .ctce-kpi-column h6,
+.ctce-kpi-column .card-title {
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    line-height: 1.1 !important;
+    margin: 0 0 2px 0 !important;
+    padding: 0 !important;
+    color: #555555 !important;
+    text-align: center !important;
+}
+
+/* Valores dos KPIs (Tamanho destacado porém contido) */
+.ctce-kpi-column div > *:nth-child(2),
+.ctce-kpi-column p, .ctce-kpi-column span,
+.ctce-kpi-column .card-text {
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #1890ff !important;
+    text-align: center !important;
+}
+
+/* Coluna das Abas e Conteúdo Principal (Proporção 7/8) */
+.ctce-tabs-column {
+    flex: 7 !important;
+    height: 100% !important;
+    background-color: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+}
+

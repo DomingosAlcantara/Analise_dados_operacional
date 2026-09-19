@@ -12,7 +12,6 @@ class KpiGraphCard:
     """
 
     def __init__(self, figure=None, graph_id=None, extra_class=""):
-        # self.label = label
         self.figure = figure or {}
         self.graph_id = graph_id
         self.extra_class = extra_class
@@ -31,7 +30,6 @@ class KpiGraphCard:
                     **graph_props,
                     className="kpi-graph",
                     config={"displayModeBar": False, "responsive": True},
-                    style={"height": "100%", "width": "100%"},
                 ),
             ],
             className=full_class_name,

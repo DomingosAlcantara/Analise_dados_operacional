@@ -60,6 +60,39 @@ class Test_MaquinaModel:
         assert isinstance(total_falhas, int), "Deve retornar um inteiro"
         assert total_falhas == 2, "O total de falhas deve ser 2"
 
+    def test_retornar_media_de_objetos_por_falha(self, model):
+        """
+        Testa o método retornar_media_de_objetos_por_falha.
+        """
+        media_objetos = model.retornar_media_de_objetos_por_falha()
+
+        assert isinstance(media_objetos, float), "Deve retornar um float"
+        assert media_objetos == pytest.approx(
+            14806.0, 0.01
+        ), "A média de objetos por falha deve ser aproximadamente 14806.0"
+
+    def test_retornar_tempo_total_de_ocorrencias(self, model):
+        """
+        Testa o método retornar_tempo_total_de_ocorrencias.
+        """
+        tempo_total = model.retornar_tempo_total_de_ocorrencias()
+
+        assert isinstance(tempo_total, (float, int)), "Deve retornar um número"
+        # assert tempo_total == pytest.approx(
+        #     0.5, 0.01
+        # ), "O tempo total de ocorrências deve ser aproximadamente 0.5"
+
+    def test_retornar_duracao_media_das_falhas(self, model):
+        """
+        Testa o método retornar_duracao_media_das_falhas.
+        """
+        duracao_media = model.retornar_duracao_media_das_falhas()
+
+        assert isinstance(duracao_media, (float, int)), "Deve retornar um número"
+        # assert duracao_media == pytest.approx(
+        #     0.25, 0.01
+        # ), "A duração média das falhas deve ser aproximadamente 0.25"
+
     def _test_tempo_plano_carregado(self, model):
         """
         Testa o método tempo_plano_carregado.

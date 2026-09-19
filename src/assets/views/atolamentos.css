@@ -1,0 +1,33 @@
+.kpi-row-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: 100%;
+    padding-right: 10px;
+    overflow-y: auto;
+}
+
+.grafico-altura-padrao {
+    height: 38vh;
+    width: 100%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 10px;
+}
+
+.tabela-altura-padrao {
+    height: 30vh;
+    width: 100%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 15px;
+    overflow: hidden;
+}
+
+.tabe-pane h6 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 10px;
+}

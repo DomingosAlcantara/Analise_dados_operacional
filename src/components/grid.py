@@ -8,7 +8,7 @@ class Grid:
     """
 
     @staticmethod
-    def coluna(children, style=None, class_name="", id=None):
+    def coluna(children, style=None, class_name="", id=None, tamanho=None, **kwargs):
         """
         Cria uma coluna flexivel (itens espalhados verticalmente).
 
@@ -17,30 +17,36 @@ class Grid:
             style (dict, optional): Estilos CSS para a coluna.
             class_name (str, optional): Classes CSS adicionais para a coluna.
             id (str, optional): ID para a coluna.
+            tamanho (int, optional): Largura da coluna em um grid de 12 (Ex: 6 = 50%, 12 = 100%).
 
         Returns:
             dash.html.Div: Componente Div representando a coluna.
         """
-        default_style = {
-            "display": "flex",
-            "flexDirection": "column",
-            "height": "84vh",  # Ajuste conforme necessário
-            "gap": "0px",  # Espaçamento entre os elementos
-        }
+        merged_style = {}
+
+        if tamanho is not None:
+            percentual = (tamanho / 12.0) * 100
+            merged_style["width"] = f"{percentual}%"
+            merged_style["flex"] = f"0 0 {percentual}%"
 
         if style:
-            default_style.update(style)
+            merged_style.update(style)
 
-        kwargs = {}
+        final_class = f"grid-coluna {class_name}".strip()
+
+        props = {"className": final_class}
+
+        if merged_style:
+            props["style"] = merged_style
         if id:
-            kwargs["id"] = id
-        if class_name:
-            kwargs["className"] = class_name
+            props["id"] = id
 
-        return html.Div(children, style=default_style, **kwargs)
+        props.update(kwargs)
+
+        return html.Div(children, **props)
 
     @staticmethod
-    def linha(children, style=None, class_name="", id=None):
+    def linha(children, style=None, class_name="", id=None, **kwargs):
         """
         Cria uma linha (row) com os filhos fornecidos.
 
@@ -53,20 +59,20 @@ class Grid:
         Returns:
             dash.html.Div: Componente Div representando a linha.
         """
-        default_style = {
-            "display": "flex",
-            "flexDirection": "row",
-            "height": "100%",
-            "gap": "0px",
-        }
+        merged_style = {}
 
         if style:
-            default_style.update(style)
+            merged_style.update(style)
 
-        kwargs = {}
+        final_class = f"grid-linha {class_name}".strip()
+
+        props = {"className": final_class}
+
+        if merged_style:
+            props["style"] = merged_style
         if id:
-            kwargs["id"] = id
-        if class_name:
-            kwargs["className"] = class_name
+            props["id"] = id
 
-        return html.Div(children, style=default_style, **kwargs)
+        props.update(kwargs)
+
+        return html.Div(children, **props)

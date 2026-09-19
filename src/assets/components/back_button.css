@@ -1,14 +1,26 @@
+/* Classe utilitária para ocultar elementos sem usar inline style */
+.d-none {
+    display: none !important;
+}
+
 .back-button {
     background-color: #2e6db6;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 8px 18px;
     border-radius: 6px;
-    font-size: 1em;
+    font-size: 0.95em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.back-button-wrapper {
+    flex-shrink: 0;
+    margin-left: 15px;
+    display: flex;
+    align-items: center;
 }
 
 .back-button:hover {
@@ -25,13 +37,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    padding: 15px;
+    width: 80%;
+    margin: 0 auto 20px auto;
+    padding: 15px 25px;
     background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    margin-bottom: 25px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-sizing: border-box;
 }
 
 .back-button-container {
-    display: none;
+    display: block;
+}
+
+.back-button-link {
+    text-decoration: none;
 }

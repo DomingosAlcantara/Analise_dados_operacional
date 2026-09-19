@@ -1,0 +1,78 @@
+/* =========================================
+   ÁREA DE CONTROLES (CABEÇALHO)
+   ========================================= */
+
+/* Container principal do cabeçalho que separa os elementos nos extremos */
+.header-controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px; /* Cria um respiro antes do conteúdo das páginas */
+}
+
+/* Agrupamento do titulo e do DatePicker */
+.header-date {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Estilo do titulo de filtro */
+.header-title {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #333;
+    font-weight: 600;
+}
+
+/* 1. Container Pai descontando a barra superior (Ajuste os 80px se o menu for maior/menor) */
+.main-content-container {
+    margin-left: 200px;
+    width: calc(100vw - 200px);
+    height: 100vh;
+    padding: 15px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.main-content-container > div:not(#header-controls) {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    width: 100% !important;
+}
+
+#_pages_content {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    width: 100% !important;
+}
+
+#_pages_content > div {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.tela-no-scroll {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden;
+    padding: 15px;
+    background-color: #f4f6f9;
+    box-sizing: border-box;
+}
+

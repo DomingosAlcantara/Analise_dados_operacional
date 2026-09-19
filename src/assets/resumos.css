@@ -5,7 +5,9 @@
     justify-content: flex-start;
     align-items: center;
     min-height: 100vh;
-    padding-top: 20px;
+    margin-left: 200px; /* Compensa a Sidebar */
+    width: calc(100vw - 200px);
+    padding: 20px;
     background-color: #f5f5f5;
     box-sizing: border-box;
 }
@@ -55,7 +57,7 @@
     margin: 0;
     color: white;
     text-align: center;
-    font-size: 2em;
+    font-size: 1.8em;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -68,3 +70,9 @@
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
+@media (max-width: 600px) {
+    .resumos-view {
+        margin-left: 60px;
+        width: calc(100vw - 60px);
+    }
+}

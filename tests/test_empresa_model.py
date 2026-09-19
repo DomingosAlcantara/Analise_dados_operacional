@@ -81,3 +81,97 @@ class TestEmpresaModel:
         total_falhas = model.retornar_total_de_falhas()
         assert isinstance(total_falhas, int), "Deve retornar um inteiro"
         assert total_falhas == 4, "O total de falhas deve ser 4"
+
+    def test_retornar_media_de_objetos_por_falha(self, model):
+        media_objetos = model.retornar_media_de_objetos_por_falha()
+        assert isinstance(media_objetos, (float, int)), "A média deve ser um número"
+
+        # 94832 (Carga Total) / 4 (Falhas) = 23708
+        assert media_objetos == pytest.approx(
+            23708, 0.01
+        ), "A média de objetos por falha deve ser aproximadamente 23708"
+
+    def test_retornar_tempo_total_de_ocorrencias(self, model):
+        tempo_total = model.retornar_tempo_total_de_ocorrencias()
+        assert isinstance(tempo_total, (float, int)), "O tempo total deve ser um número"
+        assert tempo_total >= 0, "O tempo total deve ser positivo"
+
+    def test_retornar_duracao_media_das_falhas(self, model):
+        duracao_media = model.retornar_duracao_media_das_falhas()
+        assert isinstance(
+            duracao_media, (float, int)
+        ), "A duração média deve ser um número"
+        assert duracao_media >= 0, "A duração média deve ser positiva"
+
+    def test_retornar_total_falhas_por_centro(self, model):
+        total_falhas_por_centro = model.retornar_total_falhas_por_centro()
+        assert isinstance(
+            total_falhas_por_centro, pd.DataFrame
+        ), "Deve retornar um DataFrame"
+        assert not total_falhas_por_centro.empty, "O DataFrame nao deve estar vazio"
+        assert list(total_falhas_por_centro.columns) == [
+            "Centro de Tratamento",
+            "Total de Falhas",
+        ]
+        assert len(total_falhas_por_centro) == 2
+
+        # Valida valores (CTC1 tem 2 falhas, CTC3 tem 2 falhas)
+        assert total_falhas_por_centro["Total de Falhas"].sum() == 4
+        assert total_falhas_por_centro.iloc[0]["Total de Falhas"] == 2
+
+    def test_retornar_total_falhas_por_maquina(self, model):
+        """
+        Verifica se a EmpresaModel consegue consolidar o total de falhas
+        de todas as máquinas, adicionando a qual centro elas pertencem,
+        e retornando um DataFrame ordenado do maior para o menor.
+        """
+        df_resultado = model.retornar_total_falhas_por_maquina()
+        assert isinstance(df_resultado, pd.DataFrame), "Deve retornar um DataFrame"
+        assert not df_resultado.empty, "O DataFrame nao deve estar vazio"
+        assert "Nº Máquina" in df_resultado.columns
+        assert "Total de Falhas" in df_resultado.columns
+        assert "Centro de Tratamento" in df_resultado.columns
+        assert len(df_resultado) == 4
+
+        # Como o retorno deve ser ordenado decrescente pelo total de falhas,
+        # o primeiro registro (iloc[0]) tem que ser a Máquina com 2 falhas
+        assert df_resultado.iloc[0]["Total de Falhas"] == 2
+
+    def test_retornar_resumo_tempo_por_centro(self, model):
+        """
+        Verifica se a EmpresaModel consegue gerar um DataFrame com
+        Centro de Tratamento, Tempo Total e Tempo Média.
+        """
+        df_resultado = model.retornar_resumo_tempo_por_centro()
+        assert isinstance(df_resultado, pd.DataFrame), "Deve retornar um DataFrame"
+        assert list(df_resultado.columns) == [
+            "Centro de Tratamento",
+            "Tempo Total",
+            "Tempo Médio",
+        ]
+        assert len(df_resultado) == 2
+
+    def test_retornar_duracao_media_falhas_por_centro(self, model):
+        """
+        Verifica se a EmpresaModel consegue consolidar a duração média das falhas
+        por centro de tratamento em um DataFrame.
+        """
+        df_resultado = model.retornar_duracao_media_falhas_por_centro()
+
+        assert isinstance(df_resultado, pd.DataFrame), "Deve retornar um DataFrame"
+        assert "Centro de Tratamento" in df_resultado.columns
+        assert "Duração Média" in df_resultado.columns
+        assert len(df_resultado) == 2
+
+    def test_retornar_duracao_media_falhas_por_maquina(self, model):
+        """
+        Verifica se a EmpresaModel consegue consolidar a duração média das falhas
+        por maquina em um DataFrame.
+        """
+        df_resultado = model.retornar_duracao_media_falhas_por_maquina()
+
+        assert isinstance(df_resultado, pd.DataFrame), "Deve retornar um DataFrame"
+        assert "Nº Máquina" in df_resultado.columns
+        assert "Duração Média" in df_resultado.columns
+        assert "Centro de Tratamento" in df_resultado.columns
+        assert len(df_resultado) == 4

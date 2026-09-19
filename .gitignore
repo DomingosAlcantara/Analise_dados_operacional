@@ -22,5 +22,6 @@ src/models/__pycache__/
 src/models/base/__pycache__/
 src/controllers/__pycache__/
 src/views/__pycache__/
+src/path_files.py
 *.pyc
 __pycache__

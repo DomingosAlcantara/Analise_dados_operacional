@@ -1,51 +1,98 @@
-.kpi-block {
-    /* Aparência de um cartão ou bloco d tabela */
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 15px;
-    padding: 0px;
-    margin-bottom: 5px;
+/* =========================================================
+   ESTILOS DE KPIS E LAYOUT GERAL (styles.css)
+   ========================================================= */
+
+/* Estutura principal de tela considerando a Sidebar de 200px */
+/* .main-content-container {
+    display: flex;
+    flex-direction: row;
+    margin-left: 200px; /* Compensa a Sidebar fixa */
+    /* width: calc(100vw - 200px);
+    height: 100vh;
+    padding: 12px;
+    gap: 12px;
     box-sizing: border-box;
-    width: auto;
+    overflow: hidden;
+} */ 
+
+/* Coluna de KPIs */
+/* .coluna-esquerda-kpis {
+    width: 250px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+}
+
+/* Distribuição igual para os 4 cards de KPI */
+/*.coluna-esquerda-kpis > * {
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    height: 100%;
+} */
+
+/* .kpi-block {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    box-sizing: border-box;
+    width: 100%;
     height: 100%;
     text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* box-shadow: none; */
-}
+    overflow: hidden;
+} */
 
-.kpi-label {
-    /* Estilo do título / Rótulo */
-    font-size: 1.8em;
-    font-weight: 500;
-    color: #343a40;
-    margin-bottom: 0;
+/* Rótulo / Título do KPI - Ajustado de 1.8em para 0.85rem */
+/* .kpi-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 2px;
     text-align: center;
-}
+    line-height: 1.2;
+} */
 
-.kpi-value {
-    /* Estilo do valor principal */
-    font-size: 3.2em;
+/* Valor do KPI - Ajustado de 3.2em para 1.5rem */
+/* .kpi-value {
+    font-size: 1.5rem;
     color: #28a745;
-    font-weight: bold;
+    font-weight: 700;
     margin: 0;
     text-align: center;
-}
+    line-height: 1.2;
+} */
 
-.kpi-table { /*> div.nth-child(3) {*/
+/* Container de Gráficos e Tabelas */
+.kpi-table {
     display: flex;
     flex-direction: row;
-    height: 84vh;
+    height: 100%;
     width: 100%;
     flex: 1;
-    gap: 0px;
+    gap: 12px;
+    min-height: 0;
 }
 
 .kpi-graph {
-    width: auto;
-    height: 220px;
+    width: 100% !important;
+    height: 100% !important;
+    /* min-height: 0;
     display: flex;
+    flex: 1; */
 }
+
+/* Coluna Direita (Abas e Gráficos) */
+/* .coluna-direita-tabs {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+} */

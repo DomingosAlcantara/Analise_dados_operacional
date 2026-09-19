@@ -31,8 +31,8 @@ class BackButton:
                     className="back-button",
                 ),
                 href="/",
-                style={"textDecoration": "none"},
+                className="back-button-link",
             ),
             id=self.container_id,
-            style={"display": "none"},
+            className="back-button-container d-none",
         )

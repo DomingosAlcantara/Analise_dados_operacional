@@ -1,0 +1,188 @@
+/* =========================================================
+   COMPENSAÇÃO DE CABEÇALHO E CONTROLE DE ALTURA DOS KPIS
+   ========================================================= */
+
+*, *::before, *::after {
+    box-sizing: border-box !important;
+}
+
+html, body, #react-entry-point {
+    height: 100% !important;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* 1. Container Flexbox interno (lado a lado) */
+.falhas-tecnicas-layout {
+    flex: 1 !important;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+    gap: 12px;
+    min-height: 0;
+}
+
+/* 2. Coluna de KPIs */
+.coluna-esquerda-kpis {
+    flex: 1 !important;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border: 2px solid #1890ff;
+    padding: 4px;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Distribuição uniforme dos 4 cards */
+.coluna-esquerda-kpis > * {
+    flex: 1 1 0% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 2px !important;
+    margin: 0 !important;
+}
+
+/* Títulos */
+.coluna-esquerda-kpis div > *:first-child,
+.coluna-esquerda-kpis h1, .coluna-esquerda-kpis h2, .coluna-esquerda-kpis h3, 
+.coluna-esquerda-kpis h4, .coluna-esquerda-kpis h5, .coluna-esquerda-kpis h6,
+.coluna-esquerda-kpis .card-title {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    line-height: 1.1 !important;
+    margin: 0 0 2px 0 !important;
+    padding: 0 !important;
+    color: #555555 !important;
+    text-align: center !important;
+}
+
+/* Valores */
+.coluna-esquerda-kpis div > *:nth-child(2),
+.coluna-esquerda-kpis p, .coluna-esquerda-kpis span,
+.coluna-esquerda-kpis .card-text {
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #1890ff !important;
+    text-align: center !important;
+}
+
+/* 3. Coluna da Direita (Área Reservada) */
+.coluna-direita-tabs {
+    flex: 7 !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    background-color: #ffffff;
+    border: 2px solid #e8e8e8;
+    border-radius: 8px;
+    display: flex !important;
+    overflow: hidden !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+}
+
+.coluna-direita-tabs > div {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Força o container gerado pelo dcc.Tabs do Dash a respeitar o Flexbox */
+.coluna-direita-tabs .tab-content {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    /* height: 100% !important; */
+    overflow: hidden !important;
+}
+
+/* Garante que o container interno preencha o espaço da aba ativa */
+.tabs-content-container {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    /* height: 100% !important; */
+    padding: 15px;
+    gap: 15px;
+}
+
+/* Linha Superior (Gráfico Horizontal | Tabela) */
+.tab-row-superior {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    gap: 15px;
+}
+
+/* Linhas Inferiores (Gráfico Vertical por Máquina) */
+.tab-row-inferior {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Divisões horizontais da linha superior */
+.tab-item-grafico {
+    flex: 6 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+
+.tab-item-tabela {
+    flex: 4 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+}
+
+.custom-tab {
+    background-color: #f9f9f9 !important;
+    border: 1px solid #e8e8e8 !important;
+    border-bottom: 1px solid #e8e8e8 !important;
+    color: #666666 !important;
+    padding: 12px 24px !important;
+    font-family: inherit !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s ease !important;
+}
+
+.custom-tab:hover {
+    background-color: #f0f0f0 !important;
+}
+
+.custom-tab-selected {
+    background-color: #ffffff !important;
+    border-top: 2px solid #1890ff !important;
+    border-left: 1px solid #e8e8e8 !important;
+    border-right: 1px solid #e8e8e8 !important;
+    border-bottom: none !important;
+    color: #1890ff !important;
+    font-weight: 600 !important;
+    padding: 12px 24px !important;
+    font-family: inherit !important;
+    cursor: default !important;
+}

@@ -1,4 +1,4 @@
-/*Sidebar container*/
+/* Sidebar container */
 #sidebar {
     width: 200px;
     height: 100vh;
@@ -6,13 +6,14 @@
     top: 0;
     left: 0;
     background: linear-gradient(180deg, #6b6b71, #48494b);
-    padding: 20px;
+    padding: 20px 12px;
     color: #fff;
     box-sizing: border-box;
-    overflow: auto;
+    overflow-y: auto;
+    z-index: 1000;
 }
 
-/*Logo/title*/
+/* Logo/title */
 #sidebar .logo {
     margin: 0 0 18px 0;
     font-size: 18px;
@@ -20,47 +21,47 @@
     letter-spacing: 0.4px;
 }
 
-/*Wrapper de cada item (garante espaçamento)*/
+/* Wrapper de cada item */
 .nav-item_wrapper {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
-/*Estilo principal do "botão" (link)*/
+/* Estilo principal do botão/link - Ajustado width de 60% para 100% */
 .nav-link {
     display: flex;
     align-items: center;
     text-decoration: none;
     gap: 10px;
-    width: 60%;
+    width: 100%;
     padding: 10px 12px;
     background: transparent;
     color: #f7f7f7;
-    text-decoration: none;
     border-radius: 8px;
     border: 1px solid transparent;
     transition: background 120ms ease, transform 120ms ease, box-shadow 120ms ease;
     box-shadow: none;
     font-weight: 600;
+    box-sizing: border-box;
 }
 
-/*Hover/focus*/
+/* Hover/focus */
 .nav-link:hover,
 .nav-link:focus {
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.2);
     transform: translateY(-1px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
     outline: none;
 }
 
-/*Estado ativo -- parece um botão preenchido*/
+/* Estado ativo */
 .nav-link.active {
-    background: #2e6db6; /*cor principal para ativo*/
+    background: #2e6db6;
     color: white;
     border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 6px 18px rgba(46, 109, 182, 0.18);
+    box-shadow: 0 4px 12px rgba(46, 109, 182, 0.3);
 }
 
-/*Ícone à esquerda (pequeno)*/
+/* Ícone */
 .nav-link .icon {
     width: 20px;
     height: 20px;
@@ -70,11 +71,11 @@
     font-size: 16px;
 }
 
-/* Responsividade: colapso em telas pequenas */
+/* Responsividade */
 @media (max-width: 600px) {
     #sidebar {
         width: 60px;
-        padding: 10px;
+        padding: 10px 6px;
     }
 
     #sidebar .logo {

@@ -39,6 +39,9 @@ class MaquinaModel:
             de métodos.
         """
         self._carga_tratada.filtrar_dados_por_data(data_inicial, data_final)
+
+        if hasattr(self, "_falhas_tecnicas") and self._falhas_tecnicas:
+            self._falhas_tecnicas.filtrar_dados_por_data(data_inicial, data_final)
         return self
 
     def total_carga_induzida(self) -> int:
@@ -50,7 +53,7 @@ class MaquinaModel:
         """
         return self._carga_tratada.total_de_carga_induzida()
 
-    def retornar_media_objetos_por_falhas(self) -> float:
+    def retornar_media_de_objetos_por_falha(self) -> float:
         """
         Retorna a média de objetos por falha.
 
@@ -95,6 +98,29 @@ class MaquinaModel:
             int: Total de falhas.
         """
         return self._falhas_tecnicas.total_falhas_tecnicas()
+
+    def retornar_tempo_total_de_ocorrencias(self) -> float:
+        """
+        Retorna o tempo total de ocorrências da máquina.
+
+        Returns:
+            float: Tempo total de ocorrências em horas.
+        """
+        return self._falhas_tecnicas.tempo_total_de_ocorrencias()
+
+    def retornar_duracao_media_das_falhas(self) -> float:
+        """
+        Retorna a duração média das falhas da máquina.
+
+        Returns:
+            float: Duração média das falhas em horas.
+        """
+        if self.retornar_total_de_falhas() == 0:
+            return 0.0
+
+        return (
+            self.retornar_tempo_total_de_ocorrencias() / self.retornar_total_de_falhas()
+        )
 
     def tempo_plano_carregado(self) -> float:
         """

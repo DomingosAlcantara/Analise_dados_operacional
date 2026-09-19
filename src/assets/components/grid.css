@@ -1,0 +1,17 @@
+.grid-linha {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    gap: 0px;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+}
+
+.grid-coluna {
+    display: flex;
+    flex-direction: column;
+    height: 84vh;
+    gap: 0px;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+}
