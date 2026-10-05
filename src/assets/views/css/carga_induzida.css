@@ -1,0 +1,124 @@
+/* ================================================================
+   LAYOUT ESPECÍFICO - RESUMO DE CARGA INDUZIDA
+   ================================================================ */
+
+#_pages_content .carga-induzida-container {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    gap: 15px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+/* Regras para as 3 colunas */
+#_pages_content .carga-induzida-col-kpi,
+#_pages_content .carga-induzida-col-centro,
+#_pages_content .carga-induzida-col-maquinas {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    min-width: 0 !important;
+    gap: 15px !important;
+    box-sizing: border-box !important;
+}
+
+/* Proporções das Colunas */
+#_pages_content .carga-induzida-col-kpi { flex: 1 1 0px !important; }
+#_pages_content .carga-induzida-col-centro { flex: 2 1 0px !important; }
+#_pages_content .carga-induzida-col-maquinas { flex: 5 1 0px !important; }
+
+/* Garante que os cards distribuam a altura por igual dentro das colunas */
+/* ================================================================
+   FORÇA BRUTA MATEMÁTICA: TRAVANDO A ALTURA DOS CARDS
+   ================================================================ */
+
+/* Coluna 1: Tem 3 KPIs e 2 espaços de 15px (30px total). 
+   Logo, a altura cravada de cada KPI é 33.33% menos 10px. */
+#_pages_content .carga-induzida-col-kpi > * {
+    height: calc(33.333% - 10px) !important;
+    max-height: calc(33.333% - 10px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Colunas 2 e 3: Têm 2 gráficos e 1 espaço de 15px.
+   Logo, a altura cravada de cada Gráfico é 50% menos 7.5px. */
+#_pages_content .carga-induzida-col-centro > *,
+#_pages_content .carga-induzida-col-maquinas > * {
+    height: calc(50% - 7.5px) !important;
+    max-height: calc(50% - 7.5px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* ================================================================
+   AJUSTE INTERNO DOS GRÁFICOS (Domando o JavaScript do Plotly)
+   ================================================================ */
+
+/* 1. O seu Container e o card podem ser flex para ocupar 100% */
+#_pages_content .kpi-graph-container, 
+#_pages_content .kpi-graph {
+    height: 100% !important;
+    max-height: 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* 2. As entranhas do Plotly PRECISAM ser block e relative */
+#_pages_content .js-plotly-plot,
+#_pages_content .plot-container,
+#_pages_content .svg-container {
+    height: 100% !important;
+    width: 100% !important;
+    display: block !important;    /* <-- A MÁGICA ESTÁ AQUI */
+    position: relative !important; /* <-- A MÁGICA ESTÁ AQUI */
+    overflow: hidden !important;
+}
+
+/* ================================================================
+   AJUSTE DE FONTES DOS KPIs (Tamanho Compacto)
+   ================================================================ */
+
+#_pages_content .carga-induzida-col-kpi > * {
+    justify-content: center !important;
+    padding: 10px !important;
+}
+
+#_pages_content .carga-induzida-col-kpi h1,
+#_pages_content .carga-induzida-col-kpi h2,
+#_pages_content .carga-induzida-col-kpi h3,
+#_pages_content .carga-induzida-col-kpi h4,
+#_pages_content .carga-induzida-col-kpi h5,
+#_pages_content .carga-induzida-col-kpi h6,
+#_pages_content .carga-induzida-col-kpi .card-title,
+#_pages_content .carga-induzida-col-kpi div > *:first-child {
+    font-size: 0.95rem !important; 
+    font-weight: 600 !important;
+    line-height: 1.1 !important;
+    margin: 0 0 5px 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+}
+
+#_pages_content .carga-induzida-col-kpi p,
+#_pages_content .carga-induzida-col-kpi span,
+#_pages_content .carga-induzida-col-kpi .card-text,
+#_pages_content .carga-induzida-col-kpi div > *:nth-child(2) {
+    font-size: 1.5rem !important; 
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+}

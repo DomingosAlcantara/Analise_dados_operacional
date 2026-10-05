@@ -115,7 +115,7 @@ class EmpresaModel:
                 }
                 for centro in self.centros.values()
             ]
-        )
+        ).sort_values("Quantidade Induzida", ascending=False)
 
     def _concatenar_dataframes(self, dataframes, nome_coluna):
         """
@@ -207,7 +207,10 @@ class EmpresaModel:
                 for centro in self.centros.values()
             },
             "Rendimento Efetivo Médio",
-        ).sort_values(by="Rendimento Efetivo Médio", ascending=False)
+        ).sort_values(
+            by=["Centro de Tratamento", "Rendimento Efetivo Médio"],
+            ascending=[True, False],
+        )
 
     def retornar_total_de_falhas(self):
         """
@@ -370,3 +373,23 @@ class EmpresaModel:
             )
 
         return df.sort_values(by="Duração Média", ascending=False)
+
+    def retornar_resumo_tempo_por_maquina(self):
+        """
+        Retorna um DataFrame resumindo o tempo total e médio de falhas
+        agrupado por Maquina
+        """
+        if not self.centros:
+            return pd.DataFrame(columns=["Nº Máquina", "Tempo Total", "Tempo Médio"])
+
+        return pd.DataFrame(
+            [
+                {
+                    "Máquina": maquina.rotulo,
+                    "Tempo Total": maquina.retornar_tempo_total_de_ocorrencias(),
+                    "Tempo Médio": maquina.retornar_duracao_media_das_falhas(),
+                }
+                for centro in self.centros.values()
+                for maquina in centro.maquinas.values()
+            ]
+        ).sort_values(by="Tempo Total", ascending=False)

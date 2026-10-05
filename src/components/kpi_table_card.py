@@ -45,7 +45,10 @@ class KPITableCard:
                     columns=colunas,
                     data=conteudo,
                     page_action="none",
-                    style_table={"overflowY": "auto"},
+                    style_table={
+                        "overflowY": "auto",
+                        "overflowX": "auto",
+                    },
                     # 1. Títulos SEMPRE centralizados
                     style_header={
                         "textAlign": "center",

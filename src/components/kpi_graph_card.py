@@ -29,6 +29,7 @@ class KpiGraphCard:
                     figure=self.figure,
                     **graph_props,
                     className="kpi-graph",
+                    style={"height": "100%", "width": "100%"},
                     config={"displayModeBar": False, "responsive": True},
                 ),
             ],

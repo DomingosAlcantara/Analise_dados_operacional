@@ -15,6 +15,8 @@ except Exception:
 
 
 class FalhasTecnicasView:
+    ID_STORE_FALHAS = "store-falhas-tecnicas"
+
     ID_TOTAL_FALHAS = "resumo-total-falhas"
     ID_MEDIA_OBJETOS_POR_FALHA = "resumo-media-objetos-por-falhas"
     ID_TEMPO_TOTAL_OCORRENCIAS = "resumo-tempo-total-ocorrencias"
@@ -38,10 +40,14 @@ class FalhasTecnicasView:
             card_id=self.ID_MEDIA_OBJETOS_POR_FALHA,
         )
         card_tempo_total_ocorrencias = KpiCard(
-            "Tempo Total de Ocorrências", "---", card_id=self.ID_TEMPO_TOTAL_OCORRENCIAS
+            "Tempo Total de Ocorrências",
+            "---",
+            card_id=self.ID_TEMPO_TOTAL_OCORRENCIAS,
         )
         card_duracao_media_falhas = KpiCard(
-            "Duração Média das Falhas", "---", card_id=self.ID_DURACAO_MEDIA_FALHAS
+            "Duração Média das Falhas",
+            "---",
+            card_id=self.ID_DURACAO_MEDIA_FALHAS,
         )
 
         kpis_topo = [
@@ -66,7 +72,7 @@ class FalhasTecnicasView:
                         html.Div(
                             [
                                 KpiGraphCard(
-                                    graph_id="grafico-qtd-falhas-centro",
+                                    graph_id=self.ID_GRAFICO_CENTRO_QTD,
                                     extra_class="tab-item-grafico",
                                 ).display(),
                                 KPITableCard(
@@ -79,7 +85,7 @@ class FalhasTecnicasView:
                             className="tab-row-superior",
                         ),
                         KpiGraphCard(
-                            graph_id="grafico-qtd-falhas-maquina",
+                            graph_id=self.ID_GRAFICO_MAQUINA_QTD,
                             extra_class="tab-row-inferior",
                         ).display(),
                     ],
@@ -137,10 +143,16 @@ class FalhasTecnicasView:
             className="coluna-direita-tabs",
         )
 
-        container = DashboardContainer(kpis=kpis_topo, abas=area_graficos_tabelas)
+        container = DashboardContainer(
+            kpis=kpis_topo,
+            abas=area_graficos_tabelas,
+        )
 
         return html.Div(
-            container.layout(),
+            [
+                dcc.Store(id=self.ID_STORE_FALHAS, data={}),
+                container.layout(),
+            ],
             className="tela-no-scroll",
         )
 

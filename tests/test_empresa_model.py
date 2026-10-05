@@ -175,3 +175,17 @@ class TestEmpresaModel:
         assert "Duração Média" in df_resultado.columns
         assert "Centro de Tratamento" in df_resultado.columns
         assert len(df_resultado) == 4
+
+    def test_retornar_resumo_tempo_por_maquina(self, model):
+        """
+        Verifica se a EmpresaModel consegue gerar um DataFrame com
+        Centro de Tratamento, Tempo Total e Tempo Média.
+        """
+        df_resultado = model.retornar_resumo_tempo_por_maquina()
+        assert isinstance(df_resultado, pd.DataFrame), "Deve retornar um DataFrame"
+        assert list(df_resultado.columns) == [
+            "Nº Máquina",
+            "Tempo Total",
+            "Tempo Médio",
+        ]
+        assert len(df_resultado) == 4

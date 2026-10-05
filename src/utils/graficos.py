@@ -65,13 +65,16 @@ class Graficos:
         figura.update_layout(
             title={
                 "text": titulo,
-                "y": 0.9,
+                # "y": 0.9,
                 "x": 0.5,
                 "xanchor": "center",
                 "yanchor": "top",
-                "font": {"size": 25, "color": "black"},
+                "font": {"size": 20, "color": "black"},
             },
-            xaxis=dict(type="category", tickvals=df[coluna_x], ticktext=ticktext),
+            xaxis={"type": "category", "tickvals": df[coluna_x], "ticktext": ticktext},
+            margin={"l": 15, "r": 15, "b": 40, "t": 50},
+            autosize=True,
+            uniformtext_minsize=10,
         )
         figura.update_yaxes(
             range=[0, df[coluna_y].max() * 1.2]

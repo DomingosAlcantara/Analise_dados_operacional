@@ -3,7 +3,7 @@ máquinas de triagem de cartas do CTCE.
 """
 
 import dash
-from dash import html
+from dash import dcc, html
 
 from src.components.grid import Grid
 from src.components.kpi_card import KpiCard
@@ -19,6 +19,8 @@ except Exception:
 
 class CargaInduzida:
     """Classe responsável pela apresentação do resumo da carga induzida."""
+
+    ID_STORE_DADOS = "store-dados-carga-induzida"
 
     ID_VALOR_CARGA_INDUZIDA = "resumo-val-carga"
     ID_VALOR_MEDIA = "resumo-val-media"
@@ -58,45 +60,43 @@ class CargaInduzida:
             figure={}, graph_id=self.ID_GRAFICO_RENDIMENTO_MAQUINAS
         )
 
+        # Envolvemos o Grid em uma Div para podermos injetar o Store silenciosamente
         return html.Div(
             [
-                # Coluna 1: Kpi's
-                Grid.coluna(
+                # 1. A MEMÓRIA INVISÍVEL PARA O JAVASCRIPT LER
+                dcc.Store(id=self.ID_STORE_DADOS, data={}),
+                # 2. O GRID VISUAL
+                Grid.linha(
+                    className="carga-induzida-container",
                     children=[
-                        card_carga.display(),
-                        card_media_carga.display(),
-                        card_rendimento.display(),
+                        # Coluna 1: Kpi's
+                        Grid.coluna(
+                            className="carga-induzida-col-kpi",
+                            children=[
+                                card_carga.display(),
+                                card_media_carga.display(),
+                                card_rendimento.display(),
+                            ],
+                        ),
+                        # Coluna 2: Gráficos por Centro
+                        Grid.coluna(
+                            className="carga-induzida-col-centro",
+                            children=[
+                                card_carga_induzida_centro.display(),
+                                card_rendimento_centro.display(),
+                            ],
+                        ),
+                        # Coluna 3: Gráficos por Máquina
+                        Grid.coluna(
+                            className="carga-induzida-col-maquinas",
+                            children=[
+                                card_carga_induzida_maquina.display(),
+                                card_rendimento_maquina.display(),
+                            ],
+                        ),
                     ],
-                    style={
-                        "width": "100%",
-                        "flex": "1",
-                    },
                 ),
-                # Coluna 2: Gráficos por Centro
-                Grid.coluna(
-                    children=[
-                        card_carga_induzida_centro.display(),
-                        card_rendimento_centro.display(),
-                    ],
-                    style={
-                        "width": "300px",
-                        "flex": "2",
-                    },
-                ),
-                # Coluna 3: Gráficos por Máquina
-                Grid.coluna(
-                    children=[
-                        card_carga_induzida_maquina.display(),
-                        card_rendimento_maquina.display(),
-                    ],
-                    style={
-                        "width": "100%",
-                        "flex": "5",
-                        "minWidth": 0,
-                    },
-                ),
-            ],
-            className="kpi-table",
+            ]
         )
 
 
