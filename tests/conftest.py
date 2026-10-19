@@ -130,13 +130,58 @@ def mock_falhas_tecnicas():
 
 
 @pytest.fixture(scope="function")
-def mock_dados_globais(mock_carga_tratada, mock_falhas_tecnicas):
+def mock_atolamentos():
+    dados = {
+        "Código MCU CTC": [
+            431115,
+            437023,
+            431115,
+            437023,
+        ],
+        "Centro de Tratamento": [
+            "CTC1",
+            "CTC3",
+            "CTC1",
+            "CTC3",
+        ],
+        "Nº Máquina de triagem": [
+            138,
+            140,
+            138,
+            140,
+        ],
+        "Descrição da Falha": [
+            "Falha A",
+            "Falha B",
+            "Falha C",
+            "Falha D",
+        ],
+        "Data/hora inicial da Falha": [
+            "14/08/2023 10:00:00",
+            "14/08/2023 11:30:00",
+            "15/08/2023 09:15:00",
+            "15/08/2023 14:45:00",
+        ],
+        "Data/hora final da Falha": [
+            "14/08/2023 11:00:00",
+            "14/08/2023 12:30:00",
+            "15/08/2023 10:15:00",
+            "15/08/2023 15:45:00",
+        ],
+    }
+
+    return FalhasTecnicasPipeline(pd.DataFrame(dados)).processar()
+
+
+@pytest.fixture(scope="function")
+def mock_dados_globais(mock_carga_tratada, mock_falhas_tecnicas, mock_atolamentos):
     """
     Retorna um dicionário com dados globais simulados para os testes.
     """
     return {
         "carga tratada": mock_carga_tratada,
         "tecnicas": mock_falhas_tecnicas,
+        "atolamentos": mock_atolamentos,
     }
 
 

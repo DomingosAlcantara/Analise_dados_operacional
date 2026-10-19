@@ -184,7 +184,7 @@ class TestEmpresaModel:
         df_resultado = model.retornar_resumo_tempo_por_maquina()
         assert isinstance(df_resultado, pd.DataFrame), "Deve retornar um DataFrame"
         assert list(df_resultado.columns) == [
-            "Nº Máquina",
+            "Máquina",
             "Tempo Total",
             "Tempo Médio",
         ]

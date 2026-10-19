@@ -7,6 +7,7 @@ from statistics import mean
 from pandas import DataFrame
 
 from src.models.base.maquina_model import MaquinaModel
+from src.models.managers.centro_atolamentos_manager import CentroAtolamentosManager
 
 
 class CentroTratamentoModel:
@@ -47,6 +48,10 @@ class CentroTratamentoModel:
             "no_maquina"
         )
 
+        df_atolamentos = dict_dfs_centro.get("atolamentos", DataFrame()).set_index(
+            "no_maquina"
+        )
+
         if not df_produtividade.empty:
             if "centro_de_tratamento" in df_produtividade.columns:
                 self._nome_centro = str(
@@ -82,7 +87,15 @@ class CentroTratamentoModel:
             rotulo_maquina = f"{codigo_maquina}<br>{self._sigla}\xa0-\xa0PBVS{ordem}"
             self.maquinas[codigo_maquina] = MaquinaModel(
                 codigo_maquina,
-                {"carga tratada": df_carga_maquina, "tecnicas": df_falhas_maquina},
+                {
+                    "carga tratada": df_carga_maquina,
+                    "tecnicas": df_falhas_maquina,
+                    "atolamentos": (
+                        df_atolamentos[df_atolamentos.index == codigo_maquina]
+                        if not df_atolamentos.empty
+                        else DataFrame()
+                    ),
+                },
                 rotulo=rotulo_maquina,
             )
 
@@ -264,6 +277,15 @@ class CentroTratamentoModel:
             str: Sigla do centro de tratamento.
         """
         return self._sigla
+
+    @property
+    def atolamentos(self):
+        if not hasattr(self, "_atolamentos_manager"):
+            self._atolamentos_manager = CentroAtolamentosManager(
+                self.maquinas, self._nome_abreviado
+            )
+
+        return self._atolamentos_manager
 
     def retornar_total_falhas_por_maquina(self) -> DataFrame:
         """Retorna o total de falhas por máquina para o centro de tratamento.

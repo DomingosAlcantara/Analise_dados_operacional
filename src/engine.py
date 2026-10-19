@@ -33,18 +33,19 @@ configuracoes_dashboard = {
     #         "Rendimento Efetivo/h": int,
     #     },
     # },
-    # "engarrafamento": {
-    #     "path": PathFiles.ARQUIVOS_ATOLAMENTOS,
-    #     "skip": 7,
-    #     "cols": {
-    #         "Código MCU CTC": int,
-    #         "Centro de Tratamento": str,
-    #         "Nº Máquina de triagem": int,
-    #         "Descrição da Falha": str,
-    #         "Data/hora inicial da Falha": str,
-    #         "Data/hora final da Falha": str,
-    #     },
-    # },
+    "atolamentos": {
+        "path": PathFiles.ARQUIVOS_ATOLAMENTOS,
+        "skip": 7,
+        "cols": {
+            "Código MCU CTC": int,
+            "Centro de Tratamento": str,
+            "Nº Máquina de triagem": int,
+            "Descrição da Falha": str,
+            "Data/hora inicial da Falha": str,
+            "Data/hora final da Falha": str,
+        },
+        "pipeline": FalhasTecnicasPipeline,
+    },
     # "operacional": {
     #     "path": PathFiles.ARQUIVOS_OPERACIONAL,
     #     "skip": 7,

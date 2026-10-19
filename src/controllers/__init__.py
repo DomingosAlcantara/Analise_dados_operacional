@@ -1,5 +1,6 @@
 from src.controllers.detalhamento import Detalhamento as DetalhamentoController
 from src.controllers.index import Index_Controller
+from src.controllers.resumos.atolamentos import AtolamentosController
 from src.controllers.resumos.carga_induzida import CargaInduzida as CargaInduzida_Resumo
 from src.controllers.resumos.falhas_tecnicas import FalhasTecnicasController
 
@@ -10,3 +11,4 @@ def registrar_todos_callbacks():
     CargaInduzida_Resumo().registrar_callbacks()
     DetalhamentoController().registrar_callbacks()
     FalhasTecnicasController().registrar_callbacks()
+    AtolamentosController().registrar_callbacks()

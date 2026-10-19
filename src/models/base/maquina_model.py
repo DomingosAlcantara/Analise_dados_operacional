@@ -2,6 +2,7 @@
 Centros de Tratamento
 """
 
+from src.models.atolamentos_model import AtolamentosModel
 from src.models.carga_induzida_model import CargaInduzidaModel
 from src.models.falhas_tecnicas_model import FalhasTecnicasModel
 
@@ -25,6 +26,7 @@ class MaquinaModel:
             dict_df["carga tratada"]
         )  # [dict_df["nº_máquina"] == self._id_maquina]
         self._falhas_tecnicas = FalhasTecnicasModel(dict_df["tecnicas"])
+        self._atolamentos = AtolamentosModel(dict_df["atolamentos"])
 
     def filtrar_dados_por_data(self, data_inicial: str, data_final: str):
         """
@@ -42,6 +44,9 @@ class MaquinaModel:
 
         if hasattr(self, "_falhas_tecnicas") and self._falhas_tecnicas:
             self._falhas_tecnicas.filtrar_dados_por_data(data_inicial, data_final)
+
+        if hasattr(self, "_atolamentos") and self._atolamentos:
+            self._atolamentos.filtrar_dados_por_data(data_inicial, data_final)
         return self
 
     def total_carga_induzida(self) -> int:
@@ -159,3 +164,7 @@ class MaquinaModel:
             str: Rótulo da máquina.
         """
         return self._rotulo
+
+    @property
+    def atolamentos(self) -> AtolamentosModel:
+        return self._atolamentos

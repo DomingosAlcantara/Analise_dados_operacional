@@ -9,6 +9,7 @@ import pandas as pd
 
 from src.carregamento.data_loader import DataLoader
 from src.models.base.centro_tratamento_model import CentroTratamentoModel
+from src.models.managers.empresa_atolamentos_manager import EmpresaAtolamentosManager
 
 
 class EmpresaModel:
@@ -393,3 +394,9 @@ class EmpresaModel:
                 for maquina in centro.maquinas.values()
             ]
         ).sort_values(by="Tempo Total", ascending=False)
+
+    @property
+    def atolamentos(self):
+        if not hasattr(self, "_atolamentos_manager"):
+            self._atolamentos_manager = EmpresaAtolamentosManager(self.centros)
+        return self._atolamentos_manager

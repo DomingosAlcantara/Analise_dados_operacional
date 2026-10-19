@@ -19,5 +19,5 @@ window.dash_clientside.falhas_tecnicas_resumo = {
             return Array(12).fill(window.dash_clientside.no_update);
         }
         return falhasPresenter.render(payload);
-    }
+    },
 };
