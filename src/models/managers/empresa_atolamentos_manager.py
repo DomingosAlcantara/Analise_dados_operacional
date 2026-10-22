@@ -95,10 +95,9 @@ class EmpresaAtolamentosManager:
             ]
         ).sort_values(
             by=[
-                "Centro de Tratamento",
                 "Objetos por Atolamento",
             ],
-            ascending=[True, False],
+            ascending=[False],
         )
 
     def por_centro(self) -> pd.DataFrame:
@@ -163,9 +162,8 @@ class EmpresaAtolamentosManager:
         return df_concat.sort_values(
             by=[
                 "Total de Atolamentos",
-                "Centro de Tratamento",
             ],
-            ascending=[False, True],
+            ascending=[False],
         )
 
     def duracao_media_por_maquina(self) -> pd.DataFrame:

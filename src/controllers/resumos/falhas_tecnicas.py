@@ -1,4 +1,10 @@
-from dash import ClientsideFunction, Input, Output, callback, clientside_callback
+from dash import (
+    ClientsideFunction,
+    Input,
+    Output,
+    callback,
+    clientside_callback,
+)
 
 from src.engine import empresa
 from src.utils.colors import get_color_palette
@@ -38,16 +44,10 @@ class FalhasTecnicasController:
             get_color_palette(c) for c in df_grafico_centro_med["Centro de Tratamento"]
         ]
         df_grafico_maq_qtd = self._empresa.retornar_total_falhas_por_maquina()
-        df_grafico_maq_qtd = df_grafico_maq_qtd.sort_values(
-            by=["Centro de Tratamento", "Total de Falhas"], ascending=[True, False]
-        )
         df_grafico_maq_qtd["cor"] = [
             get_color_palette(c) for c in df_grafico_maq_qtd["Centro de Tratamento"]
         ]
         df_grafico_maq_med = self._empresa.retornar_duracao_media_falhas_por_maquina()
-        df_grafico_maq_med = df_grafico_maq_med.sort_values(
-            by=["Centro de Tratamento", "Duração Média"], ascending=[True, False]
-        )
         df_grafico_maq_med["cor"] = [
             get_color_palette(c) for c in df_grafico_maq_med["Centro de Tratamento"]
         ]

@@ -303,9 +303,7 @@ class EmpresaModel:
                 for centro in self.centros.values()
             },
             "Total de Falhas",
-        ).sort_values(
-            by=["Total de Falhas", "Centro de Tratamento"], ascending=[False, True]
-        )
+        ).sort_values(by=["Total de Falhas"], ascending=[False])
 
     def retornar_resumo_tempo_por_centro(self):
         """

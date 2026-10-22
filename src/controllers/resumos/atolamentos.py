@@ -50,9 +50,6 @@ class AtolamentosController:
             get_color_palette(c) for c in df_grafico_centro_med["Centro de Tratamento"]
         ]
         df_grafico_maq_qtd = atolamentos_mgr.por_maquina()
-        df_grafico_maq_qtd = df_grafico_maq_qtd.sort_values(
-            by=["Centro de Tratamento", "Total de Atolamentos"], ascending=[True, False]
-        )
         df_grafico_maq_qtd["cor"] = [
             get_color_palette(c) for c in df_grafico_maq_qtd["Centro de Tratamento"]
         ]
