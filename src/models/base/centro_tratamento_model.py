@@ -7,7 +7,15 @@ from statistics import mean
 from pandas import DataFrame
 
 from src.models.base.maquina_model import MaquinaModel
-from src.models.managers.centro_atolamentos_manager import CentroAtolamentosManager
+from src.models.managers.centro_atolamentos_manager import (
+    CentroAtolamentosManager,
+)
+from src.models.managers.centro_carga_induzida_maneger import (
+    CentroCargaInduzidaManager,
+)
+from src.models.managers.centro_falhas_tecnicas_manager import (
+    CentroFalhasTecnicasManager,
+)
 
 
 class CentroTratamentoModel:
@@ -205,52 +213,6 @@ class CentroTratamentoModel:
             ]
         )
 
-    def retornar_total_de_falhas(self) -> int:
-        """Retorna o total de falhas para o centro de tratamento.
-
-        Returns:
-            int: Total de falhas.
-        """
-        return sum(
-            maquina.retornar_total_de_falhas() for maquina in self.maquinas.values()
-        )
-
-    def retornar_media_de_objetos_por_falha(self) -> int:
-        """Retorna a média de objetos por falhas para o centro de tratamento.
-
-        Returns:
-            int: Média de falhas.
-        """
-        return round(self.total_carga_induzida() / self.retornar_total_de_falhas())
-
-    def retornar_tempo_total_de_ocorrencias(self) -> float:
-        """Retorna o tempo total de ocorrências para o centro de tratamento.
-
-        Returns:
-            float: Tempo total de ocorrências.
-        """
-
-        if not self.maquinas:
-            return 0.0
-
-        return sum(
-            maquina.retornar_tempo_total_de_ocorrencias()
-            for maquina in self.maquinas.values()
-        )
-
-    def retornar_duracao_media_das_falhas(self) -> float:
-        """Retorna a duração média das falhas para o centro de tratamento.
-
-        Returns:
-            float: Duração média das falhas.
-        """
-        if self.retornar_total_de_falhas() == 0:
-            return 0.0
-
-        return (
-            self.retornar_tempo_total_de_ocorrencias() / self.retornar_total_de_falhas()
-        )
-
     @property
     def nome_centro(self) -> str:
         """Retorna o nome do centro de tratamento.
@@ -286,6 +248,24 @@ class CentroTratamentoModel:
             )
 
         return self._atolamentos_manager
+
+    @property
+    def carga_induzida(self):
+        if not hasattr(self, "_carga_induzida_manager"):
+            self._carga_induzida_manager = CentroCargaInduzidaManager(
+                self.maquinas, self._nome_abreviado
+            )
+
+        return self._carga_induzida_manager
+
+    @property
+    def falhas_tecnicas(self):
+        if not hasattr(self, "_falhas_tecnicas_manager"):
+            self._falhas_tecnicas_manager = CentroFalhasTecnicasManager(
+                self.maquinas, self._nome_abreviado
+            )
+
+        return self._falhas_tecnicas_manager
 
     def retornar_total_falhas_por_maquina(self) -> DataFrame:
         """Retorna o total de falhas por máquina para o centro de tratamento.

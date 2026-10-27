@@ -38,7 +38,7 @@ class CargaInduzidaModel:
         self._dados_filtrados = self._df_dados.loc[mascara].copy()
         return self
 
-    def total_de_carga_induzida(self):
+    def total(self):
         """
         Método para calcular o total de carga induzida no intervalo informado.
         Retorna:

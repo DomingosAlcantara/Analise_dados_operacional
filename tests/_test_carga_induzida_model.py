@@ -35,7 +35,7 @@ def test_filtrar_e_aggregados(monkeypatch):
     # Filtra agosto de 2023
     model.filtrar_dados_por_data(date(2023, 8, 1), date(2023, 8, 31))
     assert model._dados_filtrados.shape[0] == 3
-    total = model.total_de_carga_induzida()
+    total = model.total()
     media = model.media_carga_induzida()
     rendimento = model.rendimento_efetivo_medio()
 
@@ -53,7 +53,7 @@ def test_filtrar_sem_resultados(monkeypatch):
     model.filtrar_dados_por_data(date(2022, 1, 1), date(2022, 1, 31))
     print(f"shape: {model._dados_filtrados.shape}")
     assert model._dados_filtrados.shape[0] == 0
-    assert model.total_de_carga_induzida() == 0
+    assert model.total() == 0
     assert model.media_carga_induzida() == 0
     assert model.rendimento_efetivo_medio() == 0
     assert pd.isna(model.media_carga_induzida())

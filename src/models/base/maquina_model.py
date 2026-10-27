@@ -56,7 +56,7 @@ class MaquinaModel:
         Returns:
             int: Total de carga processada.
         """
-        return self._carga_tratada.total_de_carga_induzida()
+        return self._carga_tratada.total()
 
     def retornar_media_de_objetos_por_falha(self) -> float:
         """
@@ -102,7 +102,7 @@ class MaquinaModel:
         Returns:
             int: Total de falhas.
         """
-        return self._falhas_tecnicas.total_falhas_tecnicas()
+        return self._falhas_tecnicas.total()
 
     def retornar_tempo_total_de_ocorrencias(self) -> float:
         """
@@ -111,7 +111,7 @@ class MaquinaModel:
         Returns:
             float: Tempo total de ocorrências em horas.
         """
-        return self._falhas_tecnicas.tempo_total_de_ocorrencias()
+        return self._falhas_tecnicas.tempo_total()
 
     def retornar_duracao_media_das_falhas(self) -> float:
         """
@@ -168,3 +168,11 @@ class MaquinaModel:
     @property
     def atolamentos(self) -> AtolamentosModel:
         return self._atolamentos
+
+    @property
+    def falhas_tecnicas(self) -> FalhasTecnicasModel:
+        return self._falhas_tecnicas
+
+    @property
+    def carga_induzida(self) -> CargaInduzidaModel:
+        return self._carga_tratada

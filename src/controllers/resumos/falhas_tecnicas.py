@@ -22,32 +22,34 @@ class FalhasTecnicasController:
             start_date_str, end_date_str
         )
 
+        falhas_tecnicas_mgr = self._empresa.falhas_tecnicas
+
         # ---------------------------------------------------------
         # 1. Coleta de Dados Crus (Modelos / Regras de Negócio)
         # ---------------------------------------------------------
 
         # Tabelas
-        df_tabela_centro = self._empresa.retornar_resumo_tempo_por_centro()
+        df_tabela_centro = falhas_tecnicas_mgr.retornar_resumo_tempo_por_centro()
         df_tabela_centro["Centro de Tratamento"] = df_tabela_centro[
             "Centro de Tratamento"
         ].str.replace("<br>", " ")
-        df_tabela_med = self._empresa.retornar_resumo_tempo_por_maquina()
+        df_tabela_med = falhas_tecnicas_mgr.retornar_resumo_tempo_por_maquina()
         df_tabela_med["Máquina"] = df_tabela_med["Máquina"].str.split("<br>").str[-1]
 
         # Gráficos
-        df_grafico_centro_qtd = self._empresa.retornar_total_falhas_por_centro()
+        df_grafico_centro_qtd = falhas_tecnicas_mgr.por_centro()
         df_grafico_centro_qtd["cor"] = [
             get_color_palette(c) for c in df_grafico_centro_qtd["Centro de Tratamento"]
         ]
-        df_grafico_centro_med = self._empresa.retornar_duracao_media_falhas_por_centro()
+        df_grafico_centro_med = falhas_tecnicas_mgr.duracao_media_por_centro()
         df_grafico_centro_med["cor"] = [
             get_color_palette(c) for c in df_grafico_centro_med["Centro de Tratamento"]
         ]
-        df_grafico_maq_qtd = self._empresa.retornar_total_falhas_por_maquina()
+        df_grafico_maq_qtd = falhas_tecnicas_mgr.por_maquina()
         df_grafico_maq_qtd["cor"] = [
             get_color_palette(c) for c in df_grafico_maq_qtd["Centro de Tratamento"]
         ]
-        df_grafico_maq_med = self._empresa.retornar_duracao_media_falhas_por_maquina()
+        df_grafico_maq_med = falhas_tecnicas_mgr.duracao_media_por_maquina()
         df_grafico_maq_med["cor"] = [
             get_color_palette(c) for c in df_grafico_maq_med["Centro de Tratamento"]
         ]
@@ -57,10 +59,12 @@ class FalhasTecnicasController:
         # ---------------------------------------------------------
         payload = {
             "kpis": {
-                "total": self._empresa.retornar_total_de_falhas(),
-                "media": self._empresa.retornar_media_de_objetos_por_falha(),
-                "tempo_total": self._empresa.retornar_tempo_total_de_ocorrencias(),
-                "duracao_media": self._empresa.retornar_duracao_media_das_falhas(),
+                "total": falhas_tecnicas_mgr.total(),
+                "media": falhas_tecnicas_mgr.media_objetos_por_falha(
+                    self._empresa.retornar_carga_induzida_total()  # TODO: Corrigir após refatoração
+                ),
+                "tempo_total": falhas_tecnicas_mgr.tempo_total(),
+                "duracao_media": falhas_tecnicas_mgr.duracao_media(),
             },
             "graficos": {
                 "centro_qtd": df_grafico_centro_qtd.to_dict("records"),
@@ -96,7 +100,10 @@ class FalhasTecnicasController:
             ],
         )
         def update_dashboard(start_date_str, end_date_str):
-            return self.processar_atualizacao_do_dashboard(start_date_str, end_date_str)
+            return self.processar_atualizacao_do_dashboard(
+                start_date_str,
+                end_date_str,
+            )
 
         # Callback JavaScript: Renderiza a tela (Frontend)
         clientside_callback(

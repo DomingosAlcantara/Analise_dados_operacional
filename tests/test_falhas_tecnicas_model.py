@@ -29,7 +29,7 @@ class Test_FalhasTecnicasModel:
         Testa se o model lida bem quando recebe um DataFrame vazio
         """
         model_vazio = FalhasTecnicasModel(pd.DataFrame())
-        assert model_vazio.total_falhas_tecnicas() == 0
+        assert model_vazio.total() == 0
 
     def test_filtrar_dados_por_data_reduz_o_total(self, model):
         """
@@ -126,7 +126,7 @@ class Test_FalhasTecnicasModel:
         Testa o método tempo_total_de_ocorrencias quando não há dados.
         """
         model_vazio = FalhasTecnicasModel(pd.DataFrame())
-        resultado = model_vazio.tempo_total_de_ocorrencias()
+        resultado = model_vazio.tempo_total()
 
         assert isinstance(
             resultado, (float, int)

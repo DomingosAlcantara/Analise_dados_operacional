@@ -13,10 +13,7 @@ class CentroAtolamentosManager:
         Returns:
             int: Total de atolamentos.
         """
-        return sum(
-            maquina.atolamentos.total_atolamentos()
-            for maquina in self._maquinas.values()
-        )
+        return sum(maquina.atolamentos.total() for maquina in self._maquinas.values())
 
     def tempo_total(self) -> float:
         """
@@ -26,8 +23,7 @@ class CentroAtolamentosManager:
             float: Tempo total de atolamentos em segundos.
         """
         return sum(
-            maquina.atolamentos.tempo_total_atolamentos()
-            for maquina in self._maquinas.values()
+            maquina.atolamentos.tempo_total() for maquina in self._maquinas.values()
         )
 
     def duracao_media(self) -> float:
@@ -61,7 +57,7 @@ class CentroAtolamentosManager:
             [
                 {
                     "Nº Máquina": maquina.rotulo,
-                    "Total de Atolamentos": maquina.atolamentos.total_atolamentos(),
+                    "Total de Atolamentos": maquina.atolamentos.total(),
                 }
                 for maquina in self._maquinas.values()
             ]
@@ -87,7 +83,7 @@ class CentroAtolamentosManager:
             [
                 {
                     "Nº Máquina": maquina.rotulo,
-                    "Duração Média": maquina.atolamentos.duracao_media_atolamentos(),
+                    "Duração Média": maquina.atolamentos.duracao_media(),
                     "Centro de Tratamento": self._nome_abreviado,
                 }
                 for maquina in self._maquinas.values()

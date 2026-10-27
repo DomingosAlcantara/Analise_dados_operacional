@@ -84,7 +84,7 @@ class EmpresaAtolamentosManager:
                 {
                     "Nº Máquina": maquina.rotulo,
                     "Objetos por Atolamento": (
-                        carga_total / maquina.atolamentos.total_atolamentos()
+                        carga_total / maquina.atolamentos.total()
                         if carga_total > 0
                         else 0
                     ),
@@ -224,7 +224,7 @@ class EmpresaAtolamentosManager:
                 dados.append(
                     {
                         "Nº Máquina": maquina.rotulo,
-                        "Tempo Total": maquina.atolamentos.tempo_total_atolamentos(),
+                        "Tempo Total": maquina.atolamentos.tempo_total(),
                     }
                 )
 

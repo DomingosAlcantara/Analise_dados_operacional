@@ -19,19 +19,19 @@ class AtolamentosModel:
 
         return self
 
-    def total_atolamentos(self) -> int:
+    def total(self) -> int:
         return (
             int(self._dados_filtrados.shape[0])
             if not self._dados_filtrados.empty
             else 0
         )
 
-    def tempo_total_atolamentos(self) -> float:
+    def tempo_total(self) -> float:
         if self._dados_filtrados.empty:
             return 0.0
         return float(self._dados_filtrados["duracao_da_falha_em_segundos"].sum())
 
-    def duracao_media_atolamentos(self) -> float:
+    def duracao_media(self) -> float:
         if self._dados_filtrados.empty:
             return 0.0
         return float(self._dados_filtrados["duracao_da_falha_em_segundos"].mean())

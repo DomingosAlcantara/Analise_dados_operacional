@@ -52,7 +52,7 @@ class FalhasTecnicasModel:
     #         .sort_values(by="total_de_falhas", ascending=False)
     #     )
 
-    def total_falhas_tecnicas(self) -> int:
+    def total(self) -> int:
         """
         Retorna o total de falhas técnicas.
 
@@ -61,7 +61,7 @@ class FalhasTecnicasModel:
         """
         return int(self._dados_filtrados.shape[0])  # ["descrição_da_falha"].count()
 
-    def tempo_total_de_ocorrencias(self) -> float:
+    def tempo_total(self) -> float:
         """
         Retorna o tempo total de ocorrências das falhas técnicas.
 
@@ -73,17 +73,17 @@ class FalhasTecnicasModel:
 
         return float(self._dados_filtrados["duracao_da_falha_em_segundos"].sum())
 
-    def duracao_media_falha(self) -> float:
+    def duracao_media(self) -> float:
         """
         Retorna a duração média das falhas técnicas.
 
         Returns:
             float: Duração média das falhas em segundos.
         """
-        if self.total_falhas_tecnicas() == 0:
+        if self.total() == 0:
             return 0.0
 
-        return self.tempo_total_de_ocorrencias() / self.total_falhas_tecnicas()
+        return self.tempo_total() / self.total()
 
     def retornar_metricas_falhas_tecnicas(self, data_inicial, data_final):
         """
@@ -95,8 +95,8 @@ class FalhasTecnicasModel:
         self.filtrar_dados_por_data(data_inicial, data_final)
 
         return {
-            "total_de_falhas": self.total_falhas_tecnicas(),
+            "total_de_falhas": self.total(),
             # "media_objetos_por_falha": round(self.media_objetos_por_falhas(), 2),
-            "tempo_total_ocorrencias": self.tempo_total_de_ocorrencias(),
+            "tempo_total_ocorrencias": self.tempo_total(),
             "duracao_media_falha": self.duracao_media_falha(),
         }

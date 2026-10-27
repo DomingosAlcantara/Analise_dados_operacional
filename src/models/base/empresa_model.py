@@ -9,7 +9,15 @@ import pandas as pd
 
 from src.carregamento.data_loader import DataLoader
 from src.models.base.centro_tratamento_model import CentroTratamentoModel
-from src.models.managers.empresa_atolamentos_manager import EmpresaAtolamentosManager
+from src.models.managers.empresa_atolamentos_manager import (
+    EmpresaAtolamentosManager,
+)
+from src.models.managers.empresa_carga_induzida_manager import (
+    EmpresaCargaInduzidaManager,
+)
+from src.models.managers.empresa_falhas_tecnicas_manager import (
+    EmpresaFalhasTecnicasManager,
+)
 
 
 class EmpresaModel:
@@ -268,26 +276,26 @@ class EmpresaModel:
             self.retornar_tempo_total_de_ocorrencias() / self.retornar_total_de_falhas()
         )
 
-    def retornar_total_falhas_por_centro(self):
-        """
-        Retorna o total de falhas agrupado por centro de tratamento.
-         - Se não houver centro, retorna um DataFrame vazio com as colunas
-            esperadas.
-         - Caso contrário, itera sobre os centros, captura o nome e o total de
-            falhas, e retorna um DataFrame ordenado do maior para o menor
-        """
-        if not self.centros:
-            return pd.DataFrame(columns=["Centro de Tratamento", "Total de Falhas"])
+    # def retornar_total_falhas_por_centro(self):
+    #     """
+    #     Retorna o total de falhas agrupado por centro de tratamento.
+    #      - Se não houver centro, retorna um DataFrame vazio com as colunas
+    #         esperadas.
+    #      - Caso contrário, itera sobre os centros, captura o nome e o total de
+    #         falhas, e retorna um DataFrame ordenado do maior para o menor
+    #     """
+    #     if not self.centros:
+    #         return pd.DataFrame(columns=["Centro de Tratamento", "Total de Falhas"])
 
-        return pd.DataFrame(
-            [
-                {
-                    "Centro de Tratamento": centro.nome_abreviado,
-                    "Total de Falhas": centro.retornar_total_de_falhas(),
-                }
-                for centro in self.centros.values()
-            ]
-        ).sort_values(by="Total de Falhas", ascending=False)
+    #     return pd.DataFrame(
+    #         [
+    #             {
+    #                 "Centro de Tratamento": centro.nome_abreviado,
+    #                 "Total de Falhas": centro.retornar_total_de_falhas(),
+    #             }
+    #             for centro in self.centros.values()
+    #         ]
+    #     ).sort_values(by="Total de Falhas", ascending=False)
 
     def retornar_total_falhas_por_maquina(self):
         """
@@ -305,26 +313,27 @@ class EmpresaModel:
             "Total de Falhas",
         ).sort_values(by=["Total de Falhas"], ascending=[False])
 
-    def retornar_resumo_tempo_por_centro(self):
-        """
-        Retorna um DataFrame resumindo o tempo total e médio de falhas
-        agrupado por Centro de Tratamento
-        """
-        if not self.centros:
-            return pd.DataFrame(
-                columns=["Centro de Tratamento", "Tempo Total", "Tempo Médio"]
-            )
+    # TODO: Refatorar a partir daqui
+    # def retornar_resumo_tempo_por_centro(self):
+    #     """
+    #     Retorna um DataFrame resumindo o tempo total e médio de falhas
+    #     agrupado por Centro de Tratamento
+    #     """
+    #     if not self.centros:
+    #         return pd.DataFrame(
+    #             columns=["Centro de Tratamento", "Tempo Total", "Tempo Médio"]
+    #         )
 
-        return pd.DataFrame(
-            [
-                {
-                    "Centro de Tratamento": centro.nome_abreviado,
-                    "Tempo Total": centro.retornar_tempo_total_de_ocorrencias(),
-                    "Tempo Médio": centro.retornar_duracao_media_das_falhas(),
-                }
-                for centro in self.centros.values()
-            ]
-        ).sort_values(by="Tempo Total", ascending=False)
+    #     return pd.DataFrame(
+    #         [
+    #             {
+    #                 "Centro de Tratamento": centro.nome_abreviado,
+    #                 "Tempo Total": centro.retornar_tempo_total_de_ocorrencias(),
+    #                 "Tempo Médio": centro.retornar_duracao_media_das_falhas(),
+    #             }
+    #             for centro in self.centros.values()
+    #         ]
+    #     ).sort_values(by="Tempo Total", ascending=False)
 
     def retornar_duracao_media_falhas_por_centro(self):
         """
@@ -379,7 +388,7 @@ class EmpresaModel:
         agrupado por Maquina
         """
         if not self.centros:
-            return pd.DataFrame(columns=["Nº Máquina", "Tempo Total", "Tempo Médio"])
+            return pd.DataFrame(columns=["Máquina", "Tempo Total", "Tempo Médio"])
 
         return pd.DataFrame(
             [
@@ -398,3 +407,19 @@ class EmpresaModel:
         if not hasattr(self, "_atolamentos_manager"):
             self._atolamentos_manager = EmpresaAtolamentosManager(self.centros)
         return self._atolamentos_manager
+
+    @property
+    def carga_induzida(self):
+        if not hasattr(self, "_carga_induzida_manager"):
+            self._carga_induzida_manager = EmpresaCargaInduzidaManager(
+                self.centros,
+            )
+        return self._carga_induzida_manager
+
+    @property
+    def falhas_tecnicas(self):
+        if not hasattr(self, "_falhas_tecnicas_manager"):
+            self._falhas_tecnicas_manager = EmpresaFalhasTecnicasManager(
+                self.centros,
+            )
+        return self._falhas_tecnicas_manager
